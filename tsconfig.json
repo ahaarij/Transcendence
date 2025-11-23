@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "rootDir": "./srcs/frontend/srcs",
+    "outDir": "./srcs/frontend/dist",
+    "strict": true,
+    "moduleResolution": "node",
+    "allowJs": true
+  },
+  "include": [
+    "srcs/frontend/srcs/**/*"
+, "srcs/frontend/srcs/main.ts", "srcs/frontend/srcs/router.ts"  ]
+}
