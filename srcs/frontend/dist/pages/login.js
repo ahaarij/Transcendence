@@ -1,50 +1,54 @@
+import { t } from "../lang.js";
 export function LoginPage() {
     return `
-    <div class="p-6 max-w-md mx-auto">
-      <h1 class="text-3xl font-bold mb-6">Login</h1>
+     <div class="relative min-h-screen flex justify-center items-start pt-20">
+        <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-400 opacity-30 blur-[120px] rounded-full"></div>
+        <div class="relative p-8 max-w-md w-full bg-white rounded-2xl shadow-xl border border-white/10 backdrop-blur-sm">
 
-      <form id="loginForm" class="flex flex-col gap-4">
 
-        <div>
-          <label class="block mb-1 font-medium">Email</label>
-          <input 
-            id="email"
-            type="email"
-            class="w-full border p-2 rounded"
-            placeholder="Enter your email"
-          />
-        </div>
+            <h1 class="text-3xl font-bold mb-6">${t("login")}</h1>
 
-        <div>
-          <label class="block mb-1 font-medium">Password</label>
-          <input 
-            id="password"
-            type="password"
-            class="w-full border p-2 rounded"
-            placeholder="Enter your password"
-          />
-        </div>
+            <form id="loginForm" class="flex flex-col gap-4">
 
-        <button 
-          type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
-        >
-          Login
-        </button>
+              <div>
+                <label class="block mb-1 font-semibold text-gray-700">${t("email")}</label>
+                <input 
+                  id="email"
+                  type="email"
+                  class="w-full border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition"
+                  placeholder="Enter your email"
+                />
+              </div>
 
-        <button 
-          class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded mt-2"
-          id="googleBtn"
-        >
-          Sign in with Google (placeholder)
-        </button>
+              <div>
+              <label class="block mb-1 font-semibold text-gray-700">${t("password")}</label>  
+                <input 
+                  id="password"
+                  type="password"
+                  class="w-full border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition"
+                  placeholder="Enter your password"
+                />
+              </div>
 
-      </form>
+              <button 
+                type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg shadow transition">
+                ${t("login")}
+              </button>
 
-      <p class="mt-4">
-        Don't have an account? 
-        <a href="/register" data-link class="text-blue-600 underline">Register</a>
-        </p>
+              <button 
+                class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg shadow-md transition"
+              >
+                ${t("google_login")} (placeholder)
+              </button>
+
+            </form>
+
+            <p class="mt-4">
+              ${t("no_account")} 
+              <a href="/register" data-link class="text-blue-600 underline">${t("register")} </a>
+              </p>
+            </div>
         </div>
     `;
 }

@@ -1,0 +1,14 @@
+{
+  "login": "Connexion",
+  "register": "Inscription",
+  "email": "Email",
+  "password": "Mot de passe",
+  "confirm_password": "Confirmez le mot de passe",
+  "username": "Nom d'utilisateur",
+  "submit": "Valider",
+  "google_login": "Connexion avec Google",
+  "no_account": "Vous n'avez pas de compte ?",
+  "have_account": "Vous avez déjà un compte ?",
+  "language": "Langue",
+  "switch": "Changer"
+}
