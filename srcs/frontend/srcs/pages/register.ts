@@ -3,7 +3,7 @@ import { t } from "../lang.js";
 export function RegisterPage() {
   return `
     <div class="relative min-h-screen flex justify-center items-start pt-20">
-      <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-400 opacity-30 blur-[120px] rounded-full"></div>
+      <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-400 opacity-30 blur-[120px] rounded-full pointer-events-none"></div>
       <div class="relative p-8 max-w-md w-full bg-white rounded-2xl shadow-xl border border-white/10 backdrop-blur-sm">        
         <h1 class="text-3xl font-bold mb-6">${t("register")}</h1>
 

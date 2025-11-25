@@ -19,10 +19,17 @@ const routes = {
 };
 export function loadRoute() {
     let path = window.location.pathname;
-    // Handle index.html
+    const homeBtn = document.getElementById("homeBtn");
+    if (homeBtn) {
+        if (path === "/" || path === "/home") {
+            homeBtn.style.display = "none";
+        }
+        else {
+            homeBtn.style.display = "block";
+        }
+    }
     if (path === "/index.html")
         path = "/";
-    // Remove trailing slash
     if (path.endsWith("/") && path !== "/")
         path = path.slice(0, -1);
     const route = routes[path];
@@ -31,11 +38,13 @@ export function loadRoute() {
         app.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
         return;
     }
-    // Render page
-    app.innerHTML = route.render();
-    // Mount script
-    if (route.mount)
-        route.mount();
+    app.style.opacity = "0";
+    setTimeout(() => {
+        app.innerHTML = route.render();
+        if (route.mount)
+            route.mount();
+        app.style.opacity = "1";
+    }, 150);
 }
 export function navigate(path) {
     history.pushState({}, "", path);

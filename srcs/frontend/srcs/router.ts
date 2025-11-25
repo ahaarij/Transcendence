@@ -19,10 +19,17 @@ const routes: Record<string, Route> = {
 export function loadRoute() {
   let path = window.location.pathname;
 
-  // Handle index.html
+  const homeBtn = document.getElementById("homeBtn");
+  if (homeBtn) {
+    if (path === "/" || path === "/home") {
+      homeBtn.style.display = "none";
+    } else {
+      homeBtn.style.display = "block";
+    }
+  }
+
   if (path === "/index.html") path = "/";
 
-  // Remove trailing slash
   if (path.endsWith("/") && path !== "/") path = path.slice(0, -1);
 
   const route = routes[path];
@@ -33,11 +40,14 @@ export function loadRoute() {
     return;
   }
 
-  // Render page
-  app!.innerHTML = route.render();
+    app!.style.opacity = "0";
+    setTimeout(() => 
+    {
+      app!.innerHTML = route.render();
+      if (route.mount) route.mount();
+        app!.style.opacity = "1";
+    }, 150);
 
-  // Mount script
-  if (route.mount) route.mount();
 }
 
 export function navigate(path: string) {
