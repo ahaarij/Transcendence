@@ -3,10 +3,9 @@ export function SettingsPage() {
     return `
     <div class="relative min-h-screen flex flex-col items-center pt-20 text-black">
 
-      <img 
-        src="/assets/title.png"
-        class="w-full max-w-sm mb-10 drop-shadow-xl"
-      />
+        <h1 class="arcade-title text-white text-6xl md:text-7xl mb-12 drop-shadow-[0_0_15px_rgba(255,255,0,0.8)]">
+            Ding Dong
+        </h1>
 
       <div class="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md text-center">
         <h2 class="text-3xl font-bold mb-4">Settings</h2>

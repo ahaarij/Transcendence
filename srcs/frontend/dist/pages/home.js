@@ -5,11 +5,9 @@ export function HomePage() {
       style="background: url('/assets/background.png') center/cover no-repeat fixed;"
     >
 
-      <img 
-        src="/assets/title.png"
-        alt="Transcendence"
-        class="relative w-full max-w-md mb-12 drop-shadow-xl"
-      />
+      <h1 class="arcade-title text-white text-6xl md:text-7xl mb-12 drop-shadow-[0_0_15px_rgba(255,255,0,0.8)]">
+        Ding Dong
+      </h1>
 
       <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-6">
 
