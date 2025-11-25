@@ -2,7 +2,7 @@ export function HomePage() {
     return `
    <div 
       class="relative min-h-screen flex flex-col items-center pt-20"
-      style="background: url('/assets/background.png') center/cover no-repeat fixed;"
+      style="background: url('../assets/bg.png') center/cover no-repeat fixed;"
     >
 
       <h1 class="arcade-title text-white text-6xl md:text-7xl mb-12 drop-shadow-[0_0_15px_rgba(255,255,0,0.8)]">
