@@ -1,17 +1,72 @@
 export function HomePage() {
   return `
-    <div class="min-h-screen flex flex-col items-center justify-start py-20">
-      <div class="bg-white p-8 rounded-xl shadow border w-full max-w-2xl">
-        <h1 class="text-3xl font-bold mb-4">Home</h1>
-        <p>Welcome to Transcendence</p>
+   <div 
+      class="relative min-h-screen flex flex-col items-center pt-20"
+      style="background: url('/assets/background.png') center/cover no-repeat fixed;"
+    >
 
-        <nav class="mt-6 flex gap-6 text-blue-600 underline">
-          <a href="/login" data-link>Login</a>
-          <a href="/register" data-link>Register</a>
-        </nav>
+      <img 
+        src="/assets/title.png"
+        alt="Transcendence"
+        class="relative w-full max-w-md mb-12 drop-shadow-xl"
+      />
+
+      <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-6">
+
+        <div 
+          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition 
+                 text-center flex flex-col items-center justify-center"
+          data-link
+          href="/play"
+        >
+          <h2 class="text-2xl font-bold mb-2">Play</h2>
+          <p>Start a match or play AI mode.</p>
+        </div>
+
+        <div 
+          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+                 text-center flex flex-col items-center justify-center"
+          data-link
+          href="/account"
+        >
+          <h2 class="text-2xl font-bold mb-2">Account</h2>
+          <p>Change username, password, email, or profile picture.</p>
+        </div>
+
+        <div 
+          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+                 text-center flex flex-col items-center justify-center"
+          data-link
+          href="/stats"
+        >
+          <h2 class="text-2xl font-bold mb-2">Stats</h2>
+          <p>View win ratio, match history, and leaderboard.</p>
+        </div>
+
+        <div 
+          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+                 text-center flex flex-col items-center justify-center"
+          data-link
+          href="/friends"
+        >
+          <h2 class="text-2xl font-bold mb-2">Friends</h2>
+          <p>See your friends list and online status.</p>
+        </div>
+
       </div>
+
     </div>
   `;
 }
 
-export function mountHomePage() {}
+export function mountHomePage() {
+  // Make entire card clickable
+  document.querySelectorAll("[href][data-link]").forEach(el => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      const href = el.getAttribute("href");
+      if (href) history.pushState({}, "", href);
+      window.dispatchEvent(new Event("popstate"));
+    });
+  });
+}

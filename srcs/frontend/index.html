@@ -14,17 +14,38 @@
             background-color: transparent !important; 
             padding: 2rem;
         }
+          .home-card {
+        @apply bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/10 cursor-pointer transition hover:-translate-y-1 hover:shadow-2xl;
+        }
+        .home-card-title {
+          @apply text-xl font-bold mb-2;
+        }
+        .home-card-desc {
+          @apply text-gray-600;
+        }
     </style>
 </head>
-<body class="bg-blue-800 text-gray-900 min-h-screen z-50">
-    <button id="homeBtn"     class="fixed top-4 left-4 z-50 bg-white shadow p-2 rounded-full border hover:bg-gray-100 transition">
+<body class="min-h-screen text-gray-900"
+      style="background: url('./assets/bg.png') center/cover no-repeat fixed;">
+    
+   <div class="fixed top-4 left-4 flex flex-col gap-3 z-50">
+      <button id="homeBtn"
+        class="bg-white shadow p-2 px-4 rounded-full border hover:bg-gray-100 transition text-black">
         🏠 Home
-    </button>
+      </button>
+
+      <button id="settingsBtn"
+        class="bg-white shadow p-2 px-4 rounded-full border hover:bg-gray-100 transition text-black">
+        ⚙️ Settings
+      </button>
+    </div>
+
     <div id="app" class="transition-opacity duration-200"></div>
 
     <button id="langSwitch"
-            class="fixed top-4 right-4 z-50 bg-white shadow p-2 rounded-full border hover:bg-gray-100 transition">
-        🌍 Language
+        class="fixed top-4 right-4 bg-white shadow p-2 rounded-full border hover:bg-gray-100 transition flex items-center gap-2">
+        <span id="langIcon">🇬🇧</span> 
+        <span id="langLabel">EN</span>
     </button>
 
     <script type="module" src="./dist/main.js"></script>
