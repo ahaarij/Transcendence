@@ -1,12 +1,10 @@
-const Fastify = require("fastify");
-const cors = require("@fastify/cors");
+import Fastify from "fastify"; //safe for using app and not setting it to something dumb
+import cors from "@fastify/cors";
 
-function buildServer() {
-  const app = Fastify({ logger: true });
+export function buildServer() { 
+  const app = Fastify({ logger: true }); //creates fastify instance logger is true so we can work with requests
 
-  app.register(cors, { origin: "*" });
+  app.register(cors, { origin: "*" }); //registers the CORS plugin * for any domain
 
-  return app;
+  return app; //returns fastify instance
 }
-
-module.exports = { buildServer };

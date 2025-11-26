@@ -1,22 +1,10 @@
-const { buildServer } = require("../../shared/fastify");
-const jwt = require("@fastify/jwt");
-const prismaPlugin = require("../../shared/utils/prisma").default;
+import jwt from "@fastify/jwt"; // imports jwt for authentications and stuff
+import type { FastifyInstance } from 'fastify';
 
-async function start() {
-  const app = buildServer();
-
-  await app.register(jwt, { secret: "dev-secret" });
-  await app.register(prismaPlugin);
+export async function registerAuthRoutes(app: FastifyInstance) {
+  await app.register(jwt, { secret: process.env.JWT_ACCESS_SECRET || "dev-secret-fallback" });
 
   app.get("/auth/health", async () => ({ status: "ok", service: "auth" }));
-
-  try {
-    await app.listen({ port: 3001, host: "0.0.0.0" });
-    console.log("✅ Auth service running on http://localhost:3001");
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
+  
+  // TODO: Add more auth routes here (register, login, etc.)
 }
-
-start();

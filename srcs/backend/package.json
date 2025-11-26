@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "auth": "nodemon auth/src/main.js",
-    "user": "nodemon user/src/main.js",
+    "start": "tsx watch main.ts",
+    "dev": "tsx watch main.ts",
     "prisma:push": "npx prisma db push",
     "prisma:studio": "npx prisma studio",
     "prisma:generate": "npx prisma generate",
@@ -29,6 +29,7 @@
     "nodemon": "^3.1.11",
     "prisma": "^7.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.16.2",
     "typescript": "^5.9.3"
   }
 }
