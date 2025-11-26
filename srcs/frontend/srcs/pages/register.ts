@@ -1,4 +1,7 @@
 import { t } from "../lang.js";
+import { navigate } from "../router.js";
+import { registerRequest } from "../api/auth.js";
+
 
 export function RegisterPage() {
   return `
@@ -44,28 +47,36 @@ export function RegisterPage() {
   `;
 }
 
-export function mountRegisterPage() {
-  const form = document.getElementById("registerForm");
-  if (!form) return;
+export function mountRegisterPage()
+{
+	const form = document.getElementById("registerForm");
+	if (!form) return;
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+	form.addEventListener("submit", async (e) =>
+	{
+    	e.preventDefault();
 
-    const u = (document.getElementById("username") as HTMLInputElement).value;
-    const e1 = (document.getElementById("email") as HTMLInputElement).value;
-    const p1 = (document.getElementById("password") as HTMLInputElement).value;
-    const p2 = (document.getElementById("confirm") as HTMLInputElement).value;
+    	const username = (document.getElementById("username") as HTMLInputElement).value;
+    	const email    = (document.getElementById("email") as HTMLInputElement).value;
+    	const password = (document.getElementById("password") as HTMLInputElement).value;
 
-    if (!u || !e1 || !p1 || !p2) {
-      alert("Fill all fields.");
-      return;
+    if (!username || !email || !password)
+	{	
+    	alert("Fill all fields.");
+    	return;
     }
 
-    if (p1 !== p2) {
-      alert("Passwords do not match.");
-      return;
-    }
+    try 
+	{
+      await registerRequest(username, email, password);
 
-    alert("Register submitted (fake).");
-  });
+      // auto-login
+      sessionStorage.setItem("isLoggedIn", "true");
+
+      navigate("/home");
+    } 
+    catch (err: any) {
+      alert(err.message || "Registration failed");
+	}
+	});
 }

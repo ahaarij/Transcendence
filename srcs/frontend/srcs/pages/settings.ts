@@ -1,4 +1,5 @@
 import { navigate } from "../router.js";
+import { logoutRequest } from "../api/auth.js";
 
 export function SettingsPage() {
   return `
@@ -21,15 +22,24 @@ export function SettingsPage() {
   `;
 }
 
-export function mountSettingsPage() {
-  const btn = document.getElementById("logoutBtn");
+export function mountSettingsPage()
+{
+    const btn = document.getElementById("logoutBtn");
 
-  if (btn) {
-    btn.addEventListener("click", () => {
-    localStorage.removeItem("isLoggedIn");
-    sessionStorage.removeItem("isLoggedIn");
-
-    navigate("/lock");
-    });
+    if (btn)
+    {
+        btn.addEventListener("click", async () => {
+        try
+        {
+          await logoutRequest();
+        }
+        catch (_) {}
+      
+        localStorage.removeItem("isLoggedIn");
+        sessionStorage.removeItem("isLoggedIn");
+      
+        navigate("/lock");
+      });
   }
 }   
+

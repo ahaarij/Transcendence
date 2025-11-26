@@ -1,5 +1,6 @@
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
+import { loginRequest } from "../api/auth.js";
 
 export function LoginPage()
 {
@@ -44,30 +45,33 @@ export function mountLoginPage() {
   const form = document.getElementById("loginForm");
   if (!form) return;
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const email = (document.getElementById("email") as HTMLInputElement).value;
-  const pass = (document.getElementById("password") as HTMLInputElement).value;
-  const remember = (document.getElementById("remember") as HTMLInputElement).checked;
-
-  if (!email || !pass) {
-    alert("Fill all fields.");
-    return;
-  }
-
-  // Save login state WHY DOES REMEMBER  ME NOT WORK
-    if (remember) 
+    form.addEventListener("submit", async (e) =>
     {
-        localStorage.setItem("isLoggedIn", "true");
-        sessionStorage.removeItem("isLoggedIn");
-    }
-    else
-    {
-        sessionStorage.setItem("isLoggedIn", "true");
-        localStorage.removeItem("isLoggedIn");
-    }
+        e.preventDefault();
 
-  navigate("/home");
-});
+        const email = (document.getElementById("email") as HTMLInputElement).value;
+        const pass = (document.getElementById("password") as HTMLInputElement).value;
+        const remember = (document.getElementById("remember") as HTMLInputElement).checked;
+
+        try 
+        {
+            await loginRequest(email, pass);
+
+            if (remember)
+            {
+              localStorage.setItem("isLoggedIn", "true");
+            } 
+            else 
+            {
+              sessionStorage.setItem("isLoggedIn", "true");
+            }
+
+            navigate("/home");
+        }     
+        catch (err: any)
+        {
+            alert(err.message);
+        }
+    });
 }
+

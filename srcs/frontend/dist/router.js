@@ -25,7 +25,7 @@ export function loadRoute() {
     let path = window.location.pathname;
     const app = document.getElementById("app");
     const hideButtonsOn = ["/lock", "/login", "/register", "/"];
-    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true" ||
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true" ||
         sessionStorage.getItem("isLoggedIn") === "true";
     const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends"];
     if (!isLoggedIn && protectedRoutes.includes(path)) {

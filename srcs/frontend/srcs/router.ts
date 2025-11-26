@@ -28,7 +28,7 @@ export function loadRoute()
 	const hideButtonsOn = ["/lock", "/login", "/register", "/"];
 
 
-	let isLoggedIn = 
+	const isLoggedIn = 
 	localStorage.getItem("isLoggedIn") === "true" ||
 	sessionStorage.getItem("isLoggedIn") === "true";
 
