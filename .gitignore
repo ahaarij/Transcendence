@@ -1,0 +1,10 @@
+# Ignore node modules in any subdirectory
+**/node_modules/
+**/dist/
+**/.DS_Store
+
+# Logs
+*.log
+
+
+      
