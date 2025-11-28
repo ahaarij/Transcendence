@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Authentication Service
+  auth:
+    build:
+      context: .
+      dockerfile: auth/Dockerfile
+    container_name: transcendence-auth
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/dev.db
+    volumes:
+      - sqlite-data:/app/data
+      - ./prisma:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # User Management Service
+  user:
+    build:
+      context: .
+      dockerfile: user/Dockerfile
+    container_name: transcendence-user
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/dev.db
+    volumes:
+      - sqlite-data:/app/data
+      - ./prisma:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/user/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - auth
+
+# Shared SQLite database volume
+volumes:
+  sqlite-data:
+    driver: local
+
+# Network for service communication
+networks:
+  transcendence-network:
+    driver: bridge
