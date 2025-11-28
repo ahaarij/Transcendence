@@ -8,12 +8,14 @@ export async function registerAuthRoutes(app: FastifyInstance) {
   app.get("/auth/health", async () => ({ status: "ok", service: "auth" })); //to check health
   
   app.post("/auth/register", async (request, reply) => {   //register a new user
-	const {email, password} = request.body as {
+	const {username, email, password} = request.body as {
+		username: string;
 		email: string;
 		password: string;
 	};
-	if (!email || !password)
-		return (reply.status(400).send({error: "Email and password required"}));
+	if (!username || !email || !password)
+		return (reply.status(400).send({error: "Username, email and password required"}));
+	
 	const exist_email = await app.prisma.user.findUnique({
 		where : {email},
 	});
@@ -21,10 +23,20 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 	if (exist_email){
 		return (reply.status(400).send({error: "Email already registered"}));
 	}
+
+	const exist_username = await app.prisma.user.findUnique({
+		where : {username},
+	});
+
+	if (exist_username){
+		return (reply.status(400).send({error: "Username already registered"}));
+	}
+	
 	const hash_pass = await bcrypt.hash(password, 10);
 
 	const user = await app.prisma.user.create({
 		data:{
+			username,
 			email,
 			password: hash_pass,
 		},
@@ -36,6 +48,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 		jwt_token,
 		user: {
 			id: user.id,
+			username: user.username,
 			email: user.email,
 		},
 	});
@@ -68,6 +81,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 		token,
 		user: {
 			id: user.id,
+			username: user.username,
 			email: user.email,
 		},
 	}));
@@ -91,6 +105,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
         where: { id: decode.userId },
         select: {
           id: true,
+          username: true,
           email: true,
           createdAt: true,
         },
