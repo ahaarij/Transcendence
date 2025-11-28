@@ -55,7 +55,10 @@ export function mountLoginPage() {
 
         try 
         {
-            await loginRequest(email, pass);
+            const res = await loginRequest(email, pass);
+            const token = res.token; // backend returns "token" hopefully
+          
+            localStorage.setItem("authToken", token); 
 
             if (remember)
             {

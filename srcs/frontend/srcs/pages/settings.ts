@@ -35,6 +35,8 @@ export function mountSettingsPage()
         }
         catch (_) {}
       
+        localStorage.removeItem("authToken");
+        sessionStorage.removeItem("authToken");
         localStorage.removeItem("isLoggedIn");
         sessionStorage.removeItem("isLoggedIn");
       

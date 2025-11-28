@@ -4,6 +4,7 @@ import { RegisterPage, mountRegisterPage } from "./pages/register.js";
 import { LockPage, mountLockPage } from "./pages/lock.js";
 import { loadLanguage, currentLang } from "./lang.js";
 import { SettingsPage, mountSettingsPage } from "./pages/settings.js";
+import { meRequest } from "./api/auth.js";
 
 type Route = {
   render: () => string;
@@ -20,7 +21,7 @@ const routes: Record<string, Route> =
 	"/settings": { render: SettingsPage, mount: mountSettingsPage },
 };
 
-export function loadRoute()
+export async function loadRoute()
 {	
 	let path = window.location.pathname;
 	const app = document.getElementById("app");
@@ -28,9 +29,23 @@ export function loadRoute()
 	const hideButtonsOn = ["/lock", "/login", "/register", "/"];
 
 
-	const isLoggedIn = 
-	localStorage.getItem("isLoggedIn") === "true" ||
-	sessionStorage.getItem("isLoggedIn") === "true";
+	let token = localStorage.getItem("token") || sessionStorage.getItem("token");
+
+	let isLoggedIn = false;
+
+	if (token) {
+  	try {
+    // Ask backend if the token is valid
+    	const res = await meRequest();
+    	isLoggedIn = !!res.user;
+  	} 
+  	catch 
+	{ //invaid token
+    	localStorage.removeItem("token");
+    	sessionStorage.removeItem("token");
+    	isLoggedIn = false;
+  	}
+}
 
 	const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends"];
 
