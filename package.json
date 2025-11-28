@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@prisma/client": "^7.0.0",
+    "fastify": "^5.6.2",
+    "fastify-cors": "^6.1.0",
+    "fastify-jwt": "^4.2.0",
+    "fastify-plugin": "^5.1.0",
+    "tsc": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "nodemon": "^3.1.11",
+    "prisma": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

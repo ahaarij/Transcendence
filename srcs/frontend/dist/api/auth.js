@@ -17,5 +17,11 @@ export function logoutRequest() {
     });
 }
 export function meRequest() {
-    return apiRequest("/auth/me");
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    return apiRequest("/auth/me", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    });
 }

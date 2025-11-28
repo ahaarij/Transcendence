@@ -89,10 +89,10 @@ export async function loadRoute()
 	}, 150);
 }
 
-export function navigate(path: string)
+export async function navigate(path: string)
 {
 	history.pushState({}, "", path);
-	loadRoute();
+	await loadRoute();
 }
 
 export function initRouter()

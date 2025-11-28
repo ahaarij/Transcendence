@@ -68,7 +68,7 @@ export function mountRegisterPage()
 
     try 
 	{
-      const res = await registerRequest(email, password);
+      const res = await registerRequest(username, email, password);
       const token = res.jwt_token; // backend returns jwt_token
     
       localStorage.setItem("authToken", token);

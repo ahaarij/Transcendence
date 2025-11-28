@@ -57,14 +57,21 @@ export function mountLoginPage() {
         const pass = document.getElementById("password").value;
         const remember = document.getElementById("remember").checked;
         try {
-            yield loginRequest(email, pass);
+            const res = yield loginRequest(email, pass);
+            console.log("Login response:", res); // Debug log
+            const token = res.token; // backend returns "token" hopefully
+            if (!token) {
+                throw new Error("No token received from server");
+            }
+            // Store with consistent key name "token"
             if (remember) {
-                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("token", token);
             }
             else {
-                sessionStorage.setItem("isLoggedIn", "true");
+                sessionStorage.setItem("token", token);
             }
-            navigate("/home");
+            console.log("Navigating to /home"); // Debug log
+            yield navigate("/home");
         }
         catch (err) {
             alert(err.message);

@@ -56,20 +56,22 @@ export function mountLoginPage() {
         try 
         {
             const res = await loginRequest(email, pass);
+            console.log("Login response:", res); // Debug log
             const token = res.token; // backend returns "token" hopefully
           
-            localStorage.setItem("authToken", token); 
-
-            if (remember)
-            {
-              localStorage.setItem("isLoggedIn", "true");
-            } 
-            else 
-            {
-              sessionStorage.setItem("isLoggedIn", "true");
+            if (!token) {
+              throw new Error("No token received from server");
             }
-
-            navigate("/home");
+          
+            // Store with consistent key name "token"
+            if (remember) {
+              localStorage.setItem("token", token);
+            } else {
+              sessionStorage.setItem("token", token);
+            }
+            
+            console.log("Navigating to /home"); // Debug log
+            await navigate("/home");
         }     
         catch (err: any)
         {

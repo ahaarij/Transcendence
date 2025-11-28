@@ -8,13 +8,16 @@ export async function registerAuthRoutes(app: FastifyInstance) {
   app.get("/auth/health", async () => ({ status: "ok", service: "auth" })); //to check health
   
   app.post("/auth/register", async (request, reply) => {   //register a new user
-	const {username, email, password} = request.body as {
-		username: string;
-		email: string;
-		password: string;
-	};
-	if (!username || !email || !password)
-		return (reply.status(400).send({error: "Username, email and password required"}));
+	try {
+		const {username, email, password} = request.body as {
+			username: string;
+			email: string;
+			password: string;
+		};
+		console.log("Register request body:", request.body);
+		
+		if (!username || !email || !password)
+			return (reply.status(400).send({error: "Username, email and password required"}));
 	
 	const exist_email = await app.prisma.user.findUnique({
 		where : {email},
@@ -42,17 +45,23 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 		},
 	});
 
-	const jwt_token = app.jwt.sign({ userId: user.id});
+		const jwt_token = app.jwt.sign({ userId: user.id});
 
-	return reply.send({
-		jwt_token,
-		user: {
-			id: user.id,
-			username: user.username,
-			email: user.email,
-		},
-	});
-    
+		return reply.send({
+			jwt_token,
+			user: {
+				id: user.id,
+				username: user.username,
+				email: user.email,
+			},
+		});
+	} catch (error) {
+		console.error("Registration error:", error);
+		return reply.status(500).send({ 
+			error: "Internal server error", 
+			details: error instanceof Error ? error.message : "Unknown error" 
+		});
+	}
   });
   
   app.post("/auth/login", async (request, reply) => {
@@ -75,7 +84,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     return reply.status(401).send({ error: "Invalid email or password" });
 	}
    
-	const token = app.jwt.sign({ userID: user.id });
+	const token = app.jwt.sign({ userId: user.id }); // Fixed: userId instead of userID
 
     return (reply.send({
 		token,

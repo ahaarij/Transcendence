@@ -9,12 +9,12 @@ export function loginRequest(email: string, password: string)
     });
 }
 
-export function registerRequest(email: string, password: string)
+export function registerRequest(username: string, email: string, password: string)
 {
     return apiRequest("/auth/register",
     {
         method: "POST",
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({username, email, password })
     });
 }
 

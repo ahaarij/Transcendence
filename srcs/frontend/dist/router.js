@@ -13,6 +13,7 @@ import { RegisterPage, mountRegisterPage } from "./pages/register.js";
 import { LockPage, mountLockPage } from "./pages/lock.js";
 import { loadLanguage, currentLang } from "./lang.js";
 import { SettingsPage, mountSettingsPage } from "./pages/settings.js";
+import { meRequest } from "./api/auth.js";
 const routes = {
     "/": { render: LockPage, mount: mountLockPage },
     "/home": { render: HomePage, mount: mountHomePage },
@@ -22,50 +23,67 @@ const routes = {
     "/settings": { render: SettingsPage, mount: mountSettingsPage },
 };
 export function loadRoute() {
-    let path = window.location.pathname;
-    const app = document.getElementById("app");
-    const hideButtonsOn = ["/lock", "/login", "/register", "/"];
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true" ||
-        sessionStorage.getItem("isLoggedIn") === "true";
-    const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends"];
-    if (!isLoggedIn && protectedRoutes.includes(path)) {
-        history.replaceState({}, "", "/");
-        path = "/";
-    }
-    if (path === "/index.html")
-        path = "/";
-    if (path.endsWith("/") && path !== "/")
-        path = path.slice(0, -1);
-    const route = routes[path];
-    if (!route) {
-        app.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
-        return;
-    }
-    const homeBtn = document.getElementById("homeBtn");
-    const settingsBtn = document.getElementById("settingsBtn");
-    if (hideButtonsOn.includes(path)) {
-        if (homeBtn)
-            homeBtn.style.display = "none";
-        if (settingsBtn)
-            settingsBtn.style.display = "none";
-    }
-    else {
-        if (homeBtn)
-            homeBtn.style.display = "block";
-        if (settingsBtn)
-            settingsBtn.style.display = "block";
-    }
-    app.style.opacity = "0";
-    setTimeout(() => {
-        app.innerHTML = route.render();
-        if (route.mount)
-            route.mount();
-        app.style.opacity = "1";
-    }, 150);
+    return __awaiter(this, void 0, void 0, function* () {
+        let path = window.location.pathname;
+        const app = document.getElementById("app");
+        const hideButtonsOn = ["/lock", "/login", "/register", "/"];
+        let token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        let isLoggedIn = false;
+        if (token) {
+            try {
+                // Ask backend if the token is valid
+                const res = yield meRequest();
+                isLoggedIn = !!res.user;
+            }
+            catch ( //invaid token
+            _a) { //invaid token
+                localStorage.removeItem("token");
+                sessionStorage.removeItem("token");
+                isLoggedIn = false;
+            }
+        }
+        const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends"];
+        if (!isLoggedIn && protectedRoutes.includes(path)) {
+            history.replaceState({}, "", "/");
+            path = "/";
+        }
+        if (path === "/index.html")
+            path = "/";
+        if (path.endsWith("/") && path !== "/")
+            path = path.slice(0, -1);
+        const route = routes[path];
+        if (!route) {
+            app.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
+            return;
+        }
+        const homeBtn = document.getElementById("homeBtn");
+        const settingsBtn = document.getElementById("settingsBtn");
+        if (hideButtonsOn.includes(path)) {
+            if (homeBtn)
+                homeBtn.style.display = "none";
+            if (settingsBtn)
+                settingsBtn.style.display = "none";
+        }
+        else {
+            if (homeBtn)
+                homeBtn.style.display = "block";
+            if (settingsBtn)
+                settingsBtn.style.display = "block";
+        }
+        app.style.opacity = "0";
+        setTimeout(() => {
+            app.innerHTML = route.render();
+            if (route.mount)
+                route.mount();
+            app.style.opacity = "1";
+        }, 150);
+    });
 }
 export function navigate(path) {
-    history.pushState({}, "", path);
-    loadRoute();
+    return __awaiter(this, void 0, void 0, function* () {
+        history.pushState({}, "", path);
+        yield loadRoute();
+    });
 }
 export function initRouter() {
     var _a, _b;

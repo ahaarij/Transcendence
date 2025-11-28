@@ -37,6 +37,8 @@ export function mountSettingsPage() {
                 yield logoutRequest();
             }
             catch (_) { }
+            localStorage.removeItem("authToken");
+            sessionStorage.removeItem("authToken");
             localStorage.removeItem("isLoggedIn");
             sessionStorage.removeItem("isLoggedIn");
             navigate("/lock");
