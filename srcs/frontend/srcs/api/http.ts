@@ -2,8 +2,8 @@ export const BASE_URL = "http://localhost:3000";
 
 export async function apiRequest(url: string, options: any = {}) {
   const token =
-    localStorage.getItem("authToken") ||
-    sessionStorage.getItem("authToken");
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
 
   const headers: any = {
     "Content-Type": "application/json",

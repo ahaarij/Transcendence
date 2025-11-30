@@ -7,7 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-RUN npm ci --only=production
+# Install all dependencies (including tsx for running TypeScript)
+RUN npm ci
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
