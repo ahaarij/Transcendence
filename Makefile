@@ -1,12 +1,39 @@
-all:
-	tsc
-	@echo ""
-	@echo ""
-	@echo ""
-	@echo "Run localhost:8080 on a browser"
-	@echo ""
-	@echo ""
-	@echo ""
-	cd srcs/frontend && python3 -m http.server 8080
+all: up
 
-.PHONY: all
+up:
+	@echo "🐳 Building and starting Transcendence..."
+	cd srcs && docker-compose up --build -d
+	@echo ""
+	@echo "✅ Services started!"
+	@echo "📱 Frontend: http://localhost:8080"
+	@echo "🔐 Backend API: http://localhost:3000"
+	@echo ""
+
+down:
+	@echo "🛑 Stopping all services..."
+	cd srcs && docker-compose down
+
+logs:
+	cd srcs && docker-compose logs -f
+
+restart:
+	@echo "♻️  Restarting services..."
+	cd srcs && docker-compose restart
+
+clean:
+	@echo "🧹 Cleaning Docker resources..."
+	cd srcs && docker-compose down -v
+	docker system prune -f
+
+status:
+	cd srcs && docker-compose ps
+
+shell-backend:
+	docker exec -it transcendence-backend /bin/bash
+
+shell-frontend:
+	docker exec -it transcendence-frontend /bin/sh
+
+re: clean all
+
+.PHONY: all up down logs restart clean status shell-backend shell-frontend re

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Backend Service (Combined Auth + User on port 3000)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: transcendence-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:./prisma/dev.db
+      - PORT=3000
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-change-this-in-production}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-this-in-production}
+      - CORS_ORIGIN=http://localhost:8080
+    volumes:
+      - ./backend/prisma:/app/prisma
+      - backend-data:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: transcendence-frontend
+    ports:
+      - "8080:8080"
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+networks:
+  transcendence-network:
+    driver: bridge
+
+volumes:
+  backend-data:
