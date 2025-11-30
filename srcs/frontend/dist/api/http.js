@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 export const BASE_URL = "http://localhost:3000";
 export function apiRequest(url_1) {
     return __awaiter(this, arguments, void 0, function* (url, options = {}) {
-        const token = localStorage.getItem("authToken") ||
-            sessionStorage.getItem("authToken");
+        const token = localStorage.getItem("token") ||
+            sessionStorage.getItem("token");
         const headers = Object.assign({ "Content-Type": "application/json" }, (token ? { Authorization: `Bearer ${token}` } : {}));
         const res = yield fetch(BASE_URL + url, Object.assign(Object.assign({}, options), { headers }));
         if (!res.ok) {

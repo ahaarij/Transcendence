@@ -67,12 +67,9 @@ export function mountRegisterPage() {
             return;
         }
         try {
-            const res = yield registerRequest(username, email, password);
-            const token = res.jwt_token; // backend returns jwt_token
-            localStorage.setItem("authToken", token);
-            // auto-login
-            sessionStorage.setItem("isLoggedIn", "true");
-            navigate("/home");
+            yield registerRequest(username, email, password);
+            alert("Registration successful! Please login.");
+            navigate("/lock");
         }
         catch (err) {
             alert(err.message || "Registration failed");

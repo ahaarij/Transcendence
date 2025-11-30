@@ -47,6 +47,11 @@ export function loadRoute() {
             history.replaceState({}, "", "/");
             path = "/";
         }
+        // If logged in and on lock/root page, redirect to home
+        if (isLoggedIn && (path === "/" || path === "/lock")) {
+            history.replaceState({}, "", "/home");
+            path = "/home";
+        }
         if (path === "/index.html")
             path = "/";
         if (path.endsWith("/") && path !== "/")

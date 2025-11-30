@@ -68,14 +68,10 @@ export function mountRegisterPage()
 
     try 
 	{
-      const res = await registerRequest(username, email, password);
-      const token = res.jwt_token; // backend returns jwt_token
-    
-      localStorage.setItem("authToken", token);
-      // auto-login
-      sessionStorage.setItem("isLoggedIn", "true");
-
-      navigate("/home");
+      await registerRequest(username, email, password);
+      
+      alert("Registration successful! Please login.");
+      navigate("/lock");
     } 
     catch (err: any) {
       alert(err.message || "Registration failed");
