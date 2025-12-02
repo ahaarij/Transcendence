@@ -1,9 +1,28 @@
 import jwt from "@fastify/jwt"; // imports jwt for authentications and stuff
 import type { FastifyInstance } from 'fastify';
 import bcrypt from "bcryptjs"; //encrypt passwords
+import { OAuth2Client } from 'google-auth-library';
 
-export async function registerAuthRoutes(app: FastifyInstance) {
-  await app.register(jwt, { secret: process.env.JWT_ACCESS_SECRET || "dev-secret-fallback" });
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+async function generateRefreshToken(app: FastifyInstance, userId: number): Promise<string> { //makes the token last 7 days instead of 15 mins
+  return app.jwt.sign(
+    { userId, type: 'refresh' },
+    { expiresIn: '7d' } //this is a token used to get access tokens more secure
+  );
+}
+
+async function hashToken(token: string): Promise<string> { //encrypt passwords
+  return bcrypt.hash(token, 10);
+}
+
+export async function registerAuthRoutes(app: FastifyInstance) { //quick and easier way to register jwt tokens
+  await app.register(jwt, { 
+    secret: process.env.JWT_ACCESS_SECRET || "dev-secret-fallback",
+    sign: {
+      expiresIn: '15m' //why 15 mins its incase it gets hacked
+    }
+  });
 
   app.get("/auth/health", async () => ({ status: "ok", service: "auth" })); //to check health
   
@@ -45,16 +64,23 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 		},
 	});
 
-		const jwt_token = app.jwt.sign({ userId: user.id});
+	const accessToken = app.jwt.sign({ userId: user.id });
+	const refreshToken = await generateRefreshToken(app, user.id);
 
-		return reply.send({
-			jwt_token,
-			user: {
-				id: user.id,
-				username: user.username,
-				email: user.email,
-			},
-		});
+	await app.prisma.user.update({
+		where: { id: user.id },
+		data: { refreshToken },
+	});
+
+	return reply.send({
+		accessToken,
+		refreshToken,
+		user: {
+			id: user.id,
+			username: user.username,
+			email: user.email,
+		},
+	});
 	} catch (error) {
 		console.error("Registration error:", error);
 		return reply.status(500).send({ 
@@ -65,39 +91,70 @@ export async function registerAuthRoutes(app: FastifyInstance) {
   });
   
   app.post("/auth/login", async (request, reply) => {
-	const {email, password} = request.body as {
-		email: string;
-		password: string;
-	}
-	if (!email || !password)
-		return (reply.status(400).send({error: "Email and password required"}));
-    
-	const user = await app.prisma.user.findUnique({
-		where: { email },
-	});
-	if (!user){
-		return reply.status(401).send({error: "Invalid email or password"});
-	}
-    
-	const valid_pass = await bcrypt.compare(password, user.password);
-	if (!valid_pass) {
-    return reply.status(401).send({ error: "Invalid email or password" });
-	}
-   
-	const token = app.jwt.sign({ userId: user.id }); // Fixed: userId instead of userID
+	try {
+		const {email, password} = request.body as {
+			email: string;
+			password: string;
+		}
+		if (!email || !password)
+			return (reply.status(400).send({error: "Email and password required"}));
+		
+		const user = await app.prisma.user.findUnique({
+			where: { email },
+		});
+		if (!user || !user.password){
+			return reply.status(401).send({error: "Invalid email or password"});
+		}
+		
+		const valid_pass = await bcrypt.compare(password, user.password);
+		if (!valid_pass) {
+			return reply.status(401).send({ error: "Invalid email or password" });
+		}
+		
+		const accessToken = app.jwt.sign({ userId: user.id });
+		const refreshToken = await generateRefreshToken(app, user.id);
 
-    return (reply.send({
-		token,
-		user: {
-			id: user.id,
-			username: user.username,
-			email: user.email,
-		},
-	}));
+		const hashedRefreshToken = await hashToken(refreshToken);
+		await app.prisma.user.update({
+			where: { id: user.id },
+			data: { refreshToken: hashedRefreshToken },
+		});
+
+		return reply.send({
+			accessToken,
+			refreshToken,
+			user: {
+				id: user.id,
+				username: user.username,
+				email: user.email,
+			},
+		});
+	} catch (error) {
+		console.error("Login error:", error);
+		return reply.status(500).send({ 
+			error: "Internal server error",
+			details: error instanceof Error ? error.message : "Unknown error"
+		});
+	}
   });
   
   app.post("/auth/logout", async (request, reply) => {
-    return { message: "Logged out successfully" };
+    try {
+      const authHeader = request.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.split(" ")[1];
+        const decoded = app.jwt.verify(token) as { userId: number };
+        
+        await app.prisma.user.update({
+          where: { id: decoded.userId },
+          data: { refreshToken: null },
+        });
+      }
+      
+      return { message: "Logged out successfully" };
+    } catch (error) {
+      return { message: "Logged out successfully" };
+    }
   });
   
   app.get("/auth/me", async (request, reply) => {
@@ -128,6 +185,115 @@ export async function registerAuthRoutes(app: FastifyInstance) {
     } catch (err) {
       console.error(err);
       return reply.status(401).send({ error: "Invalid or expired token" });
+    }
+  });
+
+  app.post("/auth/refresh", async (request, reply) => {
+    try {
+      const { refreshToken } = request.body as { refreshToken: string };
+      
+      if (!refreshToken) {
+        return reply.status(400).send({ error: "Refresh token required" });
+      }
+      const decoded = app.jwt.verify(refreshToken) as { userId: number; type?: string };
+      const user = await app.prisma.user.findUnique({
+        where: { id: decoded.userId },
+      });
+
+      if (!user || !user.refreshToken) {
+        return reply.status(401).send({ error: "Invalid refresh token" });
+      }
+
+      const isValidRefreshToken = await bcrypt.compare(refreshToken, user.refreshToken);
+
+      if (!isValidRefreshToken) {
+        return reply.status(401).send({ error: "Invalid refresh token" });
+      }
+
+      const newAccessToken = app.jwt.sign({ userId: user.id });
+
+      return reply.send({ accessToken: newAccessToken });
+    } catch (error) {
+      console.error("Refresh token error:", error);
+      return reply.status(401).send({ error: "Invalid or expired refresh token" });
+    }
+  });
+
+  app.post("/auth/google", async (request, reply) => {
+    try {
+      const { idToken } = request.body as { idToken: string };
+      
+      if (!idToken) {
+        return reply.status(400).send({ error: "Google ID token required" });
+      }
+
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) {
+        return reply.status(401).send({ error: "Invalid Google token" });
+      }
+
+      const { sub: googleId, email, name } = payload;
+
+      if (!email) {
+        return reply.status(400).send({ error: "Email not provided by Google" });
+      }
+
+      let user = await app.prisma.user.findFirst({
+        where: {
+          OR: [
+            { googleId },
+            { email },
+          ],
+        },
+      });
+
+      if (!user) {
+        const username = name || email.split('@')[0];
+        
+        user = await app.prisma.user.create({
+          data: {
+            username,
+            email,
+            googleId,
+            password: null,
+          },
+        });
+      } else if (!user.googleId) {
+        user = await app.prisma.user.update({
+          where: { id: user.id },
+          data: { googleId },
+        });
+      }
+
+      const accessToken = app.jwt.sign({ userId: user.id });
+      const refreshToken = await generateRefreshToken(app, user.id);
+
+      const hashedRefreshToken = await hashToken(refreshToken);
+      await app.prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: hashedRefreshToken },
+      });
+
+      return reply.send({
+        accessToken,
+        refreshToken,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        },
+      });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      return reply.status(500).send({ 
+        error: "Google authentication failed",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 }
