@@ -4,19 +4,35 @@ import { type GameState, GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_OFFSET, 
 export class PongEngine{
     public state: GameState;
     private lastPaddle : 1 | 2 | null = null; // prevent speed stacking on same paddle
+
+    public winningScore: number = 11; // default winning score
     constructor(){
-        this.state = {
+        this.state = this.resetGame();
+    }
+
+    public setWinningScore(score: number){
+        this.winningScore = score;
+    }
+
+    public restart(){
+        this.state = this.resetGame();
+    }
+
+    private resetGame(): GameState{
+        return {
             p1score: 0,
             p2score: 0,
             ball: {x: GAME_WIDTH / 2 - BALL_SIZE / 2, y: GAME_HEIGHT / 2 - BALL_SIZE / 2},
             p1: {x: PADDLE_OFFSET, y: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2},
             p2: {x: GAME_WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, y: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2},
-            ballVelocity: {x: BALL_SPEED, y: BALL_SPEED}
-
+            ballVelocity: {x: BALL_SPEED, y: BALL_SPEED},
+            winner: 0 // for later use to determine if someone has won
         }
     }
 
     public update(deltaTime: number= 1/60){
+
+        if (this.state.winner !== 0) return; // game over
         this.state.ball.x += this.state.ballVelocity.x * deltaTime * 60;
         this.state.ball.y += this.state.ballVelocity.y * deltaTime * 60;
         if (this.state.ball.y <= 0 ){
@@ -30,11 +46,23 @@ export class PongEngine{
         this.checkPaddleCollision();
         if (this.state.ball.x + BALL_SIZE <= 0){
             this.state.p2score += 1;
+            this.checkWinCondition();
             this.resetBall();
         }
         else if (this.state.ball.x >= GAME_WIDTH){
             this.state.p1score += 1;
+            this.checkWinCondition();
             this.resetBall();
+        }
+    }
+
+    // this method is commented out for now, but can be used later to check for win condition
+    private checkWinCondition(){
+        if (this.state.p1score >= this.winningScore){
+            this.state.winner = 1;
+        }
+        else if (this.state.p2score >= this.winningScore){
+            this.state.winner = 2;
         }
     }
 

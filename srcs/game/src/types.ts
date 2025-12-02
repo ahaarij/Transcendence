@@ -10,6 +10,7 @@ export interface GameState{
     ballVelocity: Point;
     p1: Point;
     p2: Point;
+    winner: 0 | 1 | 2;
 }
 
 export const GAME_WIDTH = 800;
