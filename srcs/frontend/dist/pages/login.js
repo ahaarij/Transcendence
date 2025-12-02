@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
-import { loginRequest } from "../api/auth.js";
+import { loginRequest, loginWithGoogle } from "../api/auth.js";
 export function LoginPage() {
     return `
      <div class="p-6 max-w-md mx-auto bg-white shadow-lg rounded-xl border border-gray-200 text-black">
@@ -38,6 +38,17 @@ export function LoginPage() {
           ${t("submit")}
         </button>
 
+        <div class="flex items-center my-2">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">OR</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <button id="googleLoginBtn" type="button" class="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg shadow hover:bg-gray-50 flex items-center justify-center gap-2 transition">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google logo" />
+            <span>Sign in with Google</span>
+        </button>
+
       </form>
 
       <p class="mt-4">
@@ -51,6 +62,12 @@ export function mountLoginPage() {
     const form = document.getElementById("loginForm");
     if (!form)
         return;
+    const googleBtn = document.getElementById("googleLoginBtn");
+    if (googleBtn) {
+        googleBtn.addEventListener("click", () => {
+            loginWithGoogle();
+        });
+    }
     form.addEventListener("submit", (e) => __awaiter(this, void 0, void 0, function* () {
         e.preventDefault();
         const email = document.getElementById("email").value;

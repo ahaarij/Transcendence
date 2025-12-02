@@ -1,4 +1,7 @@
-import { apiRequest } from "./http.js";
+import { apiRequest, BASE_URL } from "./http.js";
+export function loginWithGoogle() {
+    window.location.href = `${BASE_URL}/auth/google`;
+}
 export function loginRequest(email, password) {
     return apiRequest("/auth/login", {
         method: "POST",
