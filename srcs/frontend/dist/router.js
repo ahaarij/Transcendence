@@ -13,6 +13,7 @@ import { RegisterPage, mountRegisterPage } from "./pages/register.js";
 import { LockPage, mountLockPage } from "./pages/lock.js";
 import { loadLanguage, currentLang } from "./lang.js";
 import { SettingsPage, mountSettingsPage } from "./pages/settings.js";
+import { AccountPage, mountAccountPage } from "./pages/account.js";
 import { meRequest } from "./api/auth.js";
 const routes = {
     "/": { render: LockPage, mount: mountLockPage },
@@ -21,6 +22,7 @@ const routes = {
     "/register": { render: RegisterPage, mount: mountRegisterPage },
     "/lock": { render: LockPage, mount: mountLockPage },
     "/settings": { render: SettingsPage, mount: mountSettingsPage },
+    "/account": { render: AccountPage, mount: mountAccountPage },
 };
 export function loadRoute() {
     return __awaiter(this, void 0, void 0, function* () {
