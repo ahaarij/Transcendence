@@ -31,7 +31,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
             </div>
 
             <div id="aiOptions" style="display: none; margin-bottom: 20px;">
-                <p style="margin-bottom: 5px; color: #aaa;">SIDE</p>
+                <p style="margin-bottom: 5px; color: #aaa;">PLAYER SIDE</p>
                 <button id="btnLeft" class="btn selected">Left</button>
                 <button id="btnRight" class="btn">Right</button>
             </div>
@@ -57,10 +57,27 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
                 <button id="btn4Players" class="btn selected">4</button>
                 <button id="btn8Players" class="btn">8</button>
             </div>
+            <!-- Error Message Area -->
+            <p id="tourneyError" style="color: #ff4444; font-size: 14px; height: 20px; margin-bottom: 10px;"></p>
+
             <div id="playerInputs" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
             <button id="btnStartTourney" class="btn" style="border-color: white;">BEGIN TOURNAMENT</button>
             <br><br>
             <button id="btnBack" class="btn" style="font-size: 12px; border: none;">&lt; Back</button>
+        </div>
+
+        <!-- TOURNAMENT MATCH READY SCREEN -->
+        <div id="tournamentMatchScreen" style="display: none; text-align: center;">
+            <h2 style="margin-bottom: 10px; color: #aaa;">TOURNAMENT ROUND <span id="tourneyRoundDisplay">1</span></h2>
+            <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px;">A vs B</h1>
+            <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">START MATCH</button>
+        </div>
+
+         <!-- TOURNAMENT CHAMPION SCREEN -->
+        <div id="championScreen" style="display: none; text-align: center;">
+            <h2 style="margin-bottom: 20px; color: gold;">🏆 TOURNAMENT CHAMPION 🏆</h2>
+            <h1 id="championName" style="font-size: 60px; margin-bottom: 40px; color: white;">NAME</h1>
+            <button id="btnReturnMain" class="btn" style="padding: 15px 30px;">RETURN TO MENU</button>
         </div>
 
         <!-- GAME OVER SCREEN -->
@@ -95,6 +112,8 @@ let playerSide: 'Left' | 'Right' = 'Left';
 let winningScore: number = 11;
 let countDown = 3;
 let countDownTimer = 0;
+let displayP1name = "Player 1";
+let displayP2name = "Player 2";
 
 let tournamentPlayers: string[] = []; // names of players in tournament mode
 let tournamentBracket: {player1: string, player2: string}[] = []; // pairs of players for each match
@@ -109,6 +128,9 @@ const tournamentMenu = document.getElementById("tournamentMenu");
 const gameOverScreen = document.getElementById("gameOverScreen");
 const winnerText = document.getElementById("winnerText");
 const aiOptions = document.getElementById("aiOptions");
+const tournamentMatchScreen = document.getElementById("tournamentMatchScreen");
+const championScreen = document.getElementById("championScreen");
+const tourneyError = document.getElementById("tourneyError");
 
 
 document.getElementById("btnTourney")!.addEventListener("click", () => {
@@ -149,47 +171,73 @@ document.getElementById("btnBack")!.addEventListener("click", () => {
 
 document.getElementById("btnStartTourney")!.addEventListener("click", () => {
     tournamentPlayers = [];
+    const nameSet = new Set<string>();
     for (let i = 1; i <= tournamentSize; i++){
         const input = document.getElementById(`player${i}`) as HTMLInputElement; 
-        const name = input.value.trim() || `Player ${i}`; // this means if no name is entered, use default
+        const name = input.value.trim() || `Player ${i}`; // this means if no name is entered, use default)
+        if (nameSet.has(name)){
+            tourneyError!.innerText = `Error: Duplicate name "${name}". Please enter unique names.`;
+            return;
+        }
+        nameSet.add(name);
         tournamentPlayers.push(name);
     }
 
     tournamentBracket = [];
+    
+    //shuffle players
+    for (let i = tournamentPlayers.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [tournamentPlayers[i], tournamentPlayers[j]] = [tournamentPlayers[j], tournamentPlayers[i]];
+    }
+    
+    //pair players into matches
     for (let i = 0; i < tournamentPlayers.length; i += 2){
         //ok we need to pair players into matches, add shuffling later
         tournamentBracket.push({player1: tournamentPlayers[i], player2: tournamentPlayers[i+1]});
     }
-
     currentMatchIndex = 0;
     tournamentWinner = [];
-
-    startNextMatch();
+    tournamentRound = 1;
+    tournamentMenu!.style.display = "none";
+    prepareNextMatch();
 });
 
-function startNextMatch(){
+function prepareNextMatch(){
     if (currentMatchIndex < tournamentBracket.length){
         const match = tournamentBracket[currentMatchIndex];
-        alert(`Starting Match: ${match.player1} vs ${match.player2}`);
+        // alert(`Starting Match: ${match.player1} vs ${match.player2}`);
+        document.getElementById("tourneyRoundDisplay")!.innerText = tournamentRound.toString();
+        document.getElementById("matchupText")!.innerText = `${match.player1}  VS  ${match.player2}`;
+        displayP1name = match.player1;
+        displayP2name = match.player2;
+        uiLayer!.style.display = "flex";
+        tournamentMatchScreen!.style.display = "block";
+        mainMenu!.style.display = "none";
+        // tournamentMenu!.style.display = "none";
+        gameOverScreen!.style.display = "none";
+        
+        //old code with alerts
+        // engine.setWinningScore(5); // shorter matches for tournament
+        // engine.restart();
 
-        engine.setWinningScore(5); // shorter matches for tournament
-        engine.restart();
+        // resetInputs();
+        // tournamentMenu!.style.display = "none";
+        // uiLayer!.style.display = "none";
 
-        resetInputs();
-        tournamentMenu!.style.display = "none";
-        uiLayer!.style.display = "none";
+        // gameState = 'PLAYING';
 
-        gameState = 'PLAYING';
-        // gameMode = 'PvP'; // tournament is always PvP
-
-        aiLastUpdate = 0;
-        aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+        // aiLastUpdate = 0;
+        // aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
     }
     else{
         //tournament over
         if (tournamentBracket.length === 1){
-            alert(`Tournament Over! Winner: ${tournamentWinner[0]}`);
-            location.reload(); // simple way to reset everything for now
+            document.getElementById("championName")!.innerText = tournamentWinner[0];
+            championScreen!.style.display = "block";
+            tournamentMatchScreen!.style.display = "none";
+            gameOverScreen!.style.display = "none";
+            uiLayer!.style.display = "flex";
         }else{
             //setup next round
             const survivors = [...tournamentWinner]; //
@@ -200,14 +248,37 @@ function startNextMatch(){
             }
             currentMatchIndex = 0;
             tournamentRound += 1;
-            alert(`Starting Round ${tournamentRound}`);
-            startNextMatch();
+            // alert(`Starting Round ${tournamentRound}`);
+            prepareNextMatch();
         }
         // gameState = 'MENU';
         // tournamentMenu!.style.display = "none";
         // mainMenu!.style.display = "block";
     }
 }
+
+document.getElementById("btnStartMatch")!.addEventListener("click", () => {
+    tournamentMatchScreen!.style.display = "none";
+    uiLayer!.style.display = "none";
+
+    engine.setWinningScore(5); // shorter matches for tournament
+    engine.restart();
+    engine.state.winner = 0; // reset winner
+    resetInputs();
+    gameState = 'COUNTDOWN';
+    countDown = 3;
+    countDownTimer = performance.now();
+    gameMode = 'Tournament';
+    // aiLastUpdate = 0;
+    // aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+});
+
+// Return to main menu from champion screen
+document.getElementById("btnReturnMain")!.addEventListener("click", () => {
+    championScreen!.style.display = "none";
+    mainMenu!.style.display = "block";
+    gameState = 'MENU';
+});
 
 document.getElementById("btnPvP")!.addEventListener("click", () => {
     gameMode = 'PvP';
@@ -265,6 +336,14 @@ document.getElementById("btnStart")!.addEventListener("click", () => {
     mainMenu!.style.display = "none";
     uiLayer!.style.display = "none";
     gameOverScreen!.style.display = "none";
+
+    if (gameMode === 'PvP'){
+        displayP1name = "Player 1";
+        displayP2name = "Player 2";
+    } else if (gameMode === 'PvAI'){
+        displayP1name = playerSide === 'Left' ? "Player" : "AI";
+        displayP2name = playerSide === 'Right' ? "Player" : "AI";
+    }
     
     aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
     aiLastUpdate = 0;
@@ -335,11 +414,12 @@ function GameLoop(timestamp: number = 0)
             if (gameMode === 'Tournament'){
                 const match = tournamentBracket[currentMatchIndex];
                 const winnerName = engine.state.winner === 1 ? match.player1 : match.player2;
-                alert(`Match Over! Winner: ${winnerName}`);
+                // alert(`Match Over! Winner: ${winnerName}`);
                 tournamentWinner.push(winnerName);
                 currentMatchIndex += 1;
+                gameState = 'MENU'; 
                 engine.state.winner = 0; // reset winner for next match
-                startNextMatch();
+                prepareNextMatch();
                 // return; // exit the loop to avoid rendering game over screen immediately
             }else{
             gameState = 'GAMEOVER';
@@ -388,7 +468,7 @@ function showGameOverScreen(winner: number){
 const keysPressed: {[key : string] : boolean} = {};
 
 let aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2; //what y position the ai is trying to move to 
-const AI_REFRESH_RATE = 1000 // 1 second in milliseconds
+const AI_REFRESH_RATE = 1000; // 1 second in milliseconds
 let aiLastUpdate = 0; //timestamp of last AI update
 
 function runAi(timestamp: number){
@@ -512,9 +592,9 @@ function drawBall () {
 function drawScores(){
     context.fillStyle = "pink";
     context.font = "20px Monospace";
-    context.fillText("Player 1", GAME_WIDTH / 4 - 50, 40)
+    context.fillText(displayP1name, GAME_WIDTH / 4 - 50, 40)
     context.fillText(`${engine.state.p1score}`, GAME_WIDTH / 4 - 15, 70)
-    context.fillText("Player 2", (GAME_WIDTH - GAME_WIDTH / 4) - 50, 40)
+    context.fillText(displayP2name, (GAME_WIDTH - GAME_WIDTH / 4) - 50, 40)
     context.fillText(`${engine.state.p2score}`,  (GAME_WIDTH - GAME_WIDTH / 4) - 15, 70)
 }
 
