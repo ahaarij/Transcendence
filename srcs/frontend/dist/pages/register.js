@@ -2,6 +2,7 @@ import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { registerRequest, googleLoginRequest } from "../api/auth.js";
 import { config } from "../config.js";
+import { showToast } from "../utils/ui.js";
 export function RegisterPage() {
     return `
     <div class="relative min-h-screen flex justify-center items-start pt-20">
@@ -69,11 +70,12 @@ export function mountRegisterPage() {
                     if (!token)
                         throw new Error("No token received from server");
                     sessionStorage.setItem("token", token);
+                    showToast("Registered successfully!", "success");
                     await navigate("/home");
                 }
                 catch (err) {
                     console.error(err);
-                    alert(err.message || "Google registration failed");
+                    showToast(err.message || "Google registration failed", "error");
                 }
             }
         });
@@ -85,16 +87,16 @@ export function mountRegisterPage() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         if (!username || !email || !password) {
-            alert("Fill all fields.");
+            showToast("Fill all fields.", "error");
             return;
         }
         try {
             await registerRequest(username, email, password);
-            alert("Registration successful! Please login.");
+            showToast("Registration successful! Please login.", "success");
             navigate("/lock");
         }
         catch (err) {
-            alert(err.message || "Registration failed");
+            showToast(err.message || "Registration failed", "error");
         }
     });
 }

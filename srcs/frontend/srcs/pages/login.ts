@@ -2,6 +2,7 @@ import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { loginRequest, googleLoginRequest } from "../api/auth.js";
 import { config } from "../config.js";
+import { showToast } from "../utils/ui.js";
 
 declare const google: any;
 
@@ -71,10 +72,11 @@ export function mountLoginPage() {
                   // Google login is always treated as "remember me" or we can default to session
                   sessionStorage.setItem("token", token);
                   
+                  showToast("Logged in successfully!", "success");
                   await navigate("/home");
               } catch (err: any) {
                   console.error(err);
-                  alert(err.message || "Google login failed");
+                  showToast(err.message || "Google login failed", "error");
               }
           }
       });
@@ -111,11 +113,12 @@ export function mountLoginPage() {
             }
             
             console.log("Navigating to /home"); // Debug log
+            showToast("Logged in successfully!", "success");
             await navigate("/home");
         }     
         catch (err: any)
         {
-            alert(err.message);
+            showToast(err.message, "error");
         }
     });
 }

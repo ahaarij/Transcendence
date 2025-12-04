@@ -1,4 +1,6 @@
 import { meRequest } from "../api/auth.js";
+import { updateProfile } from "../api/user.js";
+import { showToast, showInputModal } from "../utils/ui.js";
 
 export function AccountPage() {
   return `
@@ -12,9 +14,18 @@ export function AccountPage() {
       <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-black flex flex-col gap-6">
         
         <!-- Profile Picture -->
-        <div class="flex flex-col items-center">
-          <div class="w-32 h-32 rounded-full bg-gray-200 border-4 border-blue-500 overflow-hidden mb-4 shadow-md">
+        <div class="flex flex-col items-center relative group">
+          <div class="w-32 h-32 rounded-full bg-gray-200 border-4 border-blue-500 overflow-hidden mb-4 shadow-md relative">
             <img id="profilePic" src="https://via.placeholder.com/150" alt="Profile" class="w-full h-full object-cover" />
+            
+            <!-- Hidden File Input -->
+            <input type="file" id="avatarInput" accept="image/*" class="hidden" />
+            
+            <!-- Overlay -->
+            <div id="changeAvatarOverlay" class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                <span class="text-white text-xs font-bold">Change</span>
+                <span class="text-white text-[10px]">(Drop or Click)</span>
+            </div>
           </div>
           <h2 id="usernameDisplay" class="text-2xl font-bold text-gray-800">Loading...</h2>
           <p id="userIdDisplay" class="text-sm text-gray-500">ID: ...</p>
@@ -55,34 +66,101 @@ export function mountAccountPage() {
   const emailDisplay = document.getElementById("emailDisplay");
   const createdAtDisplay = document.getElementById("createdAtDisplay");
   const profilePic = document.getElementById("profilePic") as HTMLImageElement;
+  const changeAvatarOverlay = document.getElementById("changeAvatarOverlay");
+  const avatarInput = document.getElementById("avatarInput") as HTMLInputElement;
 
-  meRequest()
-    .then((res) => {
-      const user = res.user;
-      if (user) {
-        if (usernameDisplay) usernameDisplay.textContent = user.username;
-        if (userIdDisplay) userIdDisplay.textContent = `ID: ${user.id}`;
-        if (emailDisplay) emailDisplay.textContent = user.email;
-        
-        if (createdAtDisplay && user.createdAt) {
-          const date = new Date(user.createdAt);
-          createdAtDisplay.textContent = date.toLocaleDateString();
-        }
+  const loadUser = () => {
+      meRequest()
+        .then((res) => {
+          const user = res.user;
+          if (user) {
+            if (usernameDisplay) usernameDisplay.textContent = user.username;
+            if (userIdDisplay) userIdDisplay.textContent = `ID: ${user.id}`;
+            if (emailDisplay) emailDisplay.textContent = user.email;
+            
+            if (createdAtDisplay && user.createdAt) {
+              const date = new Date(user.createdAt);
+              createdAtDisplay.textContent = date.toLocaleDateString();
+            }
 
-        // if user hasprofile pic url, set it here. using placeholder rnn.
-        // if (user.avatarUrl && profilePic) profilePic.src = user.avatarUrl;
+            if (user.avatar && profilePic) {
+                profilePic.src = user.avatar;
+            }
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch user data:", err);
+        });
+  };
+
+  loadUser();
+
+  // file selection
+  const handleFile = async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+          showToast("Please select an image file.", "error");
+          return;
       }
-    })
-    .catch((err) => {
-      console.error("Failed to fetch user data:", err);
-      alert("Failed to load account info. Please login again.");
-    });
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+          const base64 = e.target?.result as string;
+          if (base64) {
+              try {
+                  await updateProfile({ avatar: base64 });
+                  showToast("Avatar updated successfully!", "success");
+                  loadUser();
+              } catch (err: any) {
+                  showToast(err.message || "Failed to update avatar", "error");
+              }
+          }
+      };
+      reader.readAsDataURL(file);
+  };
+
+  // click to upload
+  changeAvatarOverlay?.addEventListener("click", () => {
+      avatarInput?.click();
+  });
+
+  avatarInput?.addEventListener("change", (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) handleFile(file);
+  });
+
+  // drag and DRop
+  const dropZone = changeAvatarOverlay?.parentElement;
+  
+  dropZone?.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropZone.classList.add("ring-4", "ring-blue-400");
+  });
+
+  dropZone?.addEventListener("dragleave", () => {
+      dropZone.classList.remove("ring-4", "ring-blue-400");
+  });
+
+  dropZone?.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("ring-4", "ring-blue-400");
+      
+      const file = e.dataTransfer?.files[0];
+      if (file) handleFile(file);
+  });
 
   document.getElementById("changeUsernameBtn")?.addEventListener("click", () => {
-    alert("Change Username feature coming soon!");
+    showInputModal("Change Username", "Enter new username", async (newUsername) => {
+        try {
+            await updateProfile({ username: newUsername });
+            showToast("Username updated successfully!", "success");
+            loadUser();
+        } catch (err: any) {
+            showToast(err.message || "Failed to update username", "error");
+        }
+    });
   });
 
   document.getElementById("changePasswordBtn")?.addEventListener("click", () => {
-    alert("Change Password feature coming soon!");
+    showToast("Change Password feature coming soon!", "success");
   });
 }

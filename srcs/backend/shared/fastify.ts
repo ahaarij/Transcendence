@@ -4,12 +4,20 @@ import fastifyStatic from "@fastify/static";
 import path from "path";
 
 export function buildServer() { 
-  const app = Fastify({ logger: true }); //creates fastify instance logger is true so we can work with requests
+  const app = Fastify({ 
+    logger: true,
+    bodyLimit: 1048576 * 10 // 10MB limit for base64 images
+  }); //creates fastify instance logger is true so we can work with requests
 
-  app.register(cors, { origin: "*" }); //registers the CORS plugin * for any domain
+  app.register(cors, { 
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+  });
 
   app.register(fastifyStatic, {
-    root: path.join(__dirname, "..", "public"),
+    root: path.join(process.cwd(), "public"),
     prefix: "/public/",
   });
 

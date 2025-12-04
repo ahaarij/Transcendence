@@ -2,6 +2,7 @@ import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { registerRequest, googleLoginRequest } from "../api/auth.js";
 import { config } from "../config.js";
+import { showToast } from "../utils/ui.js";
 
 declare const google: any;
 
@@ -76,10 +77,11 @@ export function mountRegisterPage()
                   
                   sessionStorage.setItem("token", token);
                   
+                  showToast("Registered successfully!", "success");
                   await navigate("/home");
               } catch (err: any) {
                   console.error(err);
-                  alert(err.message || "Google registration failed");
+                  showToast(err.message || "Google registration failed", "error");
               }
           }
       });
@@ -100,7 +102,7 @@ export function mountRegisterPage()
 
     if (!username || !email || !password)
 	{	
-    	alert("Fill all fields.");
+    	showToast("Fill all fields.", "error");
     	return;
     }
 
@@ -108,11 +110,11 @@ export function mountRegisterPage()
 	{
       await registerRequest(username, email, password);
       
-      alert("Registration successful! Please login.");
+      showToast("Registration successful! Please login.", "success");
       navigate("/lock");
     } 
     catch (err: any) {
-      alert(err.message || "Registration failed");
+      showToast(err.message || "Registration failed", "error");
 	}
 	});
 }

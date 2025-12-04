@@ -61,6 +61,7 @@ export async function registerAuthRoutes(app: FastifyInstance) { //quick and eas
 			username,
 			email,
 			password: hash_pass,
+			avatar: '/assets/default-avatar.png',
 		},
 	});
 
@@ -173,6 +174,7 @@ export async function registerAuthRoutes(app: FastifyInstance) { //quick and eas
           id: true,
           username: true,
           email: true,
+          avatar: true,
           createdAt: true,
         },
       });
@@ -237,7 +239,7 @@ export async function registerAuthRoutes(app: FastifyInstance) { //quick and eas
         return reply.status(401).send({ error: "Invalid Google token" });
       }
 
-      const { sub: googleId, email, name } = payload;
+      const { sub: googleId, email, name, picture } = payload;
 
       if (!email) {
         return reply.status(400).send({ error: "Email not provided by Google" });
@@ -260,13 +262,18 @@ export async function registerAuthRoutes(app: FastifyInstance) { //quick and eas
             username,
             email,
             googleId,
+            avatar: picture,
             password: null,
           },
         });
-      } else if (!user.googleId) {
+      } else {
+        // Update googleId if not set, and avatar if not set
         user = await app.prisma.user.update({
           where: { id: user.id },
-          data: { googleId },
+          data: { 
+            googleId: user.googleId || googleId,
+            avatar: user.avatar ? undefined : picture
+          },
         });
       }
 

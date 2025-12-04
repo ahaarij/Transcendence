@@ -2,6 +2,7 @@ import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { loginRequest, googleLoginRequest } from "../api/auth.js";
 import { config } from "../config.js";
+import { showToast } from "../utils/ui.js";
 export function LoginPage() {
     return `
      <div class="p-6 max-w-md mx-auto bg-white shadow-lg rounded-xl border border-gray-200 text-black">
@@ -64,11 +65,12 @@ export function mountLoginPage() {
                         throw new Error("No token received from server");
                     // Google login is always treated as "remember me" or we can default to session
                     sessionStorage.setItem("token", token);
+                    showToast("Logged in successfully!", "success");
                     await navigate("/home");
                 }
                 catch (err) {
                     console.error(err);
-                    alert(err.message || "Google login failed");
+                    showToast(err.message || "Google login failed", "error");
                 }
             }
         });
@@ -94,10 +96,11 @@ export function mountLoginPage() {
                 sessionStorage.setItem("token", token);
             }
             console.log("Navigating to /home"); // Debug log
+            showToast("Logged in successfully!", "success");
             await navigate("/home");
         }
         catch (err) {
-            alert(err.message);
+            showToast(err.message, "error");
         }
     });
 }
