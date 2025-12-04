@@ -23,11 +23,10 @@ export async function loadRoute() {
     let isLoggedIn = false;
     if (token) {
         try {
-            // Ask backend if the token is valid
             const res = await meRequest();
             isLoggedIn = !!res.user;
         }
-        catch { //invaid token
+        catch {
             localStorage.removeItem("token");
             sessionStorage.removeItem("token");
             isLoggedIn = false;

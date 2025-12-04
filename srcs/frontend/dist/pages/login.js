@@ -59,7 +59,7 @@ export function mountLoginPage() {
             loginWithGoogle();
         });
     }
-    form.addEventListener("submit", (e) => __awaiter(this, void 0, void 0, function* () {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = document.getElementById("email").value;
         const pass = document.getElementById("password").value;
@@ -67,7 +67,7 @@ export function mountLoginPage() {
         try {
             const res = await loginRequest(email, pass);
             console.log("Login response:", res); // Debug log
-            const token = res.accessToken; // backend returns "accessToken"
+            const token = res.token; // backend returns "token" hopefully
             if (!token) {
                 throw new Error("No token received from server");
             }

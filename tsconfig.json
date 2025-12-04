@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ESNext",
     "module": "ESNext",
     "rootDir": "./srcs/frontend/srcs",
     "outDir": "./srcs/frontend/dist",

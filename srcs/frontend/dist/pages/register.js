@@ -65,7 +65,7 @@ export function mountRegisterPage() {
             loginWithGoogle();
         });
     }
-    form.addEventListener("submit", (e) => __awaiter(this, void 0, void 0, function* () {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = document.getElementById("username").value;
         const email = document.getElementById("email").value;

@@ -48,7 +48,6 @@ export function AccountPage() {
   `;
 }
 export function mountAccountPage() {
-    var _a, _b;
     const usernameDisplay = document.getElementById("usernameDisplay");
     const userIdDisplay = document.getElementById("userIdDisplay");
     const emailDisplay = document.getElementById("emailDisplay");
@@ -68,6 +67,7 @@ export function mountAccountPage() {
                 const date = new Date(user.createdAt);
                 createdAtDisplay.textContent = date.toLocaleDateString();
             }
+            // if user hasprofile pic url, set it here. using placeholder rnn.
             // if (user.avatarUrl && profilePic) profilePic.src = user.avatarUrl;
         }
     })
@@ -75,10 +75,10 @@ export function mountAccountPage() {
         console.error("Failed to fetch user data:", err);
         alert("Failed to load account info. Please login again.");
     });
-    (_a = document.getElementById("changeUsernameBtn")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", () => {
+    document.getElementById("changeUsernameBtn")?.addEventListener("click", () => {
         alert("Change Username feature coming soon!");
     });
-    (_b = document.getElementById("changePasswordBtn")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", () => {
+    document.getElementById("changePasswordBtn")?.addEventListener("click", () => {
         alert("Change Password feature coming soon!");
     });
 }
