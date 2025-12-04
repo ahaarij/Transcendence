@@ -1,6 +1,7 @@
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
-import { registerRequest, loginWithGoogle } from "../api/auth.js";
+import { registerRequest, googleLoginRequest } from "../api/auth.js";
+import { config } from "../config.js";
 export function RegisterPage() {
     return `
     <div class="relative min-h-screen flex justify-center items-start pt-20">
@@ -40,10 +41,7 @@ export function RegisterPage() {
             <div class="flex-grow border-t border-gray-300"></div>
           </div>
 
-          <button id="googleRegisterBtn" type="button" class="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg shadow hover:bg-gray-50 flex items-center justify-center gap-2 transition">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google logo" />
-            <span>Sign up with Google</span>
-          </button>
+          <div id="googleRegisterBtn" class="w-full flex justify-center"></div>
 
         </form>
 
@@ -59,11 +57,27 @@ export function mountRegisterPage() {
     const form = document.getElementById("registerForm");
     if (!form)
         return;
-    const googleBtn = document.getElementById("googleRegisterBtn");
-    if (googleBtn) {
-        googleBtn.addEventListener("click", () => {
-            loginWithGoogle();
+    // Initialize Google Auth
+    if (typeof google !== 'undefined' && document.getElementById("googleRegisterBtn")) {
+        google.accounts.id.initialize({
+            client_id: config.GOOGLE_CLIENT_ID,
+            callback: async (response) => {
+                try {
+                    const res = await googleLoginRequest(response.credential);
+                    console.log("Google Register response:", res);
+                    const token = res.accessToken;
+                    if (!token)
+                        throw new Error("No token received from server");
+                    sessionStorage.setItem("token", token);
+                    await navigate("/home");
+                }
+                catch (err) {
+                    console.error(err);
+                    alert(err.message || "Google registration failed");
+                }
+            }
         });
+        google.accounts.id.renderButton(document.getElementById("googleRegisterBtn"), { theme: "outline", size: "large", width: "100%", text: "signup_with" });
     }
     form.addEventListener("submit", async (e) => {
         e.preventDefault();

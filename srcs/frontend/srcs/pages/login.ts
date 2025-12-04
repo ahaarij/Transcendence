@@ -1,6 +1,9 @@
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
-import { loginRequest, loginWithGoogle } from "../api/auth.js";
+import { loginRequest, googleLoginRequest } from "../api/auth.js";
+import { config } from "../config.js";
+
+declare const google: any;
 
 export function LoginPage()
 {
@@ -37,10 +40,7 @@ export function LoginPage()
             <div class="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <button id="googleLoginBtn" type="button" class="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg shadow hover:bg-gray-50 flex items-center justify-center gap-2 transition">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google logo" />
-            <span>Sign in with Google</span>
-        </button>
+        <div id="googleLoginBtn" class="w-full flex justify-center"></div>
 
       </form>
 
@@ -56,11 +56,33 @@ export function mountLoginPage() {
   const form = document.getElementById("loginForm");
   if (!form) return;
 
-  const googleBtn = document.getElementById("googleLoginBtn");
-  if (googleBtn) {
-      googleBtn.addEventListener("click", () => {
-          loginWithGoogle();
+  // Initialize Google Auth
+  if (typeof google !== 'undefined' && document.getElementById("googleLoginBtn")) {
+      google.accounts.id.initialize({
+          client_id: config.GOOGLE_CLIENT_ID,
+          callback: async (response: any) => {
+              try {
+                  const res = await googleLoginRequest(response.credential);
+                  console.log("Google Login response:", res);
+                  const token = res.accessToken;
+                  
+                  if (!token) throw new Error("No token received from server");
+                  
+                  // Google login is always treated as "remember me" or we can default to session
+                  sessionStorage.setItem("token", token);
+                  
+                  await navigate("/home");
+              } catch (err: any) {
+                  console.error(err);
+                  alert(err.message || "Google login failed");
+              }
+          }
       });
+      
+      google.accounts.id.renderButton(
+          document.getElementById("googleLoginBtn"),
+          { theme: "outline", size: "large", width: "100%" }
+      );
   }
 
     form.addEventListener("submit", async (e) =>
@@ -75,7 +97,7 @@ export function mountLoginPage() {
         {
             const res = await loginRequest(email, pass);
             console.log("Login response:", res); // Debug log
-            const token = res.token; // backend returns "token" hopefully
+            const token = res.accessToken; // backend returns "accessToken"
           
             if (!token) {
               throw new Error("No token received from server");

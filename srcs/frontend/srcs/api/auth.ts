@@ -13,6 +13,13 @@ export function loginRequest(email: string, password: string)
     });
 }
 
+export function googleLoginRequest(idToken: string) {
+    return apiRequest("/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ idToken })
+    });
+}
+
 export function registerRequest(username: string, email: string, password: string)
 {
     return apiRequest("/auth/register",

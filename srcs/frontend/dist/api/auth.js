@@ -8,6 +8,12 @@ export function loginRequest(email, password) {
         body: JSON.stringify({ email, password })
     });
 }
+export function googleLoginRequest(idToken) {
+    return apiRequest("/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ idToken })
+    });
+}
 export function registerRequest(username, email, password) {
     return apiRequest("/auth/register", {
         method: "POST",
