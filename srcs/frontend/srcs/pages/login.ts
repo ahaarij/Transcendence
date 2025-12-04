@@ -57,7 +57,7 @@ export function mountLoginPage() {
         {
             const res = await loginRequest(email, pass);
             console.log("Login response:", res); // Debug log
-            const token = res.token; // backend returns "token" hopefully
+            const token = res.accessToken; // backend returns "accessToken"
           
             if (!token) {
               throw new Error("No token received from server");

@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { registerRequest } from "../api/auth.js";
@@ -57,7 +48,7 @@ export function mountRegisterPage() {
     const form = document.getElementById("registerForm");
     if (!form)
         return;
-    form.addEventListener("submit", (e) => __awaiter(this, void 0, void 0, function* () {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const username = document.getElementById("username").value;
         const email = document.getElementById("email").value;
@@ -67,12 +58,12 @@ export function mountRegisterPage() {
             return;
         }
         try {
-            yield registerRequest(username, email, password);
+            await registerRequest(username, email, password);
             alert("Registration successful! Please login.");
             navigate("/lock");
         }
         catch (err) {
             alert(err.message || "Registration failed");
         }
-    }));
+    });
 }

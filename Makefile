@@ -25,6 +25,13 @@ clean:
 	cd srcs && docker-compose down -v
 	docker system prune -f
 
+data:
+	@echo "🗄️  Setting up database..."
+	@sleep 3
+	docker exec transcendence-backend npx prisma db push
+	docker restart transcendence-backend
+	@echo "✅ Database ready!"
+
 status:
 	cd srcs && docker-compose ps
 
@@ -34,6 +41,6 @@ shell-backend:
 shell-frontend:
 	docker exec -it transcendence-frontend /bin/sh
 
-re: clean all
+re: clean all data
 
-.PHONY: all up down logs restart clean status shell-backend shell-frontend re
+.PHONY: all up down logs restart clean data status shell-backend shell-frontend re
