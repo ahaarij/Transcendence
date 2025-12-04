@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { registerRequest, loginWithGoogle } from "../api/auth.js";
@@ -84,12 +75,12 @@ export function mountRegisterPage() {
             return;
         }
         try {
-            yield registerRequest(username, email, password);
+            await registerRequest(username, email, password);
             alert("Registration successful! Please login.");
             navigate("/lock");
         }
         catch (err) {
             alert(err.message || "Registration failed");
         }
-    }));
+    });
 }

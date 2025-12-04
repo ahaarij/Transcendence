@@ -4,8 +4,7 @@
     "fastify": "^5.6.2",
     "fastify-cors": "^6.1.0",
     "fastify-jwt": "^4.2.0",
-    "fastify-plugin": "^5.1.0",
-    "tsc": "^2.0.4"
+    "fastify-plugin": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { t } from "../lang.js";
 import { navigate } from "../router.js";
 import { loginRequest, loginWithGoogle } from "../api/auth.js";
@@ -74,9 +65,9 @@ export function mountLoginPage() {
         const pass = document.getElementById("password").value;
         const remember = document.getElementById("remember").checked;
         try {
-            const res = yield loginRequest(email, pass);
+            const res = await loginRequest(email, pass);
             console.log("Login response:", res); // Debug log
-            const token = res.token; // backend returns "token" hopefully
+            const token = res.accessToken; // backend returns "accessToken"
             if (!token) {
                 throw new Error("No token received from server");
             }
@@ -88,10 +79,10 @@ export function mountLoginPage() {
                 sessionStorage.setItem("token", token);
             }
             console.log("Navigating to /home"); // Debug log
-            yield navigate("/home");
+            await navigate("/home");
         }
         catch (err) {
             alert(err.message);
         }
-    }));
+    });
 }
