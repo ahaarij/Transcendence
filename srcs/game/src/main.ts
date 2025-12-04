@@ -70,6 +70,8 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <div id="tournamentMatchScreen" style="display: none; text-align: center;">
             <h2 style="margin-bottom: 10px; color: #aaa;">TOURNAMENT ROUND <span id="tourneyRoundDisplay">1</span></h2>
             <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px;">A vs B</h1>
+            <!-- BUTTONS -->
+            <button id="btnViewBracketMatch" class="btn" style="margin-bottom: 20px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;">VIEW BRACKET</button>
             <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">START MATCH</button>
         </div>
 
@@ -77,7 +79,17 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <div id="championScreen" style="display: none; text-align: center;">
             <h2 style="margin-bottom: 20px; color: gold;">🏆 TOURNAMENT CHAMPION 🏆</h2>
             <h1 id="championName" style="font-size: 60px; margin-bottom: 40px; color: white;">NAME</h1>
+
+            <button id="btnViewBracketChamp" class="btn" style="margin-bottom: 20px;">VIEW FINAL BRACKET</button>
+            <br>
             <button id="btnReturnMain" class="btn" style="padding: 15px 30px;">RETURN TO MENU</button>
+        </div>
+
+         <!-- BRACKET SCREEN -->
+        <div id="bracketScreen" style="display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); position: absolute; top: 0; left: 0; z-index: 20;">
+            <h2 style="margin-bottom: 30px; color: #fff;">TOURNAMENT BRACKET</h2>
+            <div id="bracketContainer" style="display: flex; justify-content: center; gap: 40px; width: 90%; height: 60%;"></div>
+            <button id="btnCloseBracket" class="btn" style="margin-top: 30px; border-color: #aaa; color: #aaa;">CLOSE VIEW</button>
         </div>
 
         <!-- GAME OVER SCREEN -->
@@ -93,10 +105,25 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 // 2. STYLES
 const style = document.createElement('style');
 style.innerHTML = `
-    .btn { padding: 10px 20px; margin: 0 5px; background: transparent; border: 2px solid #555; color: #888; cursor: pointer; font-family: monospace; transition: all 0.2s; }
+ .btn { padding: 10px 20px; margin: 0 5px; background: transparent; border: 2px solid #555; color: #888; cursor: pointer; font-family: monospace; transition: all 0.2s; }
     .btn.selected { border-color: white; color: white; background: rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
     .btn:hover { border-color: #aaa; color: #aaa; }
     input { padding: 8px; background: #222; border: 1px solid #555; color: white; font-family: monospace; text-align: center; }
+    
+    /* BRACKET STYLES */
+    .bracket-column { display: flex; flex-direction: column; justify-content: space-around; height: 100%; align-items: center; }
+    
+    .match-box { 
+        background: #222; border: 1px solid #555; width: 120px; 
+        text-align: center; position: relative; margin: 5px 0; z-index: 2;
+    }
+    .match-box.active { border-color: #0f0; box-shadow: 0 0 8px rgba(0, 255, 0, 0.4); }
+    
+    .player-slot { padding: 4px; border-bottom: 1px solid #444; font-size: 11px; height: 18px; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+    .player-slot:last-child { border-bottom: none; }
+    .player-slot.winner { background: #004400; color: #fff; font-weight: bold; }
+    
+    .final-box { border: 2px solid gold; padding: 10px; width: 140px; text-align: center; color: gold; background: #220000; font-weight: bold; z-index: 2; }
 `;
 document.head.appendChild(style);
 
@@ -115,12 +142,17 @@ let countDownTimer = 0;
 let displayP1name = "Player 1";
 let displayP2name = "Player 2";
 
+type VisualMatch = {p1: string | null, p2: string | null, winner: string | null};
+let visualBracket: VisualMatch[][] = []; // 2D array for rounds and matches
+
 let tournamentPlayers: string[] = []; // names of players in tournament mode
 let tournamentBracket: {player1: string, player2: string}[] = []; // pairs of players for each match
 let tournamentWinner: string[] = []; // winner names
 let currentMatchIndex = 0; // index of current match in tournamentBracket
 let tournamentRound = 1; // current round number (Quarterfinals, Semifinals, Finals, etc.)
 let tournamentSize = 4;
+
+
 
 const uiLayer = document.getElementById("uiLayer");
 const mainMenu = document.getElementById("mainMenu");
@@ -131,6 +163,7 @@ const aiOptions = document.getElementById("aiOptions");
 const tournamentMatchScreen = document.getElementById("tournamentMatchScreen");
 const championScreen = document.getElementById("championScreen");
 const tourneyError = document.getElementById("tourneyError");
+const bracketScreen = document.getElementById("bracketScreen");
 
 
 document.getElementById("btnTourney")!.addEventListener("click", () => {
@@ -196,6 +229,27 @@ document.getElementById("btnStartTourney")!.addEventListener("click", () => {
         //ok we need to pair players into matches, add shuffling later
         tournamentBracket.push({player1: tournamentPlayers[i], player2: tournamentPlayers[i+1]});
     }
+
+    visualBracket = [];
+    
+    // Round 1 (Filled)
+    let round1Matches: VisualMatch[] = [];
+    for (let i = 0; i < tournamentPlayers.length; i += 2) {
+        round1Matches.push({ p1: tournamentPlayers[i], p2: tournamentPlayers[i+1], winner: null });
+    }
+    visualBracket.push(round1Matches);
+
+    // Future Rounds (Empty Placeholders)
+    let nextCount = round1Matches.length / 2;
+    while (nextCount >= 1) {
+        let roundMatches: VisualMatch[] = [];
+        for (let k = 0; k < nextCount; k++) {
+            roundMatches.push({ p1: "TBD", p2: "TBD", winner: null });
+        }
+        visualBracket.push(roundMatches);
+        nextCount /= 2;
+    }
+
     currentMatchIndex = 0;
     tournamentWinner = [];
     tournamentRound = 1;
@@ -206,7 +260,6 @@ document.getElementById("btnStartTourney")!.addEventListener("click", () => {
 function prepareNextMatch(){
     if (currentMatchIndex < tournamentBracket.length){
         const match = tournamentBracket[currentMatchIndex];
-        // alert(`Starting Match: ${match.player1} vs ${match.player2}`);
         document.getElementById("tourneyRoundDisplay")!.innerText = tournamentRound.toString();
         document.getElementById("matchupText")!.innerText = `${match.player1}  VS  ${match.player2}`;
         displayP1name = match.player1;
@@ -214,21 +267,8 @@ function prepareNextMatch(){
         uiLayer!.style.display = "flex";
         tournamentMatchScreen!.style.display = "block";
         mainMenu!.style.display = "none";
-        // tournamentMenu!.style.display = "none";
         gameOverScreen!.style.display = "none";
         
-        //old code with alerts
-        // engine.setWinningScore(5); // shorter matches for tournament
-        // engine.restart();
-
-        // resetInputs();
-        // tournamentMenu!.style.display = "none";
-        // uiLayer!.style.display = "none";
-
-        // gameState = 'PLAYING';
-
-        // aiLastUpdate = 0;
-        // aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
     }
     else{
         //tournament over
@@ -248,7 +288,6 @@ function prepareNextMatch(){
             }
             currentMatchIndex = 0;
             tournamentRound += 1;
-            // alert(`Starting Round ${tournamentRound}`);
             prepareNextMatch();
         }
         // gameState = 'MENU';
@@ -328,6 +367,145 @@ document.getElementById("score21")!.addEventListener("click", () => {
     document.getElementById("score11")!.classList.remove("selected");
 });
 
+
+function renderBracket() {
+    const container = document.getElementById('bracketContainer')!;
+    container.innerHTML = ''; 
+
+    // Adjust width for 8 players
+    if (tournamentSize === 8) {
+        container.style.width = '100%';
+        container.style.transform = 'scale(0.9)'; 
+    } else {
+        container.style.width = '70%';
+        container.style.transform = 'scale(1)';
+    }
+
+    // --- LEFT BRANCH ---
+    const leftContainer = document.createElement('div');
+    leftContainer.style.display = 'flex';
+    leftContainer.style.flexDirection = 'row';
+    leftContainer.style.alignItems = 'center';
+    leftContainer.style.gap = '20px'; // Replaced lines with gaps
+
+    // --- RIGHT BRANCH ---
+    const rightContainer = document.createElement('div');
+    rightContainer.style.display = 'flex';
+    rightContainer.style.flexDirection = 'row-reverse'; // Mirror image
+    rightContainer.style.alignItems = 'center';
+    rightContainer.style.gap = '20px';
+
+    // --- CENTER (Finals) ---
+    const centerContainer = document.createElement('div');
+    // FIX: Center content vertically
+    centerContainer.style.display = 'flex';
+    centerContainer.style.flexDirection = 'column';
+    centerContainer.style.justifyContent = 'center';
+    centerContainer.style.margin = '0 40px'; 
+
+    const roundsCount = visualBracket.length;
+    const finalRoundIdx = roundsCount - 1;
+
+    // Build Left Side
+    for (let r = 0; r < finalRoundIdx; r++) {
+        const roundMatches = visualBracket[r];
+        const half = Math.ceil(roundMatches.length / 2);
+        const matches = roundMatches.slice(0, half);
+        
+        const col = createBracketColumn(matches, r, 'left');
+        leftContainer.appendChild(col);
+    }
+
+    // Build Right Side
+    for (let r = 0; r < finalRoundIdx; r++) {
+        const roundMatches = visualBracket[r];
+        const half = Math.ceil(roundMatches.length / 2);
+        const matches = roundMatches.slice(half);
+        
+        const col = createBracketColumn(matches, r, 'right');
+        rightContainer.appendChild(col);
+    }
+
+    // Build Center (Finals)
+    const finalMatch = visualBracket[finalRoundIdx][0];
+    const finalBox = document.createElement('div');
+    finalBox.className = 'final-box';
+    finalBox.innerHTML = `
+        <div style="font-size: 10px; margin-bottom: 2px;">FINAL</div>
+        <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
+        <div style="font-size: 10px; color: #888;">VS</div>
+        <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
+    `;
+    if (finalMatch.winner) {
+        finalBox.innerHTML += `<div style="margin-top: 5px; color: gold;">👑 ${finalMatch.winner}</div>`;
+    }
+    centerContainer.appendChild(finalBox);
+
+    // Assemble
+    container.appendChild(leftContainer);
+    container.appendChild(centerContainer);
+    container.appendChild(rightContainer);
+}
+document.getElementById("btnViewBracketMatch")!.addEventListener("click", () => {
+    renderBracket();
+    tournamentMatchScreen!.style.display = "none";
+    bracketScreen!.style.display = "flex";
+});
+
+function createBracketColumn(matches: VisualMatch[], roundIdx: number, side: 'left'|'right') {
+    const col = document.createElement('div');
+    col.className = 'bracket-column';
+    
+    matches.forEach((match, idx) => {
+        let actualMatchIdx = idx;
+        if (side === 'right') {
+            const totalInRound = visualBracket[roundIdx].length;
+            const half = Math.ceil(totalInRound / 2);
+            actualMatchIdx = idx + half;
+        }
+
+        const box = createMatchBox(match, roundIdx, actualMatchIdx);
+        col.appendChild(box);
+    });
+    return col;
+}
+
+function createMatchBox(match: VisualMatch, roundIdx: number, matchIdx: number) {
+    const box = document.createElement('div');
+    box.className = 'match-box';
+    
+    const isActive = (roundIdx === tournamentRound - 1) && (matchIdx === currentMatchIndex);
+    if (isActive) box.classList.add('active');
+
+    const p1 = document.createElement('div');
+    p1.className = 'player-slot';
+    p1.innerText = match.p1 || 'TBD';
+    if (match.winner === match.p1 && match.winner) p1.classList.add('winner');
+
+    const p2 = document.createElement('div');
+    p2.className = 'player-slot';
+    p2.innerText = match.p2 || 'TBD';
+    if (match.winner === match.p2 && match.winner) p2.classList.add('winner');
+
+    box.appendChild(p1);
+    box.appendChild(p2);
+    return box;
+}
+
+document.getElementById("btnViewBracketChamp")!.addEventListener("click", () => {
+    renderBracket();
+    championScreen!.style.display = "none";
+    bracketScreen!.style.display = "flex";
+});
+
+document.getElementById("btnCloseBracket")!.addEventListener("click", () => {
+    bracketScreen!.style.display = "none";
+    if (tournamentBracket.length === 1 && tournamentWinner.length === 1 && tournamentRound > 1){
+        championScreen!.style.display = "block";
+    }else{
+        tournamentMatchScreen!.style.display = "block";
+    }
+});
 
 document.getElementById("btnStart")!.addEventListener("click", () => {
     engine.setWinningScore(winningScore);
@@ -414,7 +592,30 @@ function GameLoop(timestamp: number = 0)
             if (gameMode === 'Tournament'){
                 const match = tournamentBracket[currentMatchIndex];
                 const winnerName = engine.state.winner === 1 ? match.player1 : match.player2;
-                // alert(`Match Over! Winner: ${winnerName}`);
+                
+                const roundIndex = tournamentRound - 1;
+                
+                if (visualBracket[roundIndex] && visualBracket[roundIndex][currentMatchIndex]) {
+                    visualBracket[roundIndex][currentMatchIndex].winner = winnerName;
+                }
+
+                // 2. Advance winner to the NEXT round's slot
+                // The next round is at roundIndex + 1
+                // The match index in the next round is floor(currentMatchIndex / 2)
+                // If currentMatchIndex is even (0, 2), they go to P1 slot. If odd (1, 3), they go to P2 slot.
+                const nextRoundIndex = roundIndex + 1;
+                if (visualBracket[nextRoundIndex]) {
+                    const nextMatchIndex = Math.floor(currentMatchIndex / 2);
+                    const isPlayer1Slot = (currentMatchIndex % 2 === 0);
+                    
+                    if (visualBracket[nextRoundIndex][nextMatchIndex]) {
+                        if (isPlayer1Slot) {
+                            visualBracket[nextRoundIndex][nextMatchIndex].p1 = winnerName;
+                        } else {
+                            visualBracket[nextRoundIndex][nextMatchIndex].p2 = winnerName;
+                        }
+                    }
+                }
                 tournamentWinner.push(winnerName);
                 currentMatchIndex += 1;
                 gameState = 'MENU'; 
