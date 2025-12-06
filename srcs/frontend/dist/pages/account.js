@@ -88,11 +88,10 @@ export function mountAccountPage() {
         })
             .catch((err) => {
             console.error("Failed to fetch user data:", err);
-            // alert("Failed to load account info. Please login again.");
         });
     };
     loadUser();
-    // Handle File Selection
+    // file selection
     const handleFile = async (file) => {
         if (!file.type.startsWith("image/")) {
             showToast("Please select an image file.", "error");
@@ -114,7 +113,7 @@ export function mountAccountPage() {
         };
         reader.readAsDataURL(file);
     };
-    // Click to upload
+    // click to upload
     changeAvatarOverlay?.addEventListener("click", () => {
         avatarInput?.click();
     });
@@ -123,7 +122,7 @@ export function mountAccountPage() {
         if (file)
             handleFile(file);
     });
-    // Drag and Drop
+    // drag and DRop
     const dropZone = changeAvatarOverlay?.parentElement;
     dropZone?.addEventListener("dragover", (e) => {
         e.preventDefault();

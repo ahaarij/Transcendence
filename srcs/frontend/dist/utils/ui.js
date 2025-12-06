@@ -27,16 +27,16 @@ export function showToast(message, type = 'success') {
             </svg>
         </button>
     `;
-    // Close button logic
+    // close button
     toast.querySelector('button')?.addEventListener('click', () => {
         removeToast(toast);
     });
     container.appendChild(toast);
-    // Animate in
+    // animation
     requestAnimationFrame(() => {
         toast.classList.remove('translate-x-full', 'opacity-0');
     });
-    // Auto remove
+    // remove automatically timer thing
     setTimeout(() => {
         removeToast(toast);
     }, 3000);
@@ -73,7 +73,7 @@ export function showInputModal(title, placeholder, onConfirm) {
         </div>
     `;
     document.body.appendChild(modal);
-    // Animate in
+    // animate in
     requestAnimationFrame(() => {
         modal.classList.remove('opacity-0');
         modal.querySelector('div')?.classList.remove('scale-95');

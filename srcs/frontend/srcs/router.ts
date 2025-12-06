@@ -5,11 +5,13 @@ import { LockPage, mountLockPage } from "./pages/lock.js";
 import { loadLanguage, currentLang } from "./lang.js";
 import { SettingsPage, mountSettingsPage } from "./pages/settings.js";
 import { AccountPage, mountAccountPage } from "./pages/account.js";
+import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play.js";
 import { meRequest } from "./api/auth.js";
 
 type Route = {
   render: () => string;
   mount?: () => void;
+  unmount?: () => void;
 };
 
 const routes: Record<string, Route> =
@@ -21,7 +23,10 @@ const routes: Record<string, Route> =
 	"/lock": { render: LockPage, mount: mountLockPage },
 	"/settings": { render: SettingsPage, mount: mountSettingsPage },
 	"/account": { render: AccountPage, mount: mountAccountPage },
+	"/play": { render: PlayPage, mount: mountPlayPage, unmount: unmountPlayPage },
 };
+
+let currentRoute: Route | null = null;
 
 export async function loadRoute()
 {	
@@ -75,6 +80,11 @@ export async function loadRoute()
 		app!.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
 		return;
 	}
+	
+    if (currentRoute && currentRoute.unmount) {
+        currentRoute.unmount();
+    }
+    currentRoute = route;
 
 	const homeBtn = document.getElementById("homeBtn");
 	const settingsBtn = document.getElementById("settingsBtn");
