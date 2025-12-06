@@ -1,5 +1,5 @@
 import { GameApp } from "../game/game-app.js";
-
+import { meRequest } from "../api/auth.js";
 let gameApp: GameApp | null = null;
 
 export function PlayPage() {
@@ -61,7 +61,17 @@ export function mountPlayPage() {
     `;
     document.head.appendChild(style);
 
-    gameApp = new GameApp(container);
+    meRequest()
+    .then((res) => {
+      const username = res.user?.username || 'Player 1';
+      console.log('Initializing game for user:', username);
+      gameApp = new GameApp(container, username);
+    })
+    .catch((err) => {
+      console.error("Failed to fetch user data:", err);
+      // Fallback to default if fetch fails
+      gameApp = new GameApp(container, 'Player 1');
+    });
   }
 }
 

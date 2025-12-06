@@ -54,7 +54,6 @@ export async function loadRoute() {
         app.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
         return;
     }
-    // Unmount previous route
     if (currentRoute && currentRoute.unmount) {
         currentRoute.unmount();
     }

@@ -1,4 +1,5 @@
 import { GameApp } from "../game/game-app.js";
+import { meRequest } from "../api/auth.js";
 let gameApp = null;
 export function PlayPage() {
     return `
@@ -10,7 +11,6 @@ export function PlayPage() {
 export function mountPlayPage() {
     const container = document.getElementById("game-container");
     if (container) {
-        // Inject CSS
         const style = document.createElement('style');
         style.id = 'game-styles';
         style.innerHTML = `
@@ -58,7 +58,18 @@ export function mountPlayPage() {
       }
     `;
         document.head.appendChild(style);
-        gameApp = new GameApp(container);
+        meRequest()
+            .then((res) => {
+            const username = res.user?.username || 'Player 1';
+            console.log('Initializing game for user:', username);
+            gameApp = new GameApp(container, username);
+        })
+            .catch((err) => {
+            console.error("Failed to fetch user data:", err);
+            // Fallback to default if fetch fails
+            gameApp = new GameApp(container, 'Player 1');
+        });
+        // gameApp = new GameApp(container, );
     }
 }
 export function unmountPlayPage() {

@@ -1,6 +1,7 @@
 all: up
 
 up:
+	npx tsc
 	@echo "🐳 Building and starting Transcendence..."
 	cd srcs && docker-compose up --build -d
 	@echo ""

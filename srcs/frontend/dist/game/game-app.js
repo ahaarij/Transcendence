@@ -15,6 +15,7 @@ export class GameApp {
     countDownTimer = 0;
     displayP1name = "Player 1";
     displayP2name = "Player 2";
+    currentUsername;
     keysPressed = {};
     // AI State
     aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
@@ -39,8 +40,10 @@ export class GameApp {
     championScreen;
     tourneyError;
     bracketScreen;
-    constructor(container) {
+    constructor(container, username = "Player 1") {
         this.container = container;
+        this.currentUsername = username;
+        console.log("GameApp initialized for user:", this.currentUsername);
         this.engine = new PongEngine();
         this.init();
     }
@@ -306,12 +309,13 @@ export class GameApp {
             this.uiLayer.style.display = "none";
             this.gameOverScreen.style.display = "none";
             if (this.gameMode === 'PvP') {
-                this.displayP1name = "Player 1";
+                this.displayP1name = this.currentUsername;
+                // this.displayP1name = "Player 1";
                 this.displayP2name = "Player 2";
             }
             else if (this.gameMode === 'PvAI') {
-                this.displayP1name = this.playerSide === 'Left' ? "Player" : "AI";
-                this.displayP2name = this.playerSide === 'Right' ? "Player" : "AI";
+                this.displayP1name = this.playerSide === 'Left' ? this.currentUsername : "AI";
+                this.displayP2name = this.playerSide === 'Right' ? this.currentUsername : "AI";
             }
             this.aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
             this.aiLastUpdate = 0;
@@ -323,7 +327,13 @@ export class GameApp {
     setupTournament(count) {
         const playerInput = this.container.querySelector("#playerInputs");
         playerInput.innerHTML = "";
-        for (let i = 1; i <= count; i++) {
+        const firstInput = document.createElement("input");
+        firstInput.type = "text";
+        firstInput.placeholder = this.currentUsername;
+        firstInput.value = this.currentUsername;
+        firstInput.id = `player1`;
+        playerInput.appendChild(firstInput);
+        for (let i = 2; i <= count; i++) {
             const input = document.createElement("input");
             input.type = "text";
             input.placeholder = `Player ${i} Name`;
