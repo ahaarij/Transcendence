@@ -1,12 +1,12 @@
-import { HomePage, mountHomePage } from "./pages/home.js";
-import { LoginPage, mountLoginPage } from "./pages/login.js";
-import { RegisterPage, mountRegisterPage } from "./pages/register.js";
-import { LockPage, mountLockPage } from "./pages/lock.js";
-import { loadLanguage, currentLang } from "./lang.js";
-import { SettingsPage, mountSettingsPage } from "./pages/settings.js";
-import { AccountPage, mountAccountPage } from "./pages/account.js";
-import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play.js";
-import { meRequest } from "./api/auth.js";
+import { HomePage, mountHomePage } from "./pages/home";
+import { LoginPage, mountLoginPage } from "./pages/login";
+import { RegisterPage, mountRegisterPage } from "./pages/register";
+import { LockPage, mountLockPage } from "./pages/lock";
+import { loadLanguage, currentLang } from "./lang";
+import { SettingsPage, mountSettingsPage } from "./pages/settings";
+import { AccountPage, mountAccountPage } from "./pages/account";
+import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play";
+import { meRequest } from "./api/auth";
 
 type Route = {
   render: () => string;

@@ -1,4 +1,4 @@
-import { t } from "../lang.js";
+import { t } from "../lang";
 
 export function LockPage() {
   return `

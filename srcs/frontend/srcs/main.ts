@@ -1,4 +1,4 @@
-import { initRouter } from "./router.js"
+import { initRouter } from "./router"
 
 console.log("SPA Loaded");
 

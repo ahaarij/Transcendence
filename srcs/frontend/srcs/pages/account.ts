@@ -1,6 +1,6 @@
-import { meRequest } from "../api/auth.js";
-import { updateProfile } from "../api/user.js";
-import { showToast, showInputModal } from "../utils/ui.js";
+import { meRequest } from "../api/auth";
+import { updateProfile } from "../api/user";
+import { showToast, showInputModal } from "../utils/ui";
 
 export function AccountPage() {
   return `

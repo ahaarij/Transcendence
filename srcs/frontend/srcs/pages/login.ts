@@ -1,8 +1,8 @@
-import { t } from "../lang.js";
-import { navigate } from "../router.js";
-import { loginRequest, googleLoginRequest } from "../api/auth.js";
-import { config } from "../config.js";
-import { showToast } from "../utils/ui.js";
+import { t } from "../lang";
+import { navigate } from "../router";
+import { loginRequest, googleLoginRequest } from "../api/auth";
+import { config } from "../config";
+import { showToast } from "../utils/ui";
 
 declare const google: any;
 
@@ -46,7 +46,7 @@ export function LoginPage()
       </form>
 
       <p class="mt-4">
-        ${t("no_account")}
+        ${t("no_account")} 
         <a href="/register" data-link class="text-blue-600 underline">${t("register")}</a>
       </p>
     </div>

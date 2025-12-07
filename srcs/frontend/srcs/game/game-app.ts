@@ -1,5 +1,5 @@
-import { PongEngine } from "./PongEngine.js";
-import { GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types.js";
+import { PongEngine } from "./PongEngine";
+import { GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types";
 
 type GameState = 'MENU' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 type VisualMatch = {p1: string | null, p2: string | null, winner: string | null};

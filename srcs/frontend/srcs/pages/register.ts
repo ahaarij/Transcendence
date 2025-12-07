@@ -1,8 +1,8 @@
-import { t } from "../lang.js";
-import { navigate } from "../router.js";
-import { registerRequest, googleLoginRequest } from "../api/auth.js";
-import { config } from "../config.js";
-import { showToast } from "../utils/ui.js";
+import { t } from "../lang";
+import { navigate } from "../router";
+import { registerRequest, googleLoginRequest } from "../api/auth";
+import { config } from "../config";
+import { showToast } from "../utils/ui";
 
 declare const google: any;
 

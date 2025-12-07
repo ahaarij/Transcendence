@@ -1,4 +1,4 @@
-import { GameApp } from "../game/game-app.js";
+import { GameApp } from "../game/game-app";
 
 let gameApp: GameApp | null = null;
 

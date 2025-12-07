@@ -1,5 +1,5 @@
-import { navigate } from "../router.js";
-import { logoutRequest } from "../api/auth.js";
+import { navigate } from "../router";
+import { logoutRequest } from "../api/auth";
 
 export function SettingsPage() {
   return `

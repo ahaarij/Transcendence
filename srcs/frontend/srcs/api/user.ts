@@ -1,4 +1,4 @@
-import { apiRequest } from "./http.js";
+import { apiRequest } from "./http";
 
 export function getProfile(username: string) {
     return apiRequest(`/user/profile/${username}`, {
