@@ -1,4 +1,5 @@
 import { GameApp } from "../game/game-app";
+import { meRequest } from "../api/auth.ts";
 
 let gameApp: GameApp | null = null;
 
@@ -61,7 +62,16 @@ export function mountPlayPage() {
     `;
     document.head.appendChild(style);
 
-    gameApp = new GameApp(container);
+    meRequest().then(res => {
+      const username = res.user?.username || 'Player 1';
+      console.log('Welcome ', username);
+      gameApp = new GameApp(container, username);
+    })
+    .catch((err) => {
+      console.error('Error fetching user data: ', err);
+      gameApp = new GameApp(container, 'Player 1');
+    });
+    // gameApp = new GameApp(container);
   }
 }
 
