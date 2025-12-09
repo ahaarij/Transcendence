@@ -13,6 +13,11 @@ export interface GameState{
     winner: 0 | 1 | 2;
 }
 
+// export interface MatchPayload{
+
+    
+// }
+
 export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 600;
 export const PADDLE_WIDTH = 10;

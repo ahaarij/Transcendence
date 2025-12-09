@@ -688,7 +688,9 @@ export class GameApp {
         centerContainer.style.display = 'flex';
         centerContainer.style.flexDirection = 'column';
         centerContainer.style.justifyContent = 'center';
-        centerContainer.style.margin = '0 40px'; 
+        centerContainer.style.alignItems = 'center';
+        centerContainer.style.margin = '0 40px';
+        centerContainer.style.position = 'relative'; 
 
         const roundsCount = this.visualBracket.length;
         const finalRoundIdx = roundsCount - 1;
@@ -710,18 +712,40 @@ export class GameApp {
         }
 
         const finalMatch = this.visualBracket[finalRoundIdx][0];
+
+        
         const finalBox = document.createElement('div');
         finalBox.className = 'final-box';
         finalBox.innerHTML = `
-            <div style="font-size: 10px; margin-bottom: 2px;">FINAL</div>
-            <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
-            <div style="font-size: 10px; color: #888;">VS</div>
-            <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
+        <div style="font-size: 10px; margin-bottom: 2px;">FINAL</div>
+        <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
+        <div style="font-size: 10px; color: #888;">VS</div>
+        <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
         `;
         if (finalMatch.winner) {
-            finalBox.innerHTML += `<div style="margin-top: 5px; color: gold;">👑 ${finalMatch.winner}</div>`;
-        }
+            finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)"; // gold glow effect
+            finalBox.style.borderColor = "gold";
+            finalBox.style.background = "#332200";
+            }
         centerContainer.appendChild(finalBox);
+        if (finalMatch.winner) {
+            const winnerDisplay = document.createElement('div');
+            winnerDisplay.style.position = 'absolute'; // Position relative to centerContainer
+            winnerDisplay.style.bottom = '260px';
+            winnerDisplay.style.left = '50%';
+            winnerDisplay.style.width = '300%';
+            winnerDisplay.style.transform = 'translateX(-50%)'; // Center horizontally by 
+            // winnerDisplay.style.marginBottom = '10px'; // not needed anymore
+            winnerDisplay.style.textAlign = 'center';
+            winnerDisplay.style.pointerEvents = 'none';
+            winnerDisplay.innerHTML = `
+                <div style="font-size: 12px; color: gold; letter-spacing: 2px; margin-bottom: 5px;">TOURNAMENT WINNER</div>
+                <div style="font-size: 28px; color: #fff; font-weight: bold; text-shadow: 0 0 15px gold;">
+                    👑 ${finalMatch.winner} 👑
+                </div>
+            `;
+            centerContainer.appendChild(winnerDisplay);
+        }
 
         container.appendChild(leftContainer);
         container.appendChild(centerContainer);
