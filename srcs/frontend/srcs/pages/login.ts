@@ -9,24 +9,24 @@ declare const google: any;
 export function LoginPage()
 {
     return `
-     <div class="p-6 max-w-md mx-auto bg-white shadow-lg rounded-xl border border-gray-200 text-black">
+     <div class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 dark:text-white shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 text-black">
       <h1 class="text-3xl font-bold mb-6">${t("login")}</h1>
 
       <form id="loginForm" class="flex flex-col gap-4">
 
         <div>
-          <label class="block mb-1 font-semibold text-gray-700">${t("email")}</label>
+          <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("email")}</label>
           <input id="email" type="email"
-            class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200" />
+            class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded focus:ring-2 focus:ring-blue-200" />
         </div>
 
         <div>
-          <label class="block mb-1 font-semibold text-gray-700">${t("password")}</label>
+          <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("password")}</label>
           <input id="password" type="password"
-            class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200" />
+            class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded focus:ring-2 focus:ring-blue-200" />
         </div>
 
-        <label class="flex items-center gap-2 text-gray-700">
+        <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <input id="remember" type="checkbox" />
           <span>Remember me</span>
         </label>
@@ -36,9 +36,9 @@ export function LoginPage()
         </button>
 
         <div class="flex items-center my-2">
-            <div class="flex-grow border-t border-gray-300"></div>
+            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
             <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">OR</span>
-            <div class="flex-grow border-t border-gray-300"></div>
+            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
         </div>
 
         <div id="googleLoginBtn" class="w-full flex justify-center"></div>

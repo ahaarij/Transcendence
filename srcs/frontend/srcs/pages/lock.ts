@@ -13,7 +13,7 @@ export function LockPage() {
         <div class="flex gap-10 mt-10">
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-8 text-black cursor-pointer hover:scale-[1.03] transition flex flex-col items-center justify-center w-40 h-40"
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-8 text-black cursor-pointer hover:scale-[1.03] transition flex flex-col items-center justify-center w-40 h-40"
           data-link
           href="/login"
         >
@@ -22,7 +22,7 @@ export function LockPage() {
         </div>
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-8 text-black cursor-pointer hover:scale-[1.03] transition flex flex-col items-center justify-center w-40 h-40"
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-8 text-black cursor-pointer hover:scale-[1.03] transition flex flex-col items-center justify-center w-40 h-40"
           data-link
           href="/register"
         >

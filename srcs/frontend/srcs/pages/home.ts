@@ -12,7 +12,7 @@ export function HomePage() {
       <div class="relative grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-6">
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition 
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition 
                  text-center flex flex-col items-center justify-center"
           data-link
           href="/play"
@@ -22,7 +22,7 @@ export function HomePage() {
         </div>
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
                  text-center flex flex-col items-center justify-center"
           data-link
           href="/account"
@@ -32,7 +32,7 @@ export function HomePage() {
         </div>
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
                  text-center flex flex-col items-center justify-center"
           data-link
           href="/stats"
@@ -42,7 +42,7 @@ export function HomePage() {
         </div>
 
         <div 
-          class="bg-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
+          class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-6 text-black cursor-pointer hover:scale-[1.02] transition
                  text-center flex flex-col items-center justify-center"
           data-link
           href="/friends"

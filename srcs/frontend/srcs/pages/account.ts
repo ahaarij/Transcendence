@@ -11,7 +11,7 @@ export function AccountPage() {
         Account
       </h1>
 
-      <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-black flex flex-col gap-6">
+      <div class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-8 w-full max-w-md text-black flex flex-col gap-6">
         
         <!-- Profile Picture -->
         <div class="flex flex-col items-center relative group">
@@ -27,20 +27,20 @@ export function AccountPage() {
                 <span class="text-white text-[10px]">(Drop or Click)</span>
             </div>
           </div>
-          <h2 id="usernameDisplay" class="text-2xl font-bold text-gray-800">Loading...</h2>
+          <h2 id="usernameDisplay" class="text-2xl font-bold text-gray-800 dark:text-white">Loading...</h2>
           <p id="userIdDisplay" class="text-sm text-gray-500">ID: ...</p>
         </div>
 
         <!-- User Info -->
         <div class="flex flex-col gap-4 border-t pt-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-600">Email</label>
-            <p id="emailDisplay" class="text-lg font-medium text-gray-900">...</p>
+            <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300">Email</label>
+            <p id="emailDisplay" class="text-lg font-medium text-gray-900 dark:text-gray-100">...</p>
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-600">Member Since</label>
-            <p id="createdAtDisplay" class="text-lg font-medium text-gray-900">...</p>
+            <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300">Member Since</label>
+            <p id="createdAtDisplay" class="text-lg font-medium text-gray-900 dark:text-gray-100">...</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ export function AccountPage() {
             Change Username
           </button>
           
-          <button id="changePasswordBtn" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded-lg shadow transition font-semibold">
+          <button id="changePasswordBtn" class="w-full bg-gray-800 dark:bg-gray-600 hover:bg-gray-900 dark:hover:bg-gray-500 text-white py-2 rounded-lg shadow transition font-semibold">
             Change Password
           </button>
         </div>
