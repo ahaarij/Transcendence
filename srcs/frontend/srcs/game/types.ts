@@ -13,10 +13,19 @@ export interface GameState{
     winner: 0 | 1 | 2;
 }
 
-// export interface MatchPayload{
+export interface MatchPayload{
+    userId: number;
+    userSide: 1 | 2;  // 1 for left, 2 for right, since vsAi you can choose side
+    opponentId: string;
+    userScore: number;
+    opponentScore: number;
+    didUserWin: boolean;
+    gameMode: 'PvP' | 'PvAI' | 'Tournament'; // might add one more later for 4 player pong
 
-    
-// }
+    tournamentSize?: number;
+    tournamentRound?: number;
+    isEliminated?: boolean; // maybe change it late to eliminatedBy?: string; and store who eliminated the user or null/undefined if not eliminated
+}
 
 export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 600;

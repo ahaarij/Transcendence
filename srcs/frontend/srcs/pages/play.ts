@@ -133,12 +133,13 @@ export function mountPlayPage() {
 
     meRequest().then(res => {
       const username = res.user?.username || 'Player 1';
+      const userId = res.user?.id || null;
       console.log('Welcome ', username);
-      gameApp = new GameApp(container, username);
+      gameApp = new GameApp(container, username, userId);
     })
     .catch((err) => {
       console.error('Error fetching user data: ', err);
-      gameApp = new GameApp(container, 'Player 1');
+      gameApp = new GameApp(container, 'Player 1', null);
     });
     // gameApp = new GameApp(container);
   }

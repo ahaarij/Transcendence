@@ -1,5 +1,6 @@
 import { PongEngine } from "./PongEngine";
 import { GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types";
+import { sendMatchResult } from "../api/game";
 
 type GameState = 'MENU' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 type VisualMatch = {p1: string | null, p2: string | null, winner: string | null};
@@ -21,6 +22,7 @@ export class GameApp {
     private displayP1name = "Player 1";
     private displayP2name = "Player 2";
     private currentUsername: string;
+    private userId: number | null = null;
     private keysPressed: { [key: string]: boolean } = {};
 
     // AI State
@@ -49,9 +51,10 @@ export class GameApp {
     private tourneyError!: HTMLElement;
     private bracketScreen!: HTMLElement;
 
-    constructor(container: HTMLElement, username: string = "Player 1") {
+    constructor(container: HTMLElement, username: string = "Player 1", userId: number | null) {
         this.container = container;
         this.currentUsername = username;
+        this.userId = userId;
         this.engine = new PongEngine();
         this.init();
     }
@@ -471,6 +474,86 @@ export class GameApp {
         }
     }
 
+
+    private async handleMatchEnd() {
+        if (!this.userId){
+            console.warn("User ID not available. Cannot send match result.");
+            return;
+        }
+
+        try{
+            let userSide: 1 | 2;
+            let userScore: number;
+            let opponentScore: number;
+            let didUserWin: boolean;
+            let opponentId: string;
+            
+            if (this.gameMode === 'PvAI'){
+                userSide = this.playerSide === 'Left' ? 1 : 2;
+                opponentId = 'AI';
+                if (userSide === 1){
+                    userScore = this.engine.state.p1score;
+                    opponentScore = this.engine.state.p2score;
+                } else {
+                    userScore = this.engine.state.p2score;
+                    opponentScore = this.engine.state.p1score;
+                }
+                didUserWin = userScore > opponentScore;
+            }else {
+                userSide = 1;
+                opponentId = this.displayP2name;
+                userScore = this.engine.state.p1score;
+                opponentScore = this.engine.state.p2score;
+                didUserWin = userScore > opponentScore;
+            }
+
+            await sendMatchResult({
+                userId: this.userId,
+                opponentId: opponentId,
+                userSide: userSide,
+                userScore: userScore,
+                opponentScore: opponentScore,
+                didUserWin: didUserWin,
+                gameMode: this.gameMode,
+            });
+            console.log("Match result sent successfully.");
+        } catch (error) {
+            console.error("Error sending match result:", error);
+        }
+
+    }
+    private async handleTournamentEnd(player1: string, player2: string, winner: string) {
+        //right now we storing every tournament match, later we can only store matches involving the user
+        if (!this.userId){
+            return;
+        }
+
+        try{
+            const userIsPlayer1 = player1 === this.currentUsername;
+            const userSide = userIsPlayer1 ? 1 : 2;
+            const userScore = userIsPlayer1 ? this.engine.state.p1score : this.engine.state.p2score;
+            const opponentScore = userIsPlayer1 ? this.engine.state.p2score : this.engine.state.p1score;
+            const didUserWin = (userSide === 1 && winner === player1) || (userSide === 2 && winner === player2);
+            const opponentId = userIsPlayer1 ? player2 : player1;
+
+            await sendMatchResult({
+                userId: this.userId,
+                opponentId: opponentId,
+                userSide: userSide,
+                userScore: userScore,
+                opponentScore: opponentScore,
+                didUserWin: didUserWin,
+                gameMode: this.gameMode,
+                tournamentRound: this.tournamentRound,
+                tournamentSize: this.tournamentSize,
+                isEliminated: !didUserWin,
+            });
+            console.log("Tournament match result sent successfully.");
+        } catch (error) {
+            console.error("Error sending tournament match result:", error);
+        }
+    }
+
     private GameLoop(timestamp: number) {
         if (this.gameState === 'COUNTDOWN'){
             this.renderGame();
@@ -519,12 +602,14 @@ export class GameApp {
                             }
                         }
                     }
+                    this.handleTournamentEnd(match.player1, match.player2, winnerName);
                     this.tournamentWinner.push(winnerName);
                     this.currentMatchIndex += 1;
                     this.gameState = 'MENU'; 
                     this.engine.state.winner = 0;
                     this.prepareNextMatch();
                 } else {
+                    this.handleMatchEnd();
                     this.gameState = 'GAMEOVER';
                     this.showGameOverScreen(this.engine.state.winner);
                 }
