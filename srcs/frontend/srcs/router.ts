@@ -1,11 +1,12 @@
-import { HomePage, mountHomePage } from "./pages/home";
+import { HomePage, mountHomePage, unmountHomePage } from "./pages/home";
 import { LoginPage, mountLoginPage } from "./pages/login";
 import { RegisterPage, mountRegisterPage } from "./pages/register";
 import { LockPage, mountLockPage } from "./pages/lock";
-import { loadLanguage, currentLang } from "./lang";
-import { SettingsPage, mountSettingsPage } from "./pages/settings";
+import { loadLanguage, currentLang, t } from "./lang";
+import { SettingsPage, mountSettingsPage, unmountSettingsPage } from "./pages/settings";
 import { AccountPage, mountAccountPage } from "./pages/account";
 import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play";
+import { ErrorPage } from "./pages/error";
 import { meRequest } from "./api/auth";
 
 type Route = {
@@ -17,11 +18,11 @@ type Route = {
 const routes: Record<string, Route> =
 {
 	"/": { render: LockPage, mount: mountLockPage },
-	"/home": { render: HomePage, mount: mountHomePage },
+	"/home": { render: HomePage, mount: mountHomePage, unmount: unmountHomePage },
 	"/login": { render: LoginPage, mount: mountLoginPage },
 	"/register": { render: RegisterPage, mount: mountRegisterPage },
 	"/lock": { render: LockPage, mount: mountLockPage },
-	"/settings": { render: SettingsPage, mount: mountSettingsPage },
+	"/settings": { render: SettingsPage, mount: mountSettingsPage, unmount: unmountSettingsPage },
 	"/account": { render: AccountPage, mount: mountAccountPage },
 	"/play": { render: PlayPage, mount: mountPlayPage, unmount: unmountPlayPage },
 };
@@ -77,10 +78,10 @@ export async function loadRoute()
 
 	if (!route)
 	{
-		app!.innerHTML = `<h1 class="p-6 text-2xl font-bold">404 — Page Not Found</h1>`;
+		app!.innerHTML = ErrorPage();
 		return;
 	}
-	
+
     if (currentRoute && currentRoute.unmount) {
         currentRoute.unmount();
     }
@@ -161,6 +162,20 @@ export function initRouter()
 
 	document.getElementById("settingsBtn")?.addEventListener("click", () => {
 	navigate("/settings");
+	});
+	
+	window.addEventListener("languageChanged", () => {
+		const icon = document.getElementById("langIcon");
+		const label = document.getElementById("langLabel");
+		if (!icon || !label) return;
+
+		if (currentLang === "en") {
+			icon.textContent = "🇬🇧"; label.textContent = "EN";
+		} else if (currentLang === "fr") {
+			icon.textContent = "🇫🇷"; label.textContent = "FR";
+		} else {
+			icon.textContent = "🇦🇪"; label.textContent = "AR";
+		}
 	});
 	
  	window.addEventListener("languageChanged", loadRoute);		

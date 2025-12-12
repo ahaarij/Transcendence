@@ -1,6 +1,7 @@
 import { PongEngine } from "./PongEngine";
 import { GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types";
 import { sendMatchResult } from "../api/game";
+import { t } from "../lang";
 
 type GameState = 'MENU' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 type VisualMatch = {p1: string | null, p2: string | null, winner: string | null};
@@ -50,6 +51,7 @@ export class GameApp {
     private championScreen!: HTMLElement;
     private tourneyError!: HTMLElement;
     private bracketScreen!: HTMLElement;
+    private customizationMenu!: HTMLElement;
 
     constructor(container: HTMLElement, username: string = "Player 1", userId: number | null) {
         this.container = container;
@@ -116,63 +118,94 @@ export class GameApp {
                 <div id="mainMenu" style="text-align: center;">
                     <h1 style="font-size: 60px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px #fff;">KING KONG PONG</h1>
                     <div style="margin-bottom: 20px;">
-                        <p style="color: #aaa; margin-bottom: 5px;">SELECT MODE</p>
-                        <button id="btnPvP" class="btn selected">2 Players</button>
-                        <button id="btnPvAI" class="btn">vs AI</button>
-                        <button id="btnTourney" class="btn">Tournament</button>
+                        <p style="color: #aaa; margin-bottom: 5px;">${t("select_mode")}</p>
+                        <button id="btnPvP" class="btn selected">${t("2_players")}</button>
+                        <button id="btnPvAI" class="btn">${t("vs_ai")}</button>
+                        <button id="btnTourney" class="btn">${t("tournament")}</button>
                     </div>
                     <div id="aiOptions" style="display: none; margin-bottom: 20px;">
-                        <p style="margin-bottom: 5px; color: #aaa;">PLAYER SIDE</p>
-                        <button id="btnLeft" class="btn selected">Left</button>
-                        <button id="btnRight" class="btn">Right</button>
+                        <p style="margin-bottom: 5px; color: #aaa;">${t("player_side")}</p>
+                        <button id="btnLeft" class="btn selected">${t("left")}</button>
+                        <button id="btnRight" class="btn">${t("right")}</button>
                     </div>
                     <div style="margin-bottom: 30px;">
-                        <p style="margin-bottom: 5px; color: #aaa;">WIN SCORE</p>
+                        <p style="margin-bottom: 5px; color: #aaa;">${t("win_score")}</p>
                         <button id="score5" class="btn">5</button>
                         <button id="score11" class="btn selected">11</button>
                         <button id="score21" class="btn">21</button>
                     </div>
-                    <button id="btnStart" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; margin-top: 20px;">START GAME</button>
+                    <button id="btnStart" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; margin-top: 20px;">${t("start_game")}</button>
+                </div>
+
+                <div id="customizationMenu" style="display: none; text-align: center; width: 400px;">
+                    <h2 style="margin-bottom: 30px;">${t("game_customization")}</h2>
+                    
+                    <!-- Paddle Size -->
+                    <div style="margin-bottom: 25px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <label>${t("paddle_size")}</label>
+                            <span id="paddleSizeVal">80</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="range" id="paddleSizeSlider" min="40" max="150" value="80" style="flex-grow: 1;">
+                            <input type="number" id="paddleSizeInput" min="40" max="150" value="80" style="width: 60px; background: transparent; border: 1px solid #fff; color: #fff; padding: 5px; text-align: center;">
+                        </div>
+                    </div>
+
+                    <!-- Ball Speed -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <label>${t("ball_speed")}</label>
+                            <span id="ballSpeedVal">4</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="range" id="ballSpeedSlider" min="2" max="15" value="4" step="0.5" style="flex-grow: 1;">
+                            <input type="number" id="ballSpeedInput" min="2" max="15" value="4" step="0.5" style="width: 60px; background: transparent; border: 1px solid #fff; color: #fff; padding: 5px; text-align: center;">
+                        </div>
+                    </div>
+
+                    <button id="btnPlay" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; width: 100%;">${t("play").toUpperCase()}</button>
+                    <button id="btnBackCustom" class="btn" style="margin-top: 15px; border: none; font-size: 14px;">&lt; ${t("back")}</button>
                 </div>
 
                 <div id="tournamentMenu" style="display: none; text-align: center;">
-                    <h2 style="margin-bottom: 20px;">TOURNAMENT REGISTRATION</h2>
+                    <h2 style="margin-bottom: 20px;">${t("tournament_registration")}</h2>
                     <div style="margin-bottom: 15px;">
-                        <p style="color: #aaa; margin-bottom: 5px;">PLAYERS</p>
+                        <p style="color: #aaa; margin-bottom: 5px;">${t("players")}</p>
                         <button id="btn4Players" class="btn selected">4</button>
                         <button id="btn8Players" class="btn">8</button>
                     </div>
                     <p id="tourneyError" style="color: #ff4444; font-size: 14px; height: 20px; margin-bottom: 10px;"></p>
                     <div id="playerInputs" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
-                    <button id="btnStartTourney" class="btn" style="border-color: white;">BEGIN TOURNAMENT</button>
+                    <button id="btnStartTourney" class="btn" style="border-color: white;">${t("begin_tournament")}</button>
                     <br><br>
-                    <button id="btnBack" class="btn" style="font-size: 12px; border: none;">&lt; Back</button>
+                    <button id="btnBack" class="btn" style="font-size: 12px; border: none;">&lt; ${t("back")}</button>
                 </div>
 
                 <div id="tournamentMatchScreen" style="display: none; text-align: center;">
-                    <h2 style="margin-bottom: 10px; color: #aaa;">TOURNAMENT ROUND <span id="tourneyRoundDisplay">1</span></h2>
+                    <h2 style="margin-bottom: 10px; color: #aaa;">${t("tournament_round")} <span id="tourneyRoundDisplay">1</span></h2>
                     <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px;">A vs B</h1>
-                    <button id="btnViewBracketMatch" class="btn" style="margin-bottom: 20px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;">VIEW BRACKET</button>
-                    <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">START MATCH</button>
+                    <button id="btnViewBracketMatch" class="btn" style="margin-bottom: 20px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;">${t("view_bracket")}</button>
+                    <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">${t("start_match")}</button>
                 </div>
 
                 <div id="championScreen" style="display: none; text-align: center;">
-                    <h2 style="margin-bottom: 20px; color: gold;">🏆 TOURNAMENT CHAMPION 🏆</h2>
+                    <h2 style="margin-bottom: 20px; color: gold;">🏆 ${t("tournament_champion")} 🏆</h2>
                     <h1 id="championName" style="font-size: 60px; margin-bottom: 40px; color: white;">NAME</h1>
-                    <button id="btnViewBracketChamp" class="btn" style="margin-bottom: 20px;">VIEW FINAL BRACKET</button>
+                    <button id="btnViewBracketChamp" class="btn" style="margin-bottom: 20px;">${t("view_final_bracket")}</button>
                     <br>
-                    <button id="btnReturnMain" class="btn" style="padding: 15px 30px;">RETURN TO MENU</button>
+                    <button id="btnReturnMain" class="btn" style="padding: 15px 30px;">${t("return_to_menu")}</button>
                 </div>
 
                 <div id="bracketScreen" style="display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.95); position: absolute; top: 0; left: 0; z-index: 20;">
-                    <h2 style="margin-bottom: 30px; color: #fff;">TOURNAMENT BRACKET</h2>
+                    <h2 style="margin-bottom: 30px; color: #fff;">${t("tournament_bracket")}</h2>
                     <div id="bracketContainer" style="display: flex; justify-content: center; gap: 40px; width: 90%; height: 60%;"></div>
-                    <button id="btnCloseBracket" class="btn" style="margin-top: 30px; border-color: #aaa; color: #aaa;">CLOSE VIEW</button>
+                    <button id="btnCloseBracket" class="btn" style="margin-top: 30px; border-color: #aaa; color: #aaa;">${t("close_view")}</button>
                 </div>
 
                 <div id="gameOverScreen" style="display: none; text-align: center;">
                     <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff;">PLAYER 1 WINS</h1>
-                    <p style="color: #aaa; margin-bottom: 30px;">Press ENTER to return to menu</p>
+                    <p style="color: #aaa; margin-bottom: 30px;">${t("press_enter")}</p>
                 </div>
             </div>
         </div>
@@ -185,6 +218,7 @@ export class GameApp {
         this.context = this.canvas.getContext("2d")!;
         this.uiLayer = q("#uiLayer");
         this.mainMenu = q("#mainMenu");
+        this.customizationMenu = q("#customizationMenu");
         this.tournamentMenu = q("#tournamentMenu");
         this.gameOverScreen = q("#gameOverScreen");
         this.winnerText = q("#winnerText");
@@ -345,9 +379,52 @@ export class GameApp {
         });
 
         q("#btnStart").addEventListener("click", () => {
+            this.mainMenu.style.display = "none";
+            this.customizationMenu.style.display = "block";
+        });
+
+        const paddleSlider = q("#paddleSizeSlider") as HTMLInputElement;
+        const paddleInput = q("#paddleSizeInput") as HTMLInputElement;
+        const ballSlider = q("#ballSpeedSlider") as HTMLInputElement;
+        const ballInput = q("#ballSpeedInput") as HTMLInputElement;
+        const paddleVal = q("#paddleSizeVal");
+        const ballVal = q("#ballSpeedVal");
+
+        const sync = (source: HTMLInputElement, target: HTMLInputElement, display: HTMLElement) => {
+            let val = parseFloat(source.value);
+            const min = parseFloat(source.min);
+            const max = parseFloat(source.max);
+            
+            if (val < min) val = min;
+            if (val > max) val = max;
+
+            if (source.type === 'number') {
+                source.value = val.toString();
+            }
+
+            target.value = val.toString();
+            display.textContent = val.toString();
+        };
+
+        paddleSlider.addEventListener("input", () => sync(paddleSlider, paddleInput, paddleVal));
+        paddleInput.addEventListener("change", () => sync(paddleInput, paddleSlider, paddleVal));
+        ballSlider.addEventListener("input", () => sync(ballSlider, ballInput, ballVal));
+        ballInput.addEventListener("change", () => sync(ballInput, ballSlider, ballVal));
+
+        q("#btnBackCustom").addEventListener("click", () => {
+            this.customizationMenu.style.display = "none";
+            this.mainMenu.style.display = "block";
+        });
+
+        q("#btnPlay").addEventListener("click", () => {
+            const pHeight = parseInt(paddleInput.value);
+            const bSpeed = parseFloat(ballInput.value);
+            
+            this.engine.setGameParameters(pHeight, bSpeed);
             this.engine.setWinningScore(this.winningScore);
             this.engine.restart();
-            this.mainMenu.style.display = "none";
+            
+            this.customizationMenu.style.display = "none";
             this.uiLayer.style.display = "none";
             this.gameOverScreen.style.display = "none";
 
@@ -360,7 +437,7 @@ export class GameApp {
                 this.displayP2name = this.playerSide === 'Right' ? this.currentUsername : "AI";
             }
             
-            this.aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+            this.aiTargetY = GAME_HEIGHT / 2 - pHeight / 2;
             this.aiLastUpdate = 0;
             this.countDown = 3;
             this.gameState = 'COUNTDOWN';
@@ -382,7 +459,7 @@ export class GameApp {
         for (let i = 2; i <= count; i++){
             const input = document.createElement("input");
             input.type = "text";
-            input.placeholder = `Player ${i} Name`;
+            input.placeholder = `${t("player_name_placeholder")} ${i}`;
             input.id = `player${i}`;
             playerInput.appendChild(input);
         }
@@ -393,9 +470,9 @@ export class GameApp {
         const nameSet = new Set<string>();
         for (let i = 1; i <= this.tournamentSize; i++){
             const input = this.container.querySelector(`#player${i}`) as HTMLInputElement; 
-            const name = input.value.trim() || `Player ${i}`;
+            const name = input.value.trim() || `${t("player_name_placeholder")} ${i}`;
             if (nameSet.has(name)){
-                this.tourneyError.innerText = `Error: Duplicate name "${name}". Please enter unique names.`;
+                this.tourneyError.innerText = t("error_duplicate_name");
                 return;
             }
             nameSet.add(name);
@@ -634,8 +711,8 @@ export class GameApp {
 
     private drawPaddles() {
         this.context.fillStyle = "white";
-        this.context.fillRect(this.engine.state.p1.x, this.engine.state.p1.y, PADDLE_WIDTH, PADDLE_HEIGHT);
-        this.context.fillRect(this.engine.state.p2.x, this.engine.state.p2.y, PADDLE_WIDTH, PADDLE_HEIGHT);
+        this.context.fillRect(this.engine.state.p1.x, this.engine.state.p1.y, PADDLE_WIDTH, this.engine.paddleHeight);
+        this.context.fillRect(this.engine.state.p2.x, this.engine.state.p2.y, PADDLE_WIDTH, this.engine.paddleHeight);
     }
 
     private drawBall() {
@@ -665,12 +742,12 @@ export class GameApp {
         this.mainMenu.style.display = "none";
         this.gameOverScreen.style.display = "block";
         
-        let text = `Player ${winner} Wins!`;
+        let text = `${t("player_name_placeholder")} ${winner} ${t("wins")}`;
         if (this.gameMode === 'PvAI'){
             if ((winner === 1 && this.playerSide === 'Left') || (winner === 2 && this.playerSide === 'Right')){
-                text = "You Win!";
+                text = t("you_win");
             } else {
-                text = "AI Wins!";
+                text = t("ai_wins");
             }
         }
         this.winnerText.textContent = text;
@@ -706,10 +783,10 @@ export class GameApp {
             const velocity = this.engine.state.ballVelocity;
 
             if (!ballIncoming){
-                this.aiTargetY = GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2;
+                this.aiTargetY = GAME_HEIGHT / 2 - this.engine.paddleHeight / 2;
             } else {
                 const predictedY = this.predictBallY(ball, velocity, aiPaddle);
-                this.aiTargetY = predictedY - PADDLE_HEIGHT / 2;
+                this.aiTargetY = predictedY - this.engine.paddleHeight / 2;
             }
         }
     }
@@ -802,10 +879,10 @@ export class GameApp {
         const finalBox = document.createElement('div');
         finalBox.className = 'final-box';
         finalBox.innerHTML = `
-        <div style="font-size: 10px; margin-bottom: 2px;">FINAL</div>
-        <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
-        <div style="font-size: 10px; color: #888;">VS</div>
-        <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
+            <div style="font-size: 10px; margin-bottom: 2px;">${t("final")}</div>
+            <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
+            <div style="font-size: 10px; color: #888;">VS</div>
+            <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
         `;
         if (finalMatch.winner) {
             finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)"; // gold glow effect

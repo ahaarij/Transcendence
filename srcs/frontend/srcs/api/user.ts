@@ -12,3 +12,10 @@ export function updateProfile(data: { username?: string; avatar?: string }) {
         body: JSON.stringify(data)
     });
 }
+
+export function deleteAccount() {
+    return apiRequest("/user/me", {
+        method: "DELETE"
+    });
+}
+
