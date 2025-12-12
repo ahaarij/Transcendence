@@ -23,6 +23,8 @@ COPY main.ts ./
 COPY shared ./shared
 COPY auth ./auth
 COPY user ./user
+COPY game ./game
+COPY public ./public
 
 RUN mkdir -p /app/prisma
 

@@ -21,4 +21,21 @@ model User {
   avatar       String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  matches      Match[]   @relation("UserMatches")  // all matches where user participated
+}
+
+model Match {
+  id               Int       @id @default(autoincrement())
+  userId           Int       // the user who played
+  user             User      @relation("UserMatches", fields: [userId], references: [id])
+  opponentId       String    // opponent username or "AI"
+  userSide         Int       // 1 for left paddle, 2 for right paddle
+  userScore        Int       // user's score
+  opponentScore    Int       // opponent's score
+  didUserWin       Boolean   // true if user won
+  gameMode         String    // "PvP", "PvAI", "Tournament"
+  tournamentSize   Int?      // optional: 4 or 8 players
+  tournamentRound  Int?      // optional: which round in tournament
+  isEliminated     Boolean?  // optional: if user got eliminated
+  playedAt         DateTime  @default(now())  // when match was played
 }
