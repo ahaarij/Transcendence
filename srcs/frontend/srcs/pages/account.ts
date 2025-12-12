@@ -1,57 +1,57 @@
 import { meRequest } from "../api/auth";
 import { updateProfile } from "../api/user";
 import { showToast, showInputModal } from "../utils/ui";
+import { t } from "../lang";
 
 export function AccountPage() {
   return `
-    <div class="relative min-h-screen flex flex-col items-center pt-20"
-         style="background: url('../assets/bg.png') center/cover no-repeat fixed;">
+    <div class="cyber-grid"></div>
+    
+    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
+
+    <div class="relative min-h-screen flex flex-col items-center pt-20">
       
-      <h1 class="arcade-title text-white text-6xl md:text-7xl mb-12 drop-shadow-[0_0_15px_rgba(255,255,0,0.8)]">
-        Account
+      <h1 class="text-6xl md:text-7xl mb-12 font-cyber font-bold text-white tracking-tight">
+        ${t("account")}
       </h1>
 
-      <div class="bg-white dark:bg-gray-800 dark:text-white shadow-xl rounded-2xl p-8 w-full max-w-md text-black flex flex-col gap-6">
+      <div class="glass-card p-8 w-full max-w-md rounded-xl border border-white/10 flex flex-col gap-6">
         
         <!-- Profile Picture -->
         <div class="flex flex-col items-center relative group">
-          <div class="w-32 h-32 rounded-full bg-gray-200 border-4 border-blue-500 overflow-hidden mb-4 shadow-md relative">
+          <div class="w-32 h-32 rounded-full bg-black/50 border-2 border-[#00f3ff] overflow-hidden mb-4 shadow-[0_0_15px_rgba(0,243,255,0.3)] relative">
             <img id="profilePic" src="https://via.placeholder.com/150" alt="Profile" class="w-full h-full object-cover" />
             
-            <!-- Hidden File Input -->
             <input type="file" id="avatarInput" accept="image/*" class="hidden" />
             
-            <!-- Overlay -->
-            <div id="changeAvatarOverlay" class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                <span class="text-white text-xs font-bold">Change</span>
-                <span class="text-white text-[10px]">(Drop or Click)</span>
+            <div id="changeAvatarOverlay" class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer backdrop-blur-sm">
+                <span class="text-[#00f3ff] text-xs font-bold font-cyber tracking-widest">${t("change")}</span>
+                <span class="text-gray-300 text-[10px] mt-1">${t("drop_or_click")}</span>
             </div>
           </div>
-          <h2 id="usernameDisplay" class="text-2xl font-bold text-gray-800 dark:text-white">Loading...</h2>
-          <p id="userIdDisplay" class="text-sm text-gray-500">ID: ...</p>
+          <h2 id="usernameDisplay" class="text-2xl font-bold text-white font-cyber tracking-wide">${t("loading")}</h2>
+          <p id="userIdDisplay" class="text-sm text-gray-500 font-mono">ID: ...</p>
         </div>
 
-        <!-- User Info -->
-        <div class="flex flex-col gap-4 border-t pt-4">
+        <div class="flex flex-col gap-4 border-t border-white/10 pt-4">
           <div>
-            <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300">Email</label>
-            <p id="emailDisplay" class="text-lg font-medium text-gray-900 dark:text-gray-100">...</p>
+            <label class="block text-xs font-semibold text-[#00f3ff] tracking-widest mb-1 uppercase">${t("email")}</label>
+            <p id="emailDisplay" class="text-lg font-medium text-gray-200">...</p>
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-600 dark:text-gray-300">Member Since</label>
-            <p id="createdAtDisplay" class="text-lg font-medium text-gray-900 dark:text-gray-100">...</p>
+            <label class="block text-xs font-semibold text-[#00f3ff] tracking-widest mb-1 uppercase">${t("member_since")}</label>
+            <p id="createdAtDisplay" class="text-lg font-medium text-gray-200">...</p>
           </div>
         </div>
 
-        <!-- Actions -->
         <div class="flex flex-col gap-3 mt-4">
-          <button id="changeUsernameBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg shadow transition font-semibold">
-            Change Username
+          <button id="changeUsernameBtn" class="btn-neon w-full font-cyber font-bold text-sm py-3">
+            ${t("change_username")}
           </button>
           
-          <button id="changePasswordBtn" class="w-full bg-gray-800 dark:bg-gray-600 hover:bg-gray-900 dark:hover:bg-gray-500 text-white py-2 rounded-lg shadow transition font-semibold">
-            Change Password
+          <button id="changePasswordBtn" class="w-full bg-transparent border border-white/20 text-gray-400 hover:text-white hover:border-white/50 py-3 rounded transition font-semibold text-sm tracking-wide">
+            ${t("change_password")}
           </button>
         </div>
 
@@ -98,7 +98,7 @@ export function mountAccountPage() {
   // file selection
   const handleFile = async (file: File) => {
       if (!file.type.startsWith("image/")) {
-          showToast("Please select an image file.", "error");
+          showToast(t("select_image_error"), "error");
           return;
       }
 
@@ -108,10 +108,10 @@ export function mountAccountPage() {
           if (base64) {
               try {
                   await updateProfile({ avatar: base64 });
-                  showToast("Avatar updated successfully!", "success");
+                  showToast(t("avatar_updated"), "success");
                   loadUser();
               } catch (err: any) {
-                  showToast(err.message || "Failed to update avatar", "error");
+                  showToast(err.message || t("avatar_update_failed"), "error");
               }
           }
       };
@@ -149,18 +149,18 @@ export function mountAccountPage() {
   });
 
   document.getElementById("changeUsernameBtn")?.addEventListener("click", () => {
-    showInputModal("Change Username", "Enter new username", async (newUsername) => {
+    showInputModal(t("change_username"), t("enter_new_username"), async (newUsername) => {
         try {
             await updateProfile({ username: newUsername });
-            showToast("Username updated successfully!", "success");
+            showToast(t("username_updated"), "success");
             loadUser();
         } catch (err: any) {
-            showToast(err.message || "Failed to update username", "error");
+            showToast(err.message || t("username_update_failed"), "error");
         }
     });
   });
 
   document.getElementById("changePasswordBtn")?.addEventListener("click", () => {
-    showToast("Change Password feature coming soon!", "success");
+    showToast(t("change_password_soon"), "success");
   });
 }

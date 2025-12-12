@@ -1,3 +1,5 @@
+import { t } from "../lang";
+
 export function showToast(message: string, type: 'success' | 'error' = 'success') {
     const container = document.getElementById('toast-container') || createToastContainer();
     
@@ -23,8 +25,8 @@ export function showToast(message: string, type: 'success' | 'error' = 'success'
     toast.innerHTML = `
         ${icon}
         <div class="ml-3 text-sm font-normal">${message}</div>
-        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" aria-label="Close">
-            <span class="sr-only">Close</span>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" aria-label="${t("close")}">
+            <span class="sr-only">${t("close")}</span>
             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
             </svg>
@@ -78,8 +80,8 @@ export function showInputModal(title: string, placeholder: string, onConfirm: (v
             <h3 class="text-xl font-bold mb-4 text-gray-800">${title}</h3>
             <input type="text" id="modalInput" class="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="${placeholder}" />
             <div class="flex justify-end gap-2">
-                <button id="modalCancel" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancel</button>
-                <button id="modalConfirm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Confirm</button>
+                <button id="modalCancel" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">${t("cancel")}</button>
+                <button id="modalConfirm" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">${t("confirm")}</button>
             </div>
         </div>
     `;

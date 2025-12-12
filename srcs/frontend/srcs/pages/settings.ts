@@ -1,37 +1,39 @@
 import { navigate } from "../router";
 import { logoutRequest } from "../api/auth";
 import { deleteAccount } from "../api/user";
-import { loadLanguage, currentLang } from "../lang";
+import { loadLanguage, currentLang, t } from "../lang";
 
 export function SettingsPage() {
   const getBtnClass = (lang: string) => {
-      const base = "lang-btn px-2 py-1 rounded transition text-white";
-      const active = "bg-blue-700 ring-2 ring-offset-2 ring-blue-500";
-      const inactive = "bg-blue-500 hover:bg-blue-600";
+      const base = "lang-btn px-4 py-2 rounded transition font-cyber text-sm tracking-widest border";
+      const active = "bg-[#00f3ff]/20 border-[#00f3ff] text-[#00f3ff] shadow-[0_0_10px_rgba(0,243,255,0.2)]";
+      const inactive = "bg-transparent border-white/10 text-gray-400 hover:text-white hover:border-white/30";
       return currentLang === lang ? `${base} ${active}` : `${base} ${inactive}`;
   };
 
   return `
-    <div class="relative min-h-screen flex flex-col items-center pt-20 text-black">
+    <div class="cyber-grid"></div>
+    
+    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
 
-        <h1 class="arcade-title text-white text-6xl md:text-7xl mb-12 drop-shadow-[0_0_15px_rgba(255,255,0,0.8)]">
+    <div class="relative min-h-screen flex flex-col items-center pt-20 text-white">
+
+        <h1 class="text-6xl md:text-7xl mb-12 font-cyber font-bold text-white tracking-tight">
             Ding Dong
         </h1>
 
-      <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl rounded-2xl p-6 w-full max-w-md text-center flex flex-col gap-4 transition-colors duration-300">
-        <h2 class="text-3xl font-bold mb-4 dark:text-white">Settings</h2>
+      <div class="glass-card p-8 w-full max-w-md rounded-xl border border-white/10 flex flex-col gap-6">
+        <h2 class="text-2xl font-cyber font-bold mb-2 text-center tracking-widest text-[#00f3ff]">${t("settings")}</h2>
 
-        <!-- Theme Toggle -->
-        <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-3 rounded-lg transition-colors duration-300">
-            <span class="dark:text-gray-200">Theme</span>
-            <button id="themeToggleBtn" class="bg-gray-300 dark:bg-gray-600 dark:text-white px-3 py-1 rounded hover:bg-gray-400 dark:hover:bg-gray-500 transition">
-                🌓 Toggle
+        <div class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-white/5">
+            <span class="text-gray-300 font-cyber text-sm tracking-wide">${t("theme")}</span>
+            <button id="themeToggleBtn" class="bg-white/10 hover:bg-white/20 text-white px-4 py-1 rounded transition text-xs tracking-widest border border-white/10">
+                ${t("toggle")}
             </button>
         </div>
 
-        <!-- Language -->
-        <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-3 rounded-lg transition-colors duration-300">
-            <span class="dark:text-gray-200">Language</span>
+        <div class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-white/5">
+            <span class="text-gray-300 font-cyber text-sm tracking-wide">${t("language")}</span>
             <div class="flex gap-2">
                 <button class="${getBtnClass('en')}" data-lang="en">EN</button>
                 <button class="${getBtnClass('fr')}" data-lang="fr">FR</button>
@@ -39,23 +41,22 @@ export function SettingsPage() {
             </div>
         </div>
 
-        <!-- 2FA Placeholder -->
-        <button class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition opacity-50 cursor-not-allowed">
-            Connect 2FA (Coming Soon)
+        <button class="w-full bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 py-3 rounded hover:bg-indigo-500/30 transition opacity-50 cursor-not-allowed font-cyber text-sm tracking-widest">
+            ${t("connect_2fa")}
         </button>
 
-        <hr class="my-2 border-gray-300 dark:border-gray-600">
+        <div class="my-2 border-t border-white/10"></div>
 
         <button 
           id="logoutBtn"
-          class="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition">
-          Logout
+          class="w-full bg-white/5 border border-white/10 text-gray-300 py-3 rounded hover:bg-white/10 hover:text-white transition font-cyber text-sm tracking-widest">
+          ${t("logout")}
         </button>
 
         <button 
           id="deleteAccountBtn"
-          class="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
-          Delete Account
+          class="w-full bg-red-500/10 border border-red-500/30 text-red-400 py-3 rounded hover:bg-red-500/20 hover:text-red-300 transition font-cyber text-sm tracking-widest">
+          ${t("delete_account")}
         </button>
       </div>
     </div>
@@ -79,14 +80,14 @@ export function mountSettingsPage() {
     const deleteBtn = document.getElementById("deleteAccountBtn");
     if (deleteBtn) {
         deleteBtn.addEventListener("click", async () => {
-            if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+            if (confirm(t("confirm_delete_account"))) {
                 try {
                     await deleteAccount();
                     localStorage.removeItem("token");
                     sessionStorage.removeItem("token");
                     navigate("/register");
                 } catch (error) {
-                    alert("Failed to delete account");
+                    alert(t("delete_account_failed"));
                 }
             }
         });

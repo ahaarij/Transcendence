@@ -1,3 +1,5 @@
+import { t } from "../lang";
+
 export const BASE_URL = "http://localhost:3000";
 
 export async function apiRequest(url: string, options: any = {}) {
@@ -17,7 +19,7 @@ export async function apiRequest(url: string, options: any = {}) {
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || "Unknown error");
+    throw new Error(err.error || t("unknown_error"));
   }
 
   return res.json();

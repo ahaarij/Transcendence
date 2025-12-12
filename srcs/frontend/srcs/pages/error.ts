@@ -1,2 +1,5 @@
-document.getElementById("app")!.innerHTML =
-    '<h1 class="text-2xl font-bold">Error Page 404</h1>';
+import { t } from "../lang";
+
+export function ErrorPage() {
+    return `<h1 class="p-6 text-2xl font-bold">${t("error_404")}</h1>`;
+}

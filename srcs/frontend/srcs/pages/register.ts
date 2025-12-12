@@ -8,50 +8,53 @@ declare const google: any;
 
 export function RegisterPage() {
   return `
-    <div class="relative min-h-screen flex justify-center items-start pt-20">
-      <div class="absolute top-40 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-400 opacity-30 blur-[120px] rounded-full pointer-events-none"></div>
-      <div class="relative p-8 max-w-md w-full bg-white dark:bg-gray-800 dark:text-white rounded-2xl shadow-xl border border-white/10 backdrop-blur-sm">        
-        <h1 class="text-3xl font-bold mb-6">${t("register")}</h1>
+    <div class="cyber-grid"></div>
+    
+    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
 
-        <form id="registerForm" class="flex flex-col gap-4">
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+      <div class="glass-card p-8 max-w-md w-full rounded-xl border border-white/10">        
+        <h1 class="text-3xl font-cyber font-bold mb-8 text-center text-white tracking-widest">${t("register")}</h1>
+
+        <form id="registerForm" class="flex flex-col gap-5">
 
           <div>
-            <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("username")}</label>
-            <input id="username" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition" />
+            <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("username")}</label>
+            <input id="username" class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#ff00ff] focus:shadow-[0_0_10px_rgba(255,0,255,0.2)] transition-all" />
           </div>
 
           <div>
-            <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("email")}</label>
-            <input id="email" type="email" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition" />
+            <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("email")}</label>
+            <input id="email" type="email" class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#ff00ff] focus:shadow-[0_0_10px_rgba(255,0,255,0.2)] transition-all" />
           </div>
 
           <div>
-            <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("password")}</label>
-            <input id="password" type="password" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition" />
+            <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("password")}</label>
+            <input id="password" type="password" class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#ff00ff] focus:shadow-[0_0_10px_rgba(255,0,255,0.2)] transition-all" />
           </div>
 
           <div>
-            <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("confirm_password")}</label>
-            <input id="confirm" type="password" class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 p-2 rounded transition" />
+            <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("confirm_password")}</label>
+            <input id="confirm" type="password" class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#ff00ff] focus:shadow-[0_0_10px_rgba(255,0,255,0.2)] transition-all" />
           </div>
 
-          <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg shadow transition">
+          <button class="btn-neon w-full mt-4 font-cyber font-bold text-center hover:!border-[#ff00ff] hover:!text-[#ff00ff] hover:!shadow-[0_0_20px_rgba(255,0,255,0.2)] hover:!bg-[rgba(255,0,255,0.05)]">
             ${t("submit")}
           </button>
 
           <div class="flex items-center my-2">
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">OR</span>
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs tracking-widest">${t("or")}</span>
+            <div class="flex-grow border-t border-white/10"></div>
           </div>
 
-          <div id="googleRegisterBtn" class="w-full flex justify-center"></div>
+          <div id="googleRegisterBtn" class="w-full flex justify-center grayscale hover:grayscale-0 transition-all duration-300"></div>
 
         </form>
 
-        <p class="mt-4">
+        <p class="mt-6 text-center text-gray-500 text-sm">
           ${t("have_account")}
-          <a href="/login" data-link class="text-blue-600 underline">${t("login")}</a>
+          <a href="/login" data-link class="text-[#ff00ff] hover:text-[#00f3ff] transition-colors ml-1 tracking-wide">${t("login")}</a>
         </p>
       </div>
     </div>
@@ -73,15 +76,15 @@ export function mountRegisterPage()
                   console.log("Google Register response:", res);
                   const token = res.accessToken;
                   
-                  if (!token) throw new Error("No token received from server");
+                  if (!token) throw new Error(t("no_token_error"));
                   
                   sessionStorage.setItem("token", token);
                   
-                  showToast("Registered successfully!", "success");
+                  showToast(t("register_success"), "success");
                   await navigate("/home");
               } catch (err: any) {
                   console.error(err);
-                  showToast(err.message || "Google registration failed", "error");
+                  showToast(err.message || t("google_register_failed"), "error");
               }
           }
       });
@@ -102,7 +105,7 @@ export function mountRegisterPage()
 
     if (!username || !email || !password)
 	{	
-    	showToast("Fill all fields.", "error");
+    	showToast(t("fill_all_fields"), "error");
     	return;
     }
 
@@ -110,11 +113,11 @@ export function mountRegisterPage()
 	{
       await registerRequest(username, email, password);
       
-      showToast("Registration successful! Please login.", "success");
+      showToast(t("registration_successful_login"), "success");
       navigate("/lock");
     } 
     catch (err: any) {
-      showToast(err.message || "Registration failed", "error");
+      showToast(err.message || t("registration_failed"), "error");
 	}
 	});
 }

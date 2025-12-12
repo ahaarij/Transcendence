@@ -6,12 +6,20 @@ export class PongEngine{
     private lastPaddle : 1 | 2 | null = null; // prevent speed stacking on same paddle
 
     public winningScore: number = 11; // default winning score
+    public paddleHeight: number = PADDLE_HEIGHT;
+    public ballSpeed: number = BALL_SPEED;
+
     constructor(){
         this.state = this.resetGame();
     }
 
     public setWinningScore(score: number){
         this.winningScore = score;
+    }
+
+    public setGameParameters(paddleHeight: number, ballSpeed: number) {
+        this.paddleHeight = paddleHeight;
+        this.ballSpeed = ballSpeed;
     }
 
     public restart(){
@@ -23,9 +31,9 @@ export class PongEngine{
             p1score: 0,
             p2score: 0,
             ball: {x: GAME_WIDTH / 2 - BALL_SIZE / 2, y: GAME_HEIGHT / 2 - BALL_SIZE / 2},
-            p1: {x: PADDLE_OFFSET, y: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2},
-            p2: {x: GAME_WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, y: GAME_HEIGHT / 2 - PADDLE_HEIGHT / 2},
-            ballVelocity: {x: BALL_SPEED, y: BALL_SPEED},
+            p1: {x: PADDLE_OFFSET, y: GAME_HEIGHT / 2 - this.paddleHeight / 2},
+            p2: {x: GAME_WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, y: GAME_HEIGHT / 2 - this.paddleHeight / 2},
+            ballVelocity: {x: this.ballSpeed, y: this.ballSpeed},
             winner: 0 // for later use to determine if someone has won
         }
     }
@@ -70,10 +78,10 @@ export class PongEngine{
         this.state.ball.x = GAME_WIDTH / 2 - BALL_SIZE / 2;
         this.state.ball.y = GAME_HEIGHT / 2 - BALL_SIZE / 2;
         if (this.state.ballVelocity.x < 0)
-            this.state.ballVelocity.x = BALL_SPEED;
+            this.state.ballVelocity.x = this.ballSpeed;
         else
-            this.state.ballVelocity.x = -BALL_SPEED;
-        this.state.ballVelocity.y = (Math.random() > 0.5 ? 1 : -1) * BALL_SPEED;
+            this.state.ballVelocity.x = -this.ballSpeed;
+        this.state.ballVelocity.y = (Math.random() > 0.5 ? 1 : -1) * this.ballSpeed;
         this.lastPaddle = null;
     }
 
@@ -83,11 +91,11 @@ export class PongEngine{
         if (paddleNumber === 1){
 
             this.state.p1.y += speed;
-            this.state.p1.y = Math.max(offset, Math.min(GAME_HEIGHT - PADDLE_HEIGHT - offset, this.state.p1.y));
+            this.state.p1.y = Math.max(offset, Math.min(GAME_HEIGHT - this.paddleHeight - offset, this.state.p1.y));
         }
         else{
             this.state.p2.y += speed;
-            this.state.p2.y = Math.max(offset, Math.min(GAME_HEIGHT - PADDLE_HEIGHT - offset, this.state.p2.y));
+            this.state.p2.y = Math.max(offset, Math.min(GAME_HEIGHT - this.paddleHeight - offset, this.state.p2.y));
         }
     }
 
@@ -108,11 +116,11 @@ export class PongEngine{
             ball.x <= PADDLE_OFFSET + PADDLE_WIDTH && 
             ball.x + BALL_SIZE >= PADDLE_OFFSET && 
             ball.y + BALL_SIZE >= p1.y && 
-            ball.y <= p1.y + PADDLE_HEIGHT
+            ball.y <= p1.y + this.paddleHeight
         ) {
             // 1. Where did we hit?
-            const paddleCenter = p1.y + PADDLE_HEIGHT / 2;
-            const impactFactor = (ballCenterY - paddleCenter) / (PADDLE_HEIGHT / 2);
+            const paddleCenter = p1.y + this.paddleHeight / 2;
+            const impactFactor = (ballCenterY - paddleCenter) / (this.paddleHeight / 2);
             const normalizedImpact = Math.max(-1, Math.min(1, impactFactor));
 
             // 2. Calculate bounce angle (Max 45 degrees = PI/4)
@@ -144,11 +152,11 @@ export class PongEngine{
             ball.x + BALL_SIZE >= p2X && 
             ball.x <= p2X + PADDLE_WIDTH &&
             ball.y + BALL_SIZE >= p2.y && 
-            ball.y <= p2.y + PADDLE_HEIGHT
+            ball.y <= p2.y + this.paddleHeight
         ) {
             // 1. Where did we hit?
-            const paddleCenter = p2.y + PADDLE_HEIGHT / 2;
-            const impactFactor = (ballCenterY - paddleCenter) / (PADDLE_HEIGHT / 2);
+            const paddleCenter = p2.y + this.paddleHeight / 2;
+            const impactFactor = (ballCenterY - paddleCenter) / (this.paddleHeight / 2);
             const normalizedImpact = Math.max(-1, Math.min(1, impactFactor));
 
             // 2. Calculate Angle

@@ -4,6 +4,9 @@ let translations: Record<string, string> = {};
 export async function loadLanguage(lang: string) {
   currentLang = lang;
 
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
   const response = await fetch(`/lang/${lang}.json`);
   translations = await response.json();
 

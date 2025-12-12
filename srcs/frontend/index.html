@@ -12,14 +12,107 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/arcade-classic" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style type="text/tailwindcss">
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+        
+        body { 
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+        }
+
+        .font-cyber {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200vw;
+            height: 200vh;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: grid-move 30s linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes grid-move {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-200px); }
+        }
+
+        .btn-neon {
+            position: relative;
+            display: inline-block;
+            padding: 12px 35px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-decoration: none;
+            font-size: 18px;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .btn-neon:hover {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-icon-neon {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .btn-icon-neon:hover {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            background: rgba(0, 243, 255, 0.05);
+            transform: scale(1.05);
+        }
+
         #app
         {
             background-color: transparent !important; 
-            padding: 2rem;
+            padding: 0 !important;
+            width: 100%;
+            height: 100%;
         }
           .home-card {
         @apply bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/10 cursor-pointer transition hover:-translate-y-1 hover:shadow-2xl;
@@ -36,25 +129,24 @@
         }
     </style>
 </head>
-<body class="min-h-screen text-gray-900"
-      style="background: url('./assets/bg.png') center/cover no-repeat fixed;">
+<body class="min-h-screen text-gray-900">
     
    <div class="fixed top-4 left-4 flex flex-col gap-3 z-50">
       <button id="homeBtn"
-        class="bg-white shadow p-2 px-4 rounded-full border hover:bg-gray-100 transition text-black">
-        🏠 Home
+        class="btn-icon-neon p-2 px-4 rounded-full flex items-center gap-2">
+        <span>🏠</span> HOME
       </button>
 
       <button id="settingsBtn"
-        class="bg-white shadow p-2 px-4 rounded-full border hover:bg-gray-100 transition text-black">
-        ⚙️ Settings
+        class="btn-icon-neon p-2 px-4 rounded-full flex items-center gap-2">
+        <span>⚙️</span> SETTINGS
       </button>
     </div>
 
     <div id="app" class="transition-opacity duration-200"></div>
 
     <button id="langSwitch"
-        class="fixed top-4 right-4 bg-white shadow p-2 rounded-full border hover:bg-gray-100 transition flex items-center gap-2">
+        class="fixed top-4 right-4 btn-icon-neon p-2 px-4 rounded-full flex items-center gap-2 z-50">
         <span id="langIcon">🇬🇧</span> 
         <span id="langLabel">EN</span>
     </button>

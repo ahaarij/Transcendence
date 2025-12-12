@@ -9,46 +9,52 @@ declare const google: any;
 export function LoginPage()
 {
     return `
-     <div class="p-6 max-w-md mx-auto bg-white dark:bg-gray-800 dark:text-white shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 text-black">
-      <h1 class="text-3xl font-bold mb-6">${t("login")}</h1>
+    <div class="cyber-grid"></div>
+    
+    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
 
-      <form id="loginForm" class="flex flex-col gap-4">
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+     <div class="glass-card p-8 max-w-md w-full rounded-xl border border-white/10">
+      <h1 class="text-3xl font-cyber font-bold mb-8 text-center text-white tracking-widest">${t("login")}</h1>
+
+      <form id="loginForm" class="flex flex-col gap-6">
 
         <div>
-          <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("email")}</label>
+          <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("email")}</label>
           <input id="email" type="email"
-            class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded focus:ring-2 focus:ring-blue-200" />
+            class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all" />
         </div>
 
         <div>
-          <label class="block mb-1 font-semibold text-gray-700 dark:text-gray-300">${t("password")}</label>
+          <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("password")}</label>
           <input id="password" type="password"
-            class="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white p-2 rounded focus:ring-2 focus:ring-blue-200" />
+            class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all" />
         </div>
 
-        <label class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-          <input id="remember" type="checkbox" />
-          <span>Remember me</span>
+        <label class="flex items-center gap-3 text-gray-400 cursor-pointer group">
+          <input id="remember" type="checkbox" class="accent-[#00f3ff] w-4 h-4" />
+          <span class="group-hover:text-white transition-colors text-sm">${t("remember_me")}</span>
         </label>
 
-        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg shadow">
+        <button class="btn-neon w-full mt-2 font-cyber font-bold text-center">
           ${t("submit")}
         </button>
 
-        <div class="flex items-center my-2">
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">OR</span>
-            <div class="flex-grow border-t border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"></div>
+        <div class="flex items-center my-4">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs tracking-widest">${t("or")}</span>
+            <div class="flex-grow border-t border-white/10"></div>
         </div>
 
-        <div id="googleLoginBtn" class="w-full flex justify-center"></div>
+        <div id="googleLoginBtn" class="w-full flex justify-center grayscale hover:grayscale-0 transition-all duration-300"></div>
 
       </form>
 
-      <p class="mt-4">
+      <p class="mt-8 text-center text-gray-500 text-sm">
         ${t("no_account")} 
-        <a href="/register" data-link class="text-blue-600 underline">${t("register")}</a>
+        <a href="/register" data-link class="text-[#00f3ff] hover:text-[#ff00ff] transition-colors ml-1 tracking-wide">${t("register")}</a>
       </p>
+    </div>
     </div>
     `;
 }
@@ -67,16 +73,16 @@ export function mountLoginPage() {
                   console.log("Google Login response:", res);
                   const token = res.accessToken;
                   
-                  if (!token) throw new Error("No token received from server");
+                  if (!token) throw new Error(t("no_token_error"));
                   
                   // Google login is always treated as "remember me" or we can default to session
                   sessionStorage.setItem("token", token);
                   
-                  showToast("Logged in successfully!", "success");
+                  showToast(t("login_success"), "success");
                   await navigate("/home");
               } catch (err: any) {
                   console.error(err);
-                  showToast(err.message || "Google login failed", "error");
+                  showToast(err.message || t("google_login_failed"), "error");
               }
           }
       });
@@ -102,7 +108,7 @@ export function mountLoginPage() {
             const token = res.accessToken; // backend returns "accessToken"
           
             if (!token) {
-              throw new Error("No token received from server");
+              throw new Error(t("no_token_error"));
             }
           
             // Store with consistent key name "token"
