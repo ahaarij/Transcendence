@@ -1,5 +1,6 @@
 import { PongEngine } from "./PongEngine";
 import { GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types";
+import { sendMatchResult } from "../api/game";
 import { t } from "../lang";
 
 type GameState = 'MENU' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
@@ -21,6 +22,8 @@ export class GameApp {
     private countDownTimer = 0;
     private displayP1name = "Player 1";
     private displayP2name = "Player 2";
+    private currentUsername: string;
+    private userId: number | null = null;
     private keysPressed: { [key: string]: boolean } = {};
 
     // AI State
@@ -50,8 +53,10 @@ export class GameApp {
     private bracketScreen!: HTMLElement;
     private customizationMenu!: HTMLElement;
 
-    constructor(container: HTMLElement) {
+    constructor(container: HTMLElement, username: string = "Player 1", userId: number | null) {
         this.container = container;
+        this.currentUsername = username;
+        this.userId = userId;
         this.engine = new PongEngine();
         this.init();
     }
@@ -424,11 +429,12 @@ export class GameApp {
             this.gameOverScreen.style.display = "none";
 
             if (this.gameMode === 'PvP'){
-                this.displayP1name = `${t("player_name_placeholder")} 1`;
-                this.displayP2name = `${t("player_name_placeholder")} 2`;
+                // this.displayP1name = "Player 1";
+                this.displayP1name = this.currentUsername;
+                this.displayP2name = "Player 2";
             } else if (this.gameMode === 'PvAI'){
-                this.displayP1name = this.playerSide === 'Left' ? t("player_name_placeholder") : t("ai");
-                this.displayP2name = this.playerSide === 'Right' ? t("player_name_placeholder") : t("ai");
+                this.displayP1name = this.playerSide === 'Left' ? this.currentUsername : "AI";
+                this.displayP2name = this.playerSide === 'Right' ? this.currentUsername : "AI";
             }
             
             this.aiTargetY = GAME_HEIGHT / 2 - pHeight / 2;
@@ -442,7 +448,15 @@ export class GameApp {
     private setupTournament(count: number) {
         const playerInput = this.container.querySelector("#playerInputs")!;
         playerInput.innerHTML = "";
-        for (let i = 1; i <= count; i++){
+
+        const firstInput = document.createElement("input");
+        firstInput.type = "text";
+        firstInput.placeholder = this.currentUsername;
+        firstInput.value = this.currentUsername;
+        firstInput.id = `player1`;
+        playerInput.appendChild(firstInput);
+
+        for (let i = 2; i <= count; i++){
             const input = document.createElement("input");
             input.type = "text";
             input.placeholder = `${t("player_name_placeholder")} ${i}`;
@@ -537,6 +551,86 @@ export class GameApp {
         }
     }
 
+
+    private async handleMatchEnd() {
+        if (!this.userId){
+            console.warn("User ID not available. Cannot send match result.");
+            return;
+        }
+
+        try{
+            let userSide: 1 | 2;
+            let userScore: number;
+            let opponentScore: number;
+            let didUserWin: boolean;
+            let opponentId: string;
+            
+            if (this.gameMode === 'PvAI'){
+                userSide = this.playerSide === 'Left' ? 1 : 2;
+                opponentId = 'AI';
+                if (userSide === 1){
+                    userScore = this.engine.state.p1score;
+                    opponentScore = this.engine.state.p2score;
+                } else {
+                    userScore = this.engine.state.p2score;
+                    opponentScore = this.engine.state.p1score;
+                }
+                didUserWin = userScore > opponentScore;
+            }else {
+                userSide = 1;
+                opponentId = this.displayP2name;
+                userScore = this.engine.state.p1score;
+                opponentScore = this.engine.state.p2score;
+                didUserWin = userScore > opponentScore;
+            }
+
+            await sendMatchResult({
+                userId: this.userId,
+                opponentId: opponentId,
+                userSide: userSide,
+                userScore: userScore,
+                opponentScore: opponentScore,
+                didUserWin: didUserWin,
+                gameMode: this.gameMode,
+            });
+            console.log("Match result sent successfully.");
+        } catch (error) {
+            console.error("Error sending match result:", error);
+        }
+
+    }
+    private async handleTournamentEnd(player1: string, player2: string, winner: string) {
+        //right now we storing every tournament match, later we can only store matches involving the user
+        if (!this.userId){
+            return;
+        }
+
+        try{
+            const userIsPlayer1 = player1 === this.currentUsername;
+            const userSide = userIsPlayer1 ? 1 : 2;
+            const userScore = userIsPlayer1 ? this.engine.state.p1score : this.engine.state.p2score;
+            const opponentScore = userIsPlayer1 ? this.engine.state.p2score : this.engine.state.p1score;
+            const didUserWin = (userSide === 1 && winner === player1) || (userSide === 2 && winner === player2);
+            const opponentId = userIsPlayer1 ? player2 : player1;
+
+            await sendMatchResult({
+                userId: this.userId,
+                opponentId: opponentId,
+                userSide: userSide,
+                userScore: userScore,
+                opponentScore: opponentScore,
+                didUserWin: didUserWin,
+                gameMode: this.gameMode,
+                tournamentRound: this.tournamentRound,
+                tournamentSize: this.tournamentSize,
+                isEliminated: !didUserWin,
+            });
+            console.log("Tournament match result sent successfully.");
+        } catch (error) {
+            console.error("Error sending tournament match result:", error);
+        }
+    }
+
     private GameLoop(timestamp: number) {
         if (this.gameState === 'COUNTDOWN'){
             this.renderGame();
@@ -585,12 +679,14 @@ export class GameApp {
                             }
                         }
                     }
+                    this.handleTournamentEnd(match.player1, match.player2, winnerName);
                     this.tournamentWinner.push(winnerName);
                     this.currentMatchIndex += 1;
                     this.gameState = 'MENU'; 
                     this.engine.state.winner = 0;
                     this.prepareNextMatch();
                 } else {
+                    this.handleMatchEnd();
                     this.gameState = 'GAMEOVER';
                     this.showGameOverScreen(this.engine.state.winner);
                 }
@@ -754,7 +850,9 @@ export class GameApp {
         centerContainer.style.display = 'flex';
         centerContainer.style.flexDirection = 'column';
         centerContainer.style.justifyContent = 'center';
-        centerContainer.style.margin = '0 40px'; 
+        centerContainer.style.alignItems = 'center';
+        centerContainer.style.margin = '0 40px';
+        centerContainer.style.position = 'relative'; 
 
         const roundsCount = this.visualBracket.length;
         const finalRoundIdx = roundsCount - 1;
@@ -776,6 +874,8 @@ export class GameApp {
         }
 
         const finalMatch = this.visualBracket[finalRoundIdx][0];
+
+        
         const finalBox = document.createElement('div');
         finalBox.className = 'final-box';
         finalBox.innerHTML = `
@@ -785,9 +885,29 @@ export class GameApp {
             <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
         `;
         if (finalMatch.winner) {
-            finalBox.innerHTML += `<div style="margin-top: 5px; color: gold;">👑 ${finalMatch.winner}</div>`;
-        }
+            finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)"; // gold glow effect
+            finalBox.style.borderColor = "gold";
+            finalBox.style.background = "#332200";
+            }
         centerContainer.appendChild(finalBox);
+        if (finalMatch.winner) {
+            const winnerDisplay = document.createElement('div');
+            winnerDisplay.style.position = 'absolute'; // Position relative to centerContainer
+            winnerDisplay.style.bottom = '260px';
+            winnerDisplay.style.left = '50%';
+            winnerDisplay.style.width = '300%';
+            winnerDisplay.style.transform = 'translateX(-50%)'; // Center horizontally by 
+            // winnerDisplay.style.marginBottom = '10px'; // not needed anymore
+            winnerDisplay.style.textAlign = 'center';
+            winnerDisplay.style.pointerEvents = 'none';
+            winnerDisplay.innerHTML = `
+                <div style="font-size: 12px; color: gold; letter-spacing: 2px; margin-bottom: 5px;">TOURNAMENT WINNER</div>
+                <div style="font-size: 28px; color: #fff; font-weight: bold; text-shadow: 0 0 15px gold;">
+                    👑 ${finalMatch.winner} 👑
+                </div>
+            `;
+            centerContainer.appendChild(winnerDisplay);
+        }
 
         container.appendChild(leftContainer);
         container.appendChild(centerContainer);

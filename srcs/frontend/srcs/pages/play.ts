@@ -1,4 +1,5 @@
 import { GameApp } from "../game/game-app";
+import { meRequest } from "../api/auth.ts";
 
 let gameApp: GameApp | null = null;
 
@@ -58,10 +59,89 @@ export function mountPlayPage() {
           background: #fff;
           color: #000;
       }
+      
+            /* Input Fields (Fixes white background issue) */
+      #game-container input { 
+          padding: 8px; 
+          background: #222; 
+          border: 1px solid #555; 
+          color: white; 
+          font-family: monospace; 
+          text-align: center; 
+          width: 200px; /* Fixed width to prevent stretching when encountering an error*/
+          margin: 0 auto; /* keep it centered if the container grows wider */
+      }
+
+      /* Bracket Layout */
+      .bracket-column { 
+          display: flex; 
+          flex-direction: column; 
+          justify-content: space-around; 
+          height: 100%; 
+          align-items: center; 
+      }
+      
+      /* Match Boxes (The Rectangles) */
+      .match-box { 
+          background: #222; 
+          border: 1px solid #555; 
+          width: 120px; 
+          text-align: center; 
+          position: relative; 
+          margin: 5px 0; 
+          z-index: 2;
+      }
+      .match-box.active { 
+          border-color: #0f0; 
+          box-shadow: 0 0 8px rgba(0, 255, 0, 0.4); 
+      }
+      
+      /* Player Slots inside Match Box */
+      .player-slot { 
+          padding: 4px; 
+          border-bottom: 1px solid #444; 
+          font-size: 11px; 
+          height: 18px; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          overflow: hidden; 
+          white-space: nowrap; 
+      }
+      .player-slot:last-child { 
+          border-bottom: none; 
+      }
+      .player-slot.winner { 
+          background: #004400; 
+          color: #fff; 
+          font-weight: bold; 
+      }
+      
+      /* Grand Final Box */
+      .final-box { 
+          border: 2px solid gold; 
+          padding: 10px; 
+          width: 140px; 
+          text-align: center; 
+          color: gold; 
+          background: #220000; 
+          font-weight: bold; 
+          z-index: 2; 
+      }
     `;
     document.head.appendChild(style);
 
-    gameApp = new GameApp(container);
+    meRequest().then(res => {
+      const username = res.user?.username || 'Player 1';
+      const userId = res.user?.id || null;
+      console.log('Welcome ', username);
+      gameApp = new GameApp(container, username, userId);
+    })
+    .catch((err) => {
+      console.error('Error fetching user data: ', err);
+      gameApp = new GameApp(container, 'Player 1', null);
+    });
+    // gameApp = new GameApp(container);
   }
 }
 
