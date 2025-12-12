@@ -31,6 +31,12 @@ export function registerRequest(username: string, email: string, password: strin
 
 export function logoutRequest()
 {
+    // Clear tokens on logout
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("refreshToken");
+
     return apiRequest("/auth/logout",
     {
         method: "POST"

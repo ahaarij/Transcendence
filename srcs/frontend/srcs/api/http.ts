@@ -3,19 +3,60 @@ import { t } from "../lang";
 export const BASE_URL = "http://localhost:3000";
 
 export async function apiRequest(url: string, options: any = {}) {
-  const token =
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
+  let token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   const headers: any = {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
 
-  const res = await fetch(BASE_URL + url, {
+  let res = await fetch(BASE_URL + url, {
     ...options,
     headers,
   });
+
+  // If 401, try to refresh token
+  if (res.status === 401) {
+    const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
+    
+    if (refreshToken) {
+      try {
+        const refreshRes = await fetch(BASE_URL + "/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refreshToken })
+        });
+
+        if (refreshRes.ok) {
+          const data = await refreshRes.json();
+          const newAccessToken = data.accessToken;
+          
+          // Update storage
+          if (localStorage.getItem("token")) {
+            localStorage.setItem("token", newAccessToken);
+          } else {
+            sessionStorage.setItem("token", newAccessToken);
+          }
+
+          // Retry original request with new token
+          headers.Authorization = `Bearer ${newAccessToken}`;
+          res = await fetch(BASE_URL + url, {
+            ...options,
+            headers,
+          });
+        } else {
+          // Refresh failed - clear everything
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("refreshToken");
+          window.location.href = "/login";
+        }
+      } catch (e) {
+        console.error("Token refresh failed", e);
+      }
+    }
+  }
 
   if (!res.ok) {
     const err = await res.json();

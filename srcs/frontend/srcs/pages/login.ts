@@ -71,12 +71,13 @@ export function mountLoginPage() {
               try {
                   const res = await googleLoginRequest(response.credential);
                   console.log("Google Login response:", res);
-                  const token = res.accessToken;
+                  const { accessToken, refreshToken } = res;
                   
-                  if (!token) throw new Error(t("no_token_error"));
+                  if (!accessToken) throw new Error(t("no_token_error"));
                   
                   // Google login is always treated as "remember me" or we can default to session
-                  sessionStorage.setItem("token", token);
+                  sessionStorage.setItem("token", accessToken);
+                  if (refreshToken) sessionStorage.setItem("refreshToken", refreshToken);
                   
                   showToast(t("login_success"), "success");
                   await navigate("/home");
@@ -105,17 +106,19 @@ export function mountLoginPage() {
         {
             const res = await loginRequest(email, pass);
             console.log("Login response:", res); // Debug log
-            const token = res.accessToken; // backend returns "accessToken"
+            const { accessToken, refreshToken } = res;
           
-            if (!token) {
+            if (!accessToken) {
               throw new Error(t("no_token_error"));
             }
           
             // Store with consistent key name "token"
             if (remember) {
-              localStorage.setItem("token", token);
+              localStorage.setItem("token", accessToken);
+              if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
             } else {
-              sessionStorage.setItem("token", token);
+              sessionStorage.setItem("token", accessToken);
+              if (refreshToken) sessionStorage.setItem("refreshToken", refreshToken);
             }
             
             console.log("Navigating to /home"); // Debug log

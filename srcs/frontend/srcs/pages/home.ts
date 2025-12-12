@@ -1,8 +1,5 @@
 import { t } from "../lang";
 
-let animationFrameId: number | null = null;
-let resizeHandler: (() => void) | null = null;
-
 export function HomePage() {
   return `
     <div class="cyber-grid"></div>
@@ -65,8 +62,6 @@ export function HomePage() {
     <footer class="w-full p-8 text-center text-gray-700 text-xs relative z-10 tracking-widest mt-auto">
         <p>by ahaarij, abdsayed, and mshaheen</p>
     </footer>
-
-    <canvas id="bgCanvas" class="fixed inset-0 z-0 opacity-50 pointer-events-none"></canvas>
   `;
 }
 
@@ -81,103 +76,8 @@ export function mountHomePage() {
       }
     });
   });
-
-  const canvas = document.getElementById('bgCanvas') as HTMLCanvasElement;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-  
-  let width: number, height: number;
-  let particles: Particle[] = [];
-
-  function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-  }
-  resizeHandler = resize;
-  window.addEventListener('resize', resize);
-  resize();
-
-
-  // basically the background particles
-  class Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
-      color: string;
-
-      constructor() {
-          this.x = Math.random() * width;
-          this.y = Math.random() * height;
-          this.vx = (Math.random() - 0.5) * 0.2;
-          this.vy = (Math.random() - 0.5) * 0.2;
-          this.size = Math.random() * 1.5;
-          this.color = Math.random() > 0.5 ? '#00f3ff' : '#ffffff';
-      }
-
-      update() {
-          this.x += this.vx;
-          this.y += this.vy;
-
-          if (this.x < 0) this.x = width;
-          if (this.x > width) this.x = 0;
-          if (this.y < 0) this.y = height;
-          if (this.y > height) this.y = 0;
-      }
-
-      draw() {
-          if (!ctx) return;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fill();
-      }
-  }
-
-  for (let i = 0; i < 40; i++) {
-      particles.push(new Particle());
-  }
-
-  function animate() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, width, height);
-      particles.forEach(p => {
-          p.update();
-          p.draw();
-      });
-      
-      // connecting lines (constellation types)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-              const dx = particles[i].x - particles[j].x;
-              const dy = particles[i].y - particles[j].y;
-              const dist = Math.sqrt(dx * dx + dy * dy);
-              
-              if (dist < 120) {
-                  ctx.beginPath();
-                  ctx.moveTo(particles[i].x, particles[i].y);
-                  ctx.lineTo(particles[j].x, particles[j].y);
-                  ctx.stroke();
-              }
-          }
-      }
-      
-      animationFrameId = requestAnimationFrame(animate);
-  }
-  animate();
 }
 
 export function unmountHomePage() {
-    if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-    }
-    if (resizeHandler) {
-        window.removeEventListener('resize', resizeHandler);
-        resizeHandler = null;
-    }
+    // No cleanup needed anymore
 }
