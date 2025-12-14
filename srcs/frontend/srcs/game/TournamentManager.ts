@@ -17,6 +17,9 @@ export class TournamentManager {
         const playerInput = container.querySelector("#playerInputs")!;
         playerInput.innerHTML = "";
 
+        const tourneyError = container.querySelector("#tourneyError") as HTMLElement;
+        if(tourneyError) tourneyError.innerText = "";
+        
         const firstInput = document.createElement("input");
         firstInput.type = "text";
         firstInput.placeholder = currentUsername;

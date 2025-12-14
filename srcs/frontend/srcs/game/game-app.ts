@@ -6,6 +6,8 @@ import { GameRenderer } from "./GameRenderer";
 import { GameAI } from "./GameAI";
 import { TournamentManager } from "./TournamentManager";
 import { GameUI } from "./GameUI";
+import { FourPlayerSetup } from "./FourPlayerSetup";
+import { FourPlayerManager } from "./FourPlayerManager";
 
 type AppFlowState = 'MENU' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 
@@ -15,11 +17,12 @@ export class GameApp {
     private renderer!: GameRenderer;
     private ai!: GameAI;
     private tournament!: TournamentManager;
-    
+    private fourPlayerManager: FourPlayerManager | null = null;
+
     private canvas!: HTMLCanvasElement;
     private context!: CanvasRenderingContext2D;
     private animationFrameId: number | null = null;
-    
+
     // State
     private gameState: AppFlowState = 'MENU';
     private gameMode: 'PvP' | 'PvAI' | 'Tournament' = 'PvP';
@@ -58,15 +61,15 @@ export class GameApp {
     private init() {
         this.renderHTML();
         this.cacheElements();
-        
+
         this.renderer = new GameRenderer(this.context, this.engine);
         this.ai = new GameAI(this.engine);
 
         this.attachEventListeners();
-        
+
         this.GameLoop = this.GameLoop.bind(this);
         this.animationFrameId = requestAnimationFrame(this.GameLoop);
-        
+
         window.addEventListener('resize', this.resize);
         this.resize();
     }
@@ -84,10 +87,10 @@ export class GameApp {
         const wrapper = this.container.querySelector("#game-wrapper") as HTMLElement;
         if (!wrapper) return;
 
-        const padding = 40; 
+        const padding = 40;
         const availableW = window.innerWidth - padding;
         const availableH = window.innerHeight - padding;
-        
+
         const scaleW = availableW / GAME_WIDTH;
         const scaleH = availableH / GAME_HEIGHT;
         const scale = Math.min(scaleW, scaleH);
@@ -125,7 +128,7 @@ export class GameApp {
             this.mainMenu.style.display = 'block';
             this.gameState = 'MENU';
         }
-        
+
         if (["ArrowUp", "ArrowDown", "W", "w", "S", "s"].includes(e.key))
             e.preventDefault();
         this.keysPressed[e.key] = true;
@@ -214,6 +217,24 @@ export class GameApp {
             this.aiOptions.style.display = "block";
         });
 
+        q("#btnMultiplayer").addEventListener("click", () => {
+            this.mainMenu.style.display = "none";
+            new FourPlayerSetup(
+                this.container,
+                this.currentUsername,
+                (names) => this.start4playerGame(names),
+                () => {
+                        const q = (sel: string) => this.container.querySelector(sel) as HTMLElement;
+                        q("#btnPvP").classList.add("selected");
+                        q("#btnPvAI").classList.remove("selected");
+                        q("#btnTourney").classList.remove("selected");
+                        q("#btnMultiplayer").classList.remove("selected");
+                        this.gameMode = 'PvP';
+                        this.mainMenu.style.display = "block";
+                }
+            );
+        });
+
         q("#btnLeft").addEventListener("click", () => {
             this.playerSide = 'Left';
             q("#btnLeft").classList.add("selected");
@@ -261,7 +282,7 @@ export class GameApp {
 
         q("#btnCloseBracket").addEventListener("click", () => {
             this.bracketScreen.style.display = "none";
-            if (this.tournament.tournamentBracket.length === 1 && this.tournament.tournamentWinner.length === 1 && this.tournament.tournamentRound > 1){
+            if (this.tournament.tournamentBracket.length === 1 && this.tournament.tournamentWinner.length === 1 && this.tournament.tournamentRound > 1) {
                 this.championScreen.style.display = "block";
             } else {
                 this.tournamentMatchScreen.style.display = "block";
@@ -284,7 +305,7 @@ export class GameApp {
             let val = parseFloat(source.value);
             const min = parseFloat(source.min);
             const max = parseFloat(source.max);
-            
+
             if (val < min) val = min;
             if (val > max) val = max;
 
@@ -309,23 +330,23 @@ export class GameApp {
         q("#btnPlay").addEventListener("click", () => {
             const pHeight = parseInt(paddleInput.value);
             const bSpeed = parseFloat(ballInput.value);
-            
+
             this.engine.setGameParameters(pHeight, bSpeed);
             this.engine.setWinningScore(this.winningScore);
             this.engine.restart();
-            
+
             this.customizationMenu.style.display = "none";
             this.uiLayer.style.display = "none";
             this.gameOverScreen.style.display = "none";
 
-            if (this.gameMode === 'PvP'){
+            if (this.gameMode === 'PvP') {
                 this.displayP1name = this.currentUsername;
                 this.displayP2name = "Player 2";
-            } else if (this.gameMode === 'PvAI'){
+            } else if (this.gameMode === 'PvAI') {
                 this.displayP1name = this.playerSide === 'Left' ? this.currentUsername : "AI";
                 this.displayP2name = this.playerSide === 'Right' ? this.currentUsername : "AI";
             }
-            
+
             this.ai.reset();
             this.countDown = 3;
             this.gameState = 'COUNTDOWN';
@@ -334,7 +355,7 @@ export class GameApp {
     }
 
     private prepareNextMatch() {
-        if (this.tournament.currentMatchIndex < this.tournament.tournamentBracket.length){
+        if (this.tournament.currentMatchIndex < this.tournament.tournamentBracket.length) {
             const match = this.tournament.tournamentBracket[this.tournament.currentMatchIndex];
             (this.container.querySelector("#tourneyRoundDisplay") as HTMLElement).innerText = this.tournament.tournamentRound.toString();
             (this.container.querySelector("#matchupText") as HTMLElement).innerText = `${match.player1}  VS  ${match.player2}`;
@@ -345,18 +366,24 @@ export class GameApp {
             this.mainMenu.style.display = "none";
             this.gameOverScreen.style.display = "none";
         } else {
-            if (this.tournament.tournamentBracket.length === 1){
+            if (this.tournament.tournamentBracket.length === 1) {
                 (this.container.querySelector("#championName") as HTMLElement).innerText = this.tournament.tournamentWinner[0];
                 this.championScreen.style.display = "block";
                 this.tournamentMatchScreen.style.display = "none";
                 this.gameOverScreen.style.display = "none";
                 this.uiLayer.style.display = "flex";
+                const q = (sel: string) => this.container.querySelector(sel) as HTMLElement;
+                q("#btnPvP").classList.add("selected");
+                q("#btnPvAI").classList.remove("selected");
+                q("#btnTourney").classList.remove("selected");
+                q("#btnMultiplayer").classList.remove("selected");
+                this.gameMode = 'PvP';
             } else {
                 const survivors = [...this.tournament.tournamentWinner];
                 this.tournament.tournamentWinner = [];
                 this.tournament.tournamentBracket = [];
-                for (let i = 0; i < survivors.length; i += 2){
-                    this.tournament.tournamentBracket.push({player1: survivors[i], player2: survivors[i+1]});
+                for (let i = 0; i < survivors.length; i += 2) {
+                    this.tournament.tournamentBracket.push({ player1: survivors[i], player2: survivors[i + 1] });
                 }
                 this.tournament.currentMatchIndex = 0;
                 this.tournament.tournamentRound += 1;
@@ -372,22 +399,22 @@ export class GameApp {
     }
 
     private async handleMatchEnd() {
-        if (!this.userId){
+        if (!this.userId) {
             console.warn("User ID not available. Cannot send match result.");
             return;
         }
 
-        try{
+        try {
             let userSide: 1 | 2;
             let userScore: number;
             let opponentScore: number;
             let didUserWin: boolean;
             let opponentId: string;
-            
-            if (this.gameMode === 'PvAI'){
+
+            if (this.gameMode === 'PvAI') {
                 userSide = this.playerSide === 'Left' ? 1 : 2;
                 opponentId = 'AI';
-                if (userSide === 1){
+                if (userSide === 1) {
                     userScore = this.engine.state.p1score;
                     opponentScore = this.engine.state.p2score;
                 } else {
@@ -395,7 +422,7 @@ export class GameApp {
                     opponentScore = this.engine.state.p1score;
                 }
                 didUserWin = userScore > opponentScore;
-            }else {
+            } else {
                 userSide = 1;
                 opponentId = this.displayP2name;
                 userScore = this.engine.state.p1score;
@@ -419,11 +446,11 @@ export class GameApp {
 
     }
     private async handleTournamentEnd(player1: string, player2: string, winner: string) {
-        if (!this.userId){
+        if (!this.userId) {
             return;
         }
 
-        try{
+        try {
             const userIsPlayer1 = player1 === this.currentUsername;
             const userSide = userIsPlayer1 ? 1 : 2;
             const userScore = userIsPlayer1 ? this.engine.state.p1score : this.engine.state.p2score;
@@ -450,11 +477,11 @@ export class GameApp {
     }
 
     private GameLoop(timestamp: number) {
-        if (this.gameState === 'COUNTDOWN'){
+        if (this.gameState === 'COUNTDOWN') {
             this.renderer.render(this.displayP1name, this.displayP2name);
             this.renderer.drawCountdown(this.countDown);
-            
-            if (timestamp - this.countDownTimer > 1000){
+
+            if (timestamp - this.countDownTimer > 1000) {
                 this.countDown -= 1;
                 this.countDownTimer = timestamp;
                 if (this.countDown <= 0) {
@@ -463,20 +490,20 @@ export class GameApp {
                 }
             }
         }
-        else if (this.gameState === 'PLAYING'){
-            if (this.gameMode === 'PvAI'){
+        else if (this.gameState === 'PLAYING') {
+            if (this.gameMode === 'PvAI') {
                 this.ai.update(timestamp, this.playerSide);
             }
-            
+
             this.handleInput();
             this.engine.update();
-            
-            if (this.engine.state.winner !== 0){
-                if (this.gameMode === 'Tournament'){
+
+            if (this.engine.state.winner !== 0) {
+                if (this.gameMode === 'Tournament') {
                     const match = this.tournament.tournamentBracket[this.tournament.currentMatchIndex];
                     const winnerName = this.engine.state.winner === 1 ? match.player1 : match.player2;
                     const roundIndex = this.tournament.tournamentRound - 1;
-                    
+
                     if (this.tournament.visualBracket[roundIndex] && this.tournament.visualBracket[roundIndex][this.tournament.currentMatchIndex]) {
                         this.tournament.visualBracket[roundIndex][this.tournament.currentMatchIndex].winner = winnerName;
                     }
@@ -485,7 +512,7 @@ export class GameApp {
                     if (this.tournament.visualBracket[nextRoundIndex]) {
                         const nextMatchIndex = Math.floor(this.tournament.currentMatchIndex / 2);
                         const isPlayer1Slot = (this.tournament.currentMatchIndex % 2 === 0);
-                        
+
                         if (this.tournament.visualBracket[nextRoundIndex][nextMatchIndex]) {
                             if (isPlayer1Slot) {
                                 this.tournament.visualBracket[nextRoundIndex][nextMatchIndex].p1 = winnerName;
@@ -497,7 +524,7 @@ export class GameApp {
                     this.handleTournamentEnd(match.player1, match.player2, winnerName);
                     this.tournament.tournamentWinner.push(winnerName);
                     this.tournament.currentMatchIndex += 1;
-                    this.gameState = 'MENU'; 
+                    this.gameState = 'MENU';
                     this.engine.state.winner = 0;
                     this.prepareNextMatch();
                 } else {
@@ -518,10 +545,10 @@ export class GameApp {
         this.uiLayer.style.display = "flex";
         this.mainMenu.style.display = "none";
         this.gameOverScreen.style.display = "block";
-        
+
         let text = `${t("player_name_placeholder")} ${winner} ${t("wins")}`;
-        if (this.gameMode === 'PvAI'){
-            if ((winner === 1 && this.playerSide === 'Left') || (winner === 2 && this.playerSide === 'Right')){
+        if (this.gameMode === 'PvAI') {
+            if ((winner === 1 && this.playerSide === 'Left') || (winner === 2 && this.playerSide === 'Right')) {
                 text = t("you_win");
             } else {
                 text = t("ai_wins");
@@ -531,21 +558,46 @@ export class GameApp {
     }
 
     private handleInput() {
-        if (this.gameMode === 'PvP' || this.gameMode === 'PvAI' && this.playerSide === 'Left' || this.gameMode === 'Tournament'){
-            if (this.keysPressed["W"] || this.keysPressed["w"]){
+        if (this.gameMode === 'PvP' || this.gameMode === 'PvAI' && this.playerSide === 'Left' || this.gameMode === 'Tournament') {
+            if (this.keysPressed["W"] || this.keysPressed["w"]) {
                 this.engine.movePaddle(1, "UP");
             }
-            if (this.keysPressed["S"] || this.keysPressed["s"]){
+            if (this.keysPressed["S"] || this.keysPressed["s"]) {
                 this.engine.movePaddle(1, "DOWN");
             }
         }
-        if (this.gameMode === 'PvP' || this.gameMode === 'PvAI' && this.playerSide === 'Right' || this.gameMode === 'Tournament'){
-            if (this.keysPressed["ArrowUp"]){
+        if (this.gameMode === 'PvP' || this.gameMode === 'PvAI' && this.playerSide === 'Right' || this.gameMode === 'Tournament') {
+            if (this.keysPressed["ArrowUp"]) {
                 this.engine.movePaddle(2, "UP");
             }
-            if (this.keysPressed["ArrowDown"]){
+            if (this.keysPressed["ArrowDown"]) {
                 this.engine.movePaddle(2, "DOWN");
             }
         }
+    }
+
+    private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}) {
+        this.uiLayer.style.display = "none";
+        this.canvas.style.display = "none";
+        this.fourPlayerManager = new FourPlayerManager(
+            this.container,
+            names,
+            () => {
+                if (this.fourPlayerManager) {
+                    this.fourPlayerManager.destroy();
+                    this.fourPlayerManager = null;
+                }
+                this.canvas.style.display = "block";
+                this.uiLayer.style.display = "flex";
+                this.mainMenu.style.display = "block";
+
+                const q = (sel: string) => this.container.querySelector(sel) as HTMLElement;
+                q("#btnPvP").classList.add("selected");
+                q("#btnPvAI").classList.remove("selected");
+                q("#btnTourney").classList.remove("selected");
+                q("#btnMultiplayer").classList.remove("selected");
+                this.gameMode = 'PvP';
+            }
+        );
     }
 }

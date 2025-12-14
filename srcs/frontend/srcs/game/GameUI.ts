@@ -27,6 +27,7 @@ export class GameUI {
                         <button id="btnPvP" class="btn selected">${t("2_players")}</button>
                         <button id="btnPvAI" class="btn">${t("vs_ai")}</button>
                         <button id="btnTourney" class="btn">${t("tournament")}</button>
+                        <button id="btnMultiplayer" class="btn">${t("4 player")}</button>
                     </div>
                     <div id="aiOptions" style="display: none; margin-bottom: 20px;">
                         <p style="margin-bottom: 5px; color: #aaa;">${t("player_side")}</p>
@@ -73,7 +74,7 @@ export class GameUI {
                     <button id="btnBackCustom" class="btn" style="margin-top: 15px; border: none; font-size: 14px;">&lt; ${t("back")}</button>
                 </div>
 
-                <div id="tournamentMenu" style="display: none; text-align: center;">
+                <div id="tournamentMenu" style="display: none; text-align: center; max-height: 80vh; overflow-y: auto; padding: 20px;">
                     <h2 style="margin-bottom: 20px;">${t("tournament_registration")}</h2>
                     <div style="margin-bottom: 15px;">
                         <p style="color: #aaa; margin-bottom: 5px;">${t("players")}</p>

@@ -27,7 +27,8 @@ clean:
 
 data:
 	@echo "🗄️  Setting up database..."
-	@sleep 3
+# 	@sleep 3
+	@ping -n 4 127.0.0.1 > nul
 	docker exec transcendence-backend npx prisma db push
 	docker restart transcendence-backend
 	@echo "✅ Database ready!"
