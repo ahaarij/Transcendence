@@ -55,7 +55,8 @@ export async function registerUserRoutes(app: FastifyInstance) {
             const buffer = Buffer.from(matches[2], 'base64');
             const extension = type.split('/')[1];
             const filename = `avatar-${decoded.userId}-${Date.now()}.${extension}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+            // Use absolute path inside container, do not rely on process.cwd() structure matching local
+            const uploadDir = '/app/public/uploads';
             
             if (!fs.existsSync(uploadDir)) {
               fs.mkdirSync(uploadDir, { recursive: true });

@@ -19,7 +19,7 @@ services:
     volumes:
       - ./backend/prisma:/app/prisma
       - backend-data:/app/prisma
-      - ./backend/public:/app/public
+      - backend-uploads:/app/public
     networks:
       - transcendence-network
     restart: unless-stopped
@@ -52,3 +52,4 @@ networks:
 
 volumes:
   backend-data:
+  backend-uploads:
