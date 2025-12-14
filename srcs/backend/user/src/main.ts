@@ -1,4 +1,6 @@
 import type { FastifyInstance } from 'fastify';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export async function registerUserRoutes(app: FastifyInstance) {
   app.get("/user/health", async () => ({ status: "ok", service: "user" }));
@@ -42,6 +44,33 @@ export async function registerUserRoutes(app: FastifyInstance) {
       
       const { username, avatar } = request.body as { username?: string; avatar?: string };
       
+      let avatarUrl = avatar;
+
+      // Handle Base64 Image Upload
+      if (avatar && avatar.startsWith('data:image')) {
+        try {
+          const matches = avatar.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          if (matches && matches.length === 3) {
+            const type = matches[1];
+            const buffer = Buffer.from(matches[2], 'base64');
+            const extension = type.split('/')[1];
+            const filename = `avatar-${decoded.userId}-${Date.now()}.${extension}`;
+            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+            
+            if (!fs.existsSync(uploadDir)) {
+              fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            
+            const filepath = path.join(uploadDir, filename);
+            fs.writeFileSync(filepath, buffer);
+            
+            avatarUrl = `/public/uploads/${filename}`;
+          }
+        } catch (err) {
+          console.error("Failed to save avatar:", err);
+        }
+      }
+
       // Check if username is taken if it's being changed
       if (username) {
         const existing = await app.prisma.user.findUnique({
@@ -56,7 +85,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
         where: { id: decoded.userId },
         data: {
           ...(username && { username }),
-          ...(avatar && { avatar }),
+          ...(avatarUrl && { avatar: avatarUrl }),
         },
         select: {
           id: true,

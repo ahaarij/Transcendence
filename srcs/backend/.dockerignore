@@ -19,6 +19,9 @@ build/
 coverage/
 .nyc_output/
 
+# Generated Prisma Client (should be generated inside container)
+generated/
+
 # IDE
 .vscode/
 .idea/

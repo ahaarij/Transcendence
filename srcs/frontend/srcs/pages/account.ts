@@ -2,6 +2,7 @@ import { meRequest } from "../api/auth";
 import { updateProfile } from "../api/user";
 import { showToast, showInputModal } from "../utils/ui";
 import { t } from "../lang";
+import { config } from "../config";
 
 export function AccountPage() {
   return `
@@ -84,7 +85,13 @@ export function mountAccountPage() {
             }
 
             if (user.avatar && profilePic) {
-                profilePic.src = user.avatar;
+                if (user.avatar.startsWith("http") || user.avatar.startsWith("data:")) {
+                    profilePic.src = user.avatar;
+                } else if (user.avatar.startsWith("/public/")) {
+                    profilePic.src = `${config.API_BASE_URL}${user.avatar}`;
+                } else {
+                    profilePic.src = user.avatar;
+                }
             }
           }
         })
