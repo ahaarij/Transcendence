@@ -28,7 +28,7 @@ export class FourPlayerEngine {
 
     private initGame(playerNames: { top: string; bottom: string; left: string; right: string }): FourPlayerGameState {
         const center = this.boardSize / 2;
-
+        const activePlayers = new Set<PlayerSide> (['top', 'bottom', 'left', 'right']);
         return {
             players: {
                 top: {
@@ -78,27 +78,40 @@ export class FourPlayerEngine {
                 y: center - FOUR_PLAYER_BALL_SIZE / 2
             },
 
-            ballVelocity: this.getRandomInitialVelocity(),
+            ballVelocity: this.getRandomInitialVelocity(activePlayers),
 
             winner:null,
-            activePlayers: new Set(['top', 'bottom', 'left', 'right'])
+            // activePlayers: new Set(['top', 'bottom', 'left', 'right'])
+            activePlayers: activePlayers
         };
     }
 
-    private getRandomInitialVelocity(): Point {
+    private getRandomInitialVelocity(activePlayers?: Set<PlayerSide>): Point {
         // random direction: 0 = up, 1 = down, 2 = left, 3 = right
-        const direction = Math.floor(Math.random() * 4);
-        // now add randomness to the angle
-        const angle = (Math.random() - 0.5) * 0.8; // angle  -0.5 to 0.5
+        // we need to ensure the ball doesn't go too vertically or horizontally straight
+        //also if someone is eliminated we need to avoid going towards their side
+        const activeSet = activePlayers || this.state.activePlayers;
+        const activeSides: PlayerSide[] = [];
+        if (activeSet.has('top')) activeSides.push('top');
+        if (activeSet.has('bottom')) activeSides.push('bottom'); 
+        if (activeSet.has('left')) activeSides.push('left'); 
+        if (activeSet.has('right')) activeSides.push('right');
 
-        switch (direction) {
-            case 0: // up
+        const targetSides = activeSides[Math.floor(Math.random() * activeSides.length)];
+        // const direction = Math.floor(Math.random() * 4);
+        
+        // now add randomness to the angle
+        // const angle = (Math.random() - 0.5) * 0.8; // angle  -0.5 to 0.5
+        const angle =  (Math.random() * 0.4 + 0.3) * (Math.random() < 0.5 ? -1 : 1); // angle between 0.3 and 0.7 or -0.3 and -0.7
+
+        switch (targetSides) {
+            case 'top': // up
                 return {x: this.ballSpeed * angle, y: -this.ballSpeed};
-            case 1: // down
+            case 'bottom': // down
                 return {x: this.ballSpeed * angle, y: this.ballSpeed};
-            case 2: // left
+            case 'left': // left
                 return {x: -this.ballSpeed, y: this.ballSpeed * angle};
-            case 3: // right
+            case 'right': // right
             default:
                 return {x: this.ballSpeed, y: this.ballSpeed * angle};
         }
