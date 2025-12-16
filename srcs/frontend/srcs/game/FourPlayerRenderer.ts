@@ -38,7 +38,7 @@ export class FourPlayerRenderer {
         this.drawCenterLines();
         this.drawPaddles(state);
         this.drawBall(state.ball.x, state.ball.y);
-        this.drawPlayerInfo(state);
+        // this.drawPlayerInfo(state);
     }
 
     private clearCanvas(): void {

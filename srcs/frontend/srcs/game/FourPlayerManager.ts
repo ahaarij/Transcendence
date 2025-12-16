@@ -1,6 +1,7 @@
 import { FourPlayerEngine } from "./FourPlayerEngine";
 import { FourPlayerRenderer } from "./FourPlayerRenderer";
 import { FourPlayerInput } from "./FourPlayerInput";
+import { PlayerSide } from "./types";
 
 type GameState = 'SETUP' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 
@@ -38,17 +39,70 @@ export class FourPlayerManager {
 
     private createCanvas(): HTMLCanvasElement {
         
-        const wrapper = document.createElement('div');
-        wrapper.id = 'fourPlayerWrapper';
-        wrapper.style.cssText = `
+        const gameContainer = document.createElement('div');
+        gameContainer.id = 'fourPlayerGameContainer';
+        gameContainer.style.cssText = `
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-areas:
+                ". top ."
+                "left canvas right"
+                ". bottom .";
+            grid-template-columns: 200px 600px 200px;
+            grid-template-rows: auto 600px auto;
+            align-items: center;
+            gap: 20px;
+        `;
+        // const infoContainer = document.createElement('div');
+        // infoContainer.id = 'fourPlayerInfo';
+        // infoContainer.style.cssText = `
+        //     display: grid;
+        //     grid-template-columns: 1fr 1fr;
+        //     gap: 40px;
+        //     width: 800px;
+        //     font-family: monospace;
+        //     colour: white;
+        //     font-size: 18px;
+        // `;
+        // ['top', 'bottom', 'left', 'right'].forEach(side => {
+        //     const infoBox = document.createElement('div');
+        //     infoBox.id = `info-${side}`;
+        //     infoBox.style.cssText = `
+        //         padding: 15px;
+        //         background: rgba(0, 0, 0, 0.7);
+        //         border: 2px solid grey;
+        //         border-radius: 10px;
+        //         text-align: center;
+        //     `;
+        //     infoBox.innerHTML = `
+        //     <div class = "player-name" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
+        //     <div class= "player-lives" style="margin-bottom: 8px;"></div>
+        //     <div class= "player-controls" style="color: #888; font-size: 14px;"></div>
+        //     `;
+        //     infoContainer.appendChild(infoBox);
+        // });
+        const canvasWrapper = document.createElement('div');
+        canvasWrapper.style.cssText = `
+            grid-area: canvas;
             width: 600px;
             height: 600px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         `;
+
+        // const wrapper = document.createElement('div');
+        // wrapper.id = 'fourPlayerWrapper';
+        // wrapper.style.cssText = `
+        //     position: absolute;
+        //     top: 50%;
+        //     left: 50%;
+        //     transform: translate(-50%, -50%);
+        //     width: 600px;
+        //     height: 600px;
+        //     box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        // `;
             
         const canvas = document.createElement('canvas');
         canvas.id = 'fourPlayerCanvas';
@@ -62,11 +116,42 @@ export class FourPlayerManager {
             display: block;
             box-sizing: border-box;
         `;
-        wrapper.appendChild(canvas);
-        this.container.appendChild(wrapper);
+        canvasWrapper.appendChild(canvas);
 
-        this.applyScaling(wrapper);
-        window.addEventListener('resize', () => this.applyScaling(wrapper));
+        const sides: Array<{side: PlayerSide, gridArea: string}> = [
+            {side: 'top', gridArea: 'top'},
+            {side: 'bottom', gridArea: 'bottom'},
+            {side: 'left', gridArea: 'left'},
+            {side: 'right', gridArea: 'right'},
+        ];
+
+        sides.forEach(({side, gridArea}) => {
+            const infoBox = document.createElement('div');
+            infoBox.id = `info-${side}`;
+            infoBox.style.cssText = `
+                grid-area: ${gridArea};
+                padding: 15px;
+                background: rgba(0, 0, 0, 0.7);
+                border-radius: 10px;
+                text-align: center;
+            `;
+            infoBox.innerHTML = `
+                <div class = "player-name" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
+                <div class= "player-lives" style="margin-bottom: 8px;"></div>
+                <div class= "player-controls" style="color: #888; font-size: 14px;"></div>
+            `;
+            gameContainer.appendChild(infoBox);
+        });
+        // gameContainer.appendChild(infoContainer);
+        gameContainer.appendChild(canvasWrapper);
+        this.container.appendChild(gameContainer);
+        // this.container.appendChild(wrapper);
+
+        // this.applyScaling(wrapper);
+        this.applyScaling(gameContainer);
+        // window.addEventListener('resize', () => this.applyScaling(wrapper));
+        window.addEventListener('resize', () => this.applyScaling(gameContainer));
+
     // this.container.appendChild(canvas);
         return canvas;
     }
@@ -75,11 +160,15 @@ export class FourPlayerManager {
         const padding = 40;
         const availableW = window.innerWidth - padding;
         const availableH = window.innerHeight - padding;
-        const gameSize = 600;
+        // const gameSize = 600;
+        const totalWidth = 1000;
+        const totalHeight = 800;
 
-        const scaleW = availableW / gameSize;
-        const scaleH = availableH / gameSize;
-        const scale = Math.min(scaleW, scaleH);
+        // const scaleW = availableW / gameSize;
+        // const scaleH = availableH / gameSize;
+        const scaleW = availableW / totalWidth;
+        const scaleH = availableH / totalHeight;
+        const scale = Math.min(scaleW, scaleH, 1);
 
         wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
@@ -115,7 +204,7 @@ export class FourPlayerManager {
     private handleCountdown(timestamp: number): void {
         this.renderer.render(this.engine.state);
         this.renderer.drawCountdown(this.countdownValue);
-
+        this.updatePlayerInfo();
         if (timestamp - this.countdownTimer > 1000){
             this.countdownValue -= 1;
             this.countdownTimer = timestamp;
@@ -130,11 +219,50 @@ export class FourPlayerManager {
         this.processInput();
         this.engine.update();
         this.renderer.render(this.engine.state);
+        this.updatePlayerInfo();
         if (this.engine.state.winner !== null) {
             this.gameState = 'GAMEOVER';
         }
 
         this.animationFrameId = requestAnimationFrame(this.gameLoop);
+    }
+
+    private updatePlayerInfo(): void {
+        const controlMap = {
+            top: 'V / B',
+            bottom: 'J / K',
+            left: 'W / S',
+            right: '↑/↓'
+        };
+        
+        (['top', 'bottom', 'left', 'right'] as PlayerSide[]).forEach((side: PlayerSide) => {
+            const infoBox = document.getElementById(`info-${side}`);
+            if (!infoBox) return;
+
+            const player = this.engine.state.players[side];
+            const nameEl = infoBox.querySelector('.player-name');
+            const livesEl = infoBox.querySelector('.player-lives');
+            const controlsEl = infoBox.querySelector('.player-controls');
+
+            if (nameEl) nameEl.textContent = player.name;
+            if (controlsEl) controlsEl.textContent = controlMap[side];
+            if (livesEl){
+                if (player.isEliminated) {
+                    livesEl.innerHTML = '<span style= "color: #ff4444;">ELIMINATED</span>';
+                    infoBox.style.opacity = '0.5';
+                    infoBox.style.borderColor = '#444';
+                    // livesEl.textContent = 'ELIMINATED';
+                    // livesEl.style.color = 'red';
+                } else {
+                    //add red hearts for lives and black hearts for lost lives
+                    livesEl.textContent = '❤️'.repeat(player.lives) + '🖤'.repeat(3 - player.lives);
+                    infoBox.style.opacity = '1';
+                    infoBox.style.borderColor = '#0f0';
+                    // livesEl.textContent = `Lives: ${player.lives}`;
+                    // livesEl.style.color = 'white';
+                }
+            }
+        })
     }
 
     private processInput(): void {
@@ -188,12 +316,13 @@ export class FourPlayerManager {
         this.input.destroy();
         window.removeEventListener('keydown', this.handleKeyDown);
 
-        const wrapper = this.container.querySelector('#fourPlayerWrapper');
-        if (wrapper && wrapper.parentNode) {
-            wrapper.parentNode.removeChild(wrapper);
+        const gameContainer = this.container.querySelector('#fourPlayerGameContainer');
+        if (gameContainer && gameContainer.parentNode) {
+            gameContainer.parentNode.removeChild(gameContainer);
         }
-        // if (this.canvas && this.canvas.parentNode) {
-        //     this.canvas.parentNode.removeChild(this.canvas);
+        // const wrapper = this.container.querySelector('#fourPlayerWrapper');
+        // if (wrapper && wrapper.parentNode) {
+        //     wrapper.parentNode.removeChild(wrapper);
         // }
     }
 }

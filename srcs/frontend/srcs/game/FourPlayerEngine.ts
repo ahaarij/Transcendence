@@ -384,21 +384,123 @@ export class FourPlayerEngine {
         const paddle = this.state.players[side].position;
         const speed = FOUR_PLAYER_PADDLE_SPEED;
 
+        let newX = paddle.x;
+        let newY = paddle.y;
+
         if (side === 'top' || side === 'bottom') {
             if (direction === "LEFT") {
-                // paddle.x -= speed;
-                // paddle.x = Math.max(FOUR_PLAYER_PADDLE_OFFSET, Math.min(this.boardSize - FOUR_PLAYER_PADDLE_OFFSET - this.paddleLength, paddle.x));
-                paddle.x = Math.max(0, paddle.x - speed);
+                // paddle.x = Math.max(0, paddle.x - speed);
+                newX = Math.max(0, paddle.x - speed);
             } else if (direction === "RIGHT") {
-                paddle.x = Math.min(this.boardSize - this.paddleLength, paddle.x + speed);
+                // paddle.x = Math.min(this.boardSize - this.paddleLength, paddle.x + speed);
+                newX = Math.min(this.boardSize - this.paddleLength, paddle.x + speed);
             }
         } else {
             if (direction === "UP") {
-                paddle.y = Math.max(0, paddle.y - speed);
+                // paddle.y = Math.max(0, paddle.y - speed);
+                newY = Math.max(0, paddle.y - speed);
             } else if (direction === "DOWN") {
-                paddle.y = Math.min(this.boardSize - this.paddleLength, paddle.y + speed);
+                // paddle.y = Math.min(this.boardSize - this.paddleLength, paddle.y + speed);
+                newY = Math.min(this.boardSize - this.paddleLength, paddle.y + speed);
             }
         }
+
+        const wouldHit = this.checkPaddleCollision(side, newX, newY);
+        if (!wouldHit) {
+            paddle.x = newX;
+            paddle.y = newY;
+        }
+    }
+
+
+    private checkPaddleCollision(movingSide: PlayerSide, newX: number, newY: number): boolean {
+        if (movingSide === 'top'){
+            const leftPad = this.state.players.left;
+            const rightPad = this.state.players.right;
+
+            if (!leftPad.isEliminated){
+                if (newX < leftPad.position.x + this.paddleWidth && newX + this.paddleLength > leftPad.position.x){
+                    if (FOUR_PLAYER_PADDLE_OFFSET < leftPad.position.y + this.paddleLength &&
+                        FOUR_PLAYER_PADDLE_OFFSET + this.paddleWidth > leftPad.position.y){
+                            return true;
+                        }
+                }
+            }
+            if (!rightPad.isEliminated){
+                if (newX < rightPad.position.x + this.paddleWidth && newX + this.paddleLength > rightPad.position.x){
+                    if (FOUR_PLAYER_PADDLE_OFFSET < rightPad.position.y + this.paddleLength &&
+                        FOUR_PLAYER_PADDLE_OFFSET + this.paddleWidth > rightPad.position.y){
+                            return true;
+                        }
+                }
+            }
+        }
+
+        if (movingSide === 'bottom'){
+            const leftPad = this.state.players.left;
+            const rightPad = this.state.players.right;
+            const bottomY = this.boardSize - FOUR_PLAYER_PADDLE_OFFSET - this.paddleWidth;
+            if (!leftPad.isEliminated){
+                if (newX < leftPad.position.x + this.paddleWidth && newX + this.paddleLength > leftPad.position.x){
+                    if (bottomY < leftPad.position.y + this.paddleLength &&
+                        bottomY + this.paddleWidth > leftPad.position.y){
+                            return true;
+                        }
+                }
+            }
+            if (!rightPad.isEliminated){
+                if (newX < rightPad.position.x + this.paddleWidth && newX + this.paddleLength > rightPad.position.x){
+                    if (bottomY < rightPad.position.y + this.paddleLength &&
+                        bottomY + this.paddleWidth > rightPad.position.y){
+                         return true;
+                        }
+                    }
+                }
+        }
+
+        if (movingSide === 'left'){
+            const topPad = this.state.players.top;
+            const botPad = this.state.players.bottom;
+
+            if (!topPad.isEliminated){
+                if (newY < topPad.position.y + this.paddleWidth && newY + this.paddleLength > topPad.position.y){
+                    if (FOUR_PLAYER_PADDLE_OFFSET < topPad.position.x + this.paddleLength &&
+                        FOUR_PLAYER_PADDLE_OFFSET + this.paddleWidth > topPad.position.x){
+                            return true;
+                        }
+                }
+            }
+            if (!botPad.isEliminated){
+                if (newY < botPad.position.y + this.paddleWidth && newY + this.paddleLength > botPad.position.y){
+                    if (FOUR_PLAYER_PADDLE_OFFSET < botPad.position.x + this.paddleLength &&
+                        FOUR_PLAYER_PADDLE_OFFSET + this.paddleWidth > botPad.position.x){
+                            return true;
+                        }
+                }
+            }
+        }
+        if (movingSide === 'right'){
+            const topPad = this.state.players.top;
+            const botPad = this.state.players.bottom;
+            const rightX = this.boardSize - FOUR_PLAYER_PADDLE_OFFSET - this.paddleWidth;
+
+            if (!topPad.isEliminated){
+                if (newY < topPad.position.y + this.paddleWidth && newY + this.paddleLength > topPad.position.y){
+                    if (rightX < topPad.position.x + this.paddleLength &&
+                        rightX + this.paddleWidth > topPad.position.x)
+                        return true;
+                }
+            }
+            if (!botPad.isEliminated){
+                if (newY < botPad.position.y + this.paddleWidth && newY + this.paddleLength > botPad.position.y){
+                    if (rightX < botPad.position.x + this.paddleLength &&
+                        rightX + this.paddleWidth > botPad.position.x)
+                            return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public restart(playerNames: { top: string; bottom: string; left: string; right: string }): void {
