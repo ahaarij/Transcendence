@@ -284,8 +284,8 @@ export class FourPlayerEngine {
         const angle = normalizedImpact * (Math.PI / 3); // max 45 degrees if you need max 60 degrees change 4 to 3
         const currentSpeed = Math.sqrt(this.state.ballVelocity.x**2 + this.state.ballVelocity.y**2);
         let newSpeed = currentSpeed;
-        const MAX_SPEED = 10;
-        const SPEED_MULT = 1.05;
+        const MAX_SPEED = 12;
+        const SPEED_MULT = 1.1;
 
         if (this.lastPaddleHit !== side){
             newSpeed = Math.min(currentSpeed * SPEED_MULT, MAX_SPEED);

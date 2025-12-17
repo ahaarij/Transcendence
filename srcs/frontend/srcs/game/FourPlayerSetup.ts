@@ -71,7 +71,7 @@ export class FourPlayerSetup {
                 <!-- Player 2 (TOP) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 2 (TOP - V/B):
+                        Player 2 (TOP - J/K):
                     </label>
                     <input 
                         type="text" 
@@ -119,7 +119,7 @@ export class FourPlayerSetup {
                 <!-- Player 4 (BOTTOM) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 4 (BOTTOM - J/K):
+                        Player 4 (BOTTOM - V/B):
                     </label>
                     <input 
                         type="text" 

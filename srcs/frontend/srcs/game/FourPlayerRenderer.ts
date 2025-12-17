@@ -208,10 +208,10 @@ export class FourPlayerRenderer {
 
         switch (side) {
             case 'top':
-                controlText = "V/B";
+                controlText = "J/K";
                 break;
             case 'bottom':
-                controlText = "J/K";
+                controlText = "V/B";
                 break;
             case 'left':
                 controlText = "W/S";

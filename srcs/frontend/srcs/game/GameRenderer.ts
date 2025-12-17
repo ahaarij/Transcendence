@@ -25,10 +25,14 @@ export class GameRenderer {
     public drawCountdown(count: number) {
         this.context.fillStyle = "Green";
         this.context.font = "100px Monospace";
-        this.context.fillText(count.toString(), GAME_WIDTH / 4 - 40, GAME_HEIGHT / 2 + 30);
-        this.context.fillText(count.toString(), (GAME_WIDTH - GAME_WIDTH / 4) - 40, GAME_HEIGHT / 2 + 30);
+        if (count > 0){
+            this.context.fillText(count.toString(), GAME_WIDTH / 4 - 40, GAME_HEIGHT / 2 + 30);
+            this.context.fillText(count.toString(), (GAME_WIDTH - GAME_WIDTH / 4) - 40, GAME_HEIGHT / 2 + 30);
+        }else{
+            this.drawGo();
+        }
     }
-
+    
     public drawGo() {
         this.context.fillText("Go!", GAME_WIDTH / 2 - 50, GAME_HEIGHT / 2 + 10);
     }

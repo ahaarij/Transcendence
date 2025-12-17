@@ -135,24 +135,31 @@ export class FourPlayerManager {
                 border-radius: 10px;
                 text-align: center;
             `;
-            infoBox.innerHTML = `
-                <div class = "player-name" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
-                <div class= "player-lives" style="margin-bottom: 8px;"></div>
-                <div class= "player-controls" style="color: #888; font-size: 14px;"></div>
-            `;
+            const playerName = document.createElement('div');
+            playerName.className = 'player-name';
+            playerName.style.cssText = 'font-size: 20px; font-weight: bold; margin-bottom: 10px;';
+
+            const playerLives = document.createElement('div');
+            playerLives.className = 'player-lives';
+            playerLives.style.cssText = 'margin-bottom: 8px;';
+
+            const playerControls = document.createElement('div');
+            playerControls.className = 'player-controls';
+            playerControls.style.cssText = 'color: #888; font-size: 14px;';
+
+            infoBox.appendChild(playerName);
+            infoBox.appendChild(playerLives);
+            infoBox.appendChild(playerControls);
+            
             gameContainer.appendChild(infoBox);
         });
-        // gameContainer.appendChild(infoContainer);
         gameContainer.appendChild(canvasWrapper);
         this.container.appendChild(gameContainer);
-        // this.container.appendChild(wrapper);
+  
 
-        // this.applyScaling(wrapper);
         this.applyScaling(gameContainer);
-        // window.addEventListener('resize', () => this.applyScaling(wrapper));
         window.addEventListener('resize', () => this.applyScaling(gameContainer));
 
-    // this.container.appendChild(canvas);
         return canvas;
     }
 
@@ -160,12 +167,9 @@ export class FourPlayerManager {
         const padding = 40;
         const availableW = window.innerWidth - padding;
         const availableH = window.innerHeight - padding;
-        // const gameSize = 600;
         const totalWidth = 1000;
         const totalHeight = 800;
 
-        // const scaleW = availableW / gameSize;
-        // const scaleH = availableH / gameSize;
         const scaleW = availableW / totalWidth;
         const scaleH = availableH / totalHeight;
         const scale = Math.min(scaleW, scaleH, 1);
@@ -229,8 +233,8 @@ export class FourPlayerManager {
 
     private updatePlayerInfo(): void {
         const controlMap = {
-            top: 'V / B',
-            bottom: 'J / K',
+            top: 'J / K',
+            bottom: 'V / B',
             left: 'W / S',
             right: '↑/↓'
         };
@@ -240,26 +244,23 @@ export class FourPlayerManager {
             if (!infoBox) return;
 
             const player = this.engine.state.players[side];
-            const nameEl = infoBox.querySelector('.player-name');
-            const livesEl = infoBox.querySelector('.player-lives');
-            const controlsEl = infoBox.querySelector('.player-controls');
+            const nameEl = infoBox.querySelector('.player-name') as HTMLElement;
+            const livesEl = infoBox.querySelector('.player-lives') as HTMLElement;
+            const controlsEl = infoBox.querySelector('.player-controls') as HTMLElement;
 
             if (nameEl) nameEl.textContent = player.name;
             if (controlsEl) controlsEl.textContent = controlMap[side];
             if (livesEl){
                 if (player.isEliminated) {
-                    livesEl.innerHTML = '<span style= "color: #ff4444;">ELIMINATED</span>';
+                    livesEl.textContent = 'ELIMINATED';
+                    livesEl.style.color = '#ff4444';
                     infoBox.style.opacity = '0.5';
                     infoBox.style.borderColor = '#444';
-                    // livesEl.textContent = 'ELIMINATED';
-                    // livesEl.style.color = 'red';
                 } else {
                     //add red hearts for lives and black hearts for lost lives
                     livesEl.textContent = '❤️'.repeat(player.lives) + '🖤'.repeat(3 - player.lives);
                     infoBox.style.opacity = '1';
                     infoBox.style.borderColor = '#0f0';
-                    // livesEl.textContent = `Lives: ${player.lives}`;
-                    // livesEl.style.color = 'white';
                 }
             }
         })
@@ -320,9 +321,5 @@ export class FourPlayerManager {
         if (gameContainer && gameContainer.parentNode) {
             gameContainer.parentNode.removeChild(gameContainer);
         }
-        // const wrapper = this.container.querySelector('#fourPlayerWrapper');
-        // if (wrapper && wrapper.parentNode) {
-        //     wrapper.parentNode.removeChild(wrapper);
-        // }
     }
 }

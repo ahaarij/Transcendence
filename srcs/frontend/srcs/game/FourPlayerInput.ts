@@ -7,12 +7,12 @@ export class FourPlayerInput {
 
     private readonly KEY_MAP = {
         top: {
-            left: ['v', 'V'],
-            right: ['b', 'B'],
-        },
-        bottom: {
             left: ['j', 'J'],
             right: ['k', 'K'],
+        },
+        bottom: {
+            left: ['v', 'V'],
+            right: ['b', 'B'],
         },
         left: {
             up: ['w', 'W'],

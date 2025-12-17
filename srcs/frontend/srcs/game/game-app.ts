@@ -484,8 +484,8 @@ export class GameApp {
             if (timestamp - this.countDownTimer > 1000) {
                 this.countDown -= 1;
                 this.countDownTimer = timestamp;
-                if (this.countDown <= 0) {
-                    this.renderer.drawGo();
+                if (this.countDown < 0) {
+                    // this.renderer.drawGo();
                     this.gameState = 'PLAYING';
                 }
             }
