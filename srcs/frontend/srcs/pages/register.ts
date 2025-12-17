@@ -10,7 +10,7 @@ export function RegisterPage() {
   return `
     <div class="cyber-grid"></div>
     
-    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
+    <div class="page-overlay"></div>
 
     <div class="relative min-h-screen flex items-center justify-center p-4">
       <div class="glass-card p-8 max-w-md w-full rounded-xl border border-white/10">        

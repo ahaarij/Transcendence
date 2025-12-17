@@ -56,7 +56,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
         where: { id: user.id },
         data: { 
           googleId: user.googleId || googleId, //link google id if not set
-          avatar: user.avatar ? undefined : picture //use google picture if no avatar set
+          avatar: (user.avatar === '/assets/default-avatar.png' || !user.avatar) ? picture : undefined
         },
       });
     }

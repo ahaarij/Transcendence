@@ -4,7 +4,7 @@ export function HomePage() {
   return `
     <div class="cyber-grid"></div>
     
-    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
+    <div class="page-overlay"></div>
 
     <main class="flex-grow flex flex-col items-center justify-center text-center px-4 relative z-10 mt-10 w-full min-h-[80vh]">
         
@@ -79,5 +79,4 @@ export function mountHomePage() {
 }
 
 export function unmountHomePage() {
-    // No cleanup needed anymore
 }
