@@ -3,7 +3,10 @@ import { OAuth2Client } from 'google-auth-library';
 import { hashPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens';
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); //initialize google oauth client
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+); //initialize google oauth client
 
 export async function googleLogin(app: FastifyInstance, request: any, reply: any) {
   try {

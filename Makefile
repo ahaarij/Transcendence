@@ -2,7 +2,7 @@ all: up
 
 up:
 	@echo "🐳 Building and starting Transcendence..."
-	cd srcs && docker-compose up --build -d
+	cd srcs && docker-compose --env-file ../.env up --build -d
 	@echo ""
 	@echo "✅ Services started!"
 	@echo "📱 Frontend: http://localhost:8080"

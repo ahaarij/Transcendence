@@ -13,8 +13,10 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=file:./prisma/dev.db
       - PORT=3000
-      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-change-this-in-production}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-change-this-in-production}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - CORS_ORIGIN=http://localhost:8080
     volumes:
       - ./backend/prisma:/app/prisma
@@ -37,6 +39,9 @@ services:
     container_name: transcendence-frontend
     ports:
       - "8080:8080"
+    environment:
+      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     networks:
       - transcendence-network
     volumes:
