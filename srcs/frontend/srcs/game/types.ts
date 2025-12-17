@@ -55,6 +55,9 @@ export interface MatchPayload {
     tournamentSize?: number;
     tournamentRound?: number;
     isEliminated?: boolean; // maybe change it late to eliminatedBy?: string; and store who eliminated the user or null/undefined if not eliminated
+
+    //optional only for four player mode // can add more later if needed
+    livesRemaining?: number;
 }
 
 export const GAME_WIDTH = 800;

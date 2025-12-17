@@ -582,6 +582,7 @@ export class GameApp {
         this.fourPlayerManager = new FourPlayerManager(
             this.container,
             names,
+            this.userId,
             () => {
                 if (this.fourPlayerManager) {
                     this.fourPlayerManager.destroy();

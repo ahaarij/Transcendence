@@ -52,7 +52,6 @@ export class FourPlayerSetup {
                     <input 
                         type="text" 
                         id="player1Name" 
-                        value="${this.currentUsername}"
                         disabled
                         style="
                             width: 100%;
@@ -178,7 +177,8 @@ export class FourPlayerSetup {
                 </button>
             </div>
         `;
-
+        const player1Input = this.setupScreen.querySelector('#player1Name') as HTMLInputElement; // according to ai this is secure against xss vulnerability
+        player1Input.value = this.currentUsername;
         this.container.appendChild(this.setupScreen);
     }
 

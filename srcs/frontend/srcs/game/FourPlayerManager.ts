@@ -2,6 +2,7 @@ import { FourPlayerEngine } from "./FourPlayerEngine";
 import { FourPlayerRenderer } from "./FourPlayerRenderer";
 import { FourPlayerInput } from "./FourPlayerInput";
 import { PlayerSide } from "./types";
+import { sendMatchResult } from "../api/game";
 
 type GameState = 'SETUP' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 
@@ -13,7 +14,8 @@ export class FourPlayerManager {
 
     private canvas: HTMLCanvasElement;
     private container: HTMLElement;
-
+    private resultSent: boolean = false;
+    private userId: number | null;
     private gameState: GameState = 'SETUP';
     private animationFrameId: number | null = null;
     private countdownValue: number = 3; // seconds
@@ -23,11 +25,12 @@ export class FourPlayerManager {
     constructor(
         container: HTMLElement,
         playerNames: {top: string; bottom: string; left: string; right: string;},
+        userId: number | null = null,
         onGameEnd? : () => void
     ){
         this.container = container;
         this.onGameEnd = onGameEnd;
-
+        this.userId = userId;
         this.canvas = this.createCanvas();
         this.engine = new FourPlayerEngine(playerNames);
         this.renderer = new FourPlayerRenderer(this.canvas);
@@ -56,34 +59,7 @@ export class FourPlayerManager {
             align-items: center;
             gap: 20px;
         `;
-        // const infoContainer = document.createElement('div');
-        // infoContainer.id = 'fourPlayerInfo';
-        // infoContainer.style.cssText = `
-        //     display: grid;
-        //     grid-template-columns: 1fr 1fr;
-        //     gap: 40px;
-        //     width: 800px;
-        //     font-family: monospace;
-        //     colour: white;
-        //     font-size: 18px;
-        // `;
-        // ['top', 'bottom', 'left', 'right'].forEach(side => {
-        //     const infoBox = document.createElement('div');
-        //     infoBox.id = `info-${side}`;
-        //     infoBox.style.cssText = `
-        //         padding: 15px;
-        //         background: rgba(0, 0, 0, 0.7);
-        //         border: 2px solid grey;
-        //         border-radius: 10px;
-        //         text-align: center;
-        //     `;
-        //     infoBox.innerHTML = `
-        //     <div class = "player-name" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
-        //     <div class= "player-lives" style="margin-bottom: 8px;"></div>
-        //     <div class= "player-controls" style="color: #888; font-size: 14px;"></div>
-        //     `;
-        //     infoContainer.appendChild(infoBox);
-        // });
+
         const canvasWrapper = document.createElement('div');
         canvasWrapper.style.cssText = `
             grid-area: canvas;
@@ -91,19 +67,7 @@ export class FourPlayerManager {
             height: 600px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         `;
-
-        // const wrapper = document.createElement('div');
-        // wrapper.id = 'fourPlayerWrapper';
-        // wrapper.style.cssText = `
-        //     position: absolute;
-        //     top: 50%;
-        //     left: 50%;
-        //     transform: translate(-50%, -50%);
-        //     width: 600px;
-        //     height: 600px;
-        //     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        // `;
-            
+     
         const canvas = document.createElement('canvas');
         canvas.id = 'fourPlayerCanvas';
         canvas.width = 600;
@@ -195,6 +159,7 @@ export class FourPlayerManager {
         //start the game loop
         this.animationFrameId = requestAnimationFrame(this.gameLoop);
     }
+
     private gameLoop = (timestamp: number): void => {
         if (this.gameState === 'COUNTDOWN') {
             this.handleCountdown(timestamp);
@@ -293,11 +258,48 @@ export class FourPlayerManager {
         }
     }
 
+
+    private async sendFourPlayerMatchResult(): Promise<void> {
+        if (!this.userId || !this.engine.state.winner) return; // userId is required to send match result
+        
+        const winnerSide = this.engine.state.winner;
+        const userSide: PlayerSide = 'left'; //assuming user is always left player for now
+        const didUserWin = userSide === winnerSide;
+        const userLivesRemaining = this.engine.state.players[userSide].lives;
+
+        const opponents: string[] = [];
+        const sides: PlayerSide[] = ['top', 'bottom', 'right']; // all sides except left(user)
+        sides.forEach(side => {
+            opponents.push(this.engine.state.players[side].name);
+        });
+
+        try {
+            await sendMatchResult({
+                userId: this.userId,
+                userSide: 1, //not relevant for 4 player mode
+                opponentId: opponents.join(','), // join all opponent names
+                userScore: didUserWin ? 1 : 0, // win = 1, lose = 0
+                opponentScore: didUserWin ? 0 : 1,
+                didUserWin: didUserWin,
+                gameMode: 'FourPlayer',
+                livesRemaining: userLivesRemaining,
+            });
+            console.log('Four player match result sent successfully');
+        } catch (error) {
+            console.error('Error sending four player match result:', error);
+        }
+    }
+
     private handleGameOver(): void {
         this.renderer.render(this.engine.state);
         if (this.engine.state.winner){
             const winnerName = this.engine.state.players[this.engine.state.winner].name;
             this.renderer.drawWinner(winnerName);
+
+            if (!this.resultSent){
+                this.sendFourPlayerMatchResult();
+                this.resultSent = true;
+            }
         }
         this.animationFrameId = requestAnimationFrame(this.gameLoop);
     }
