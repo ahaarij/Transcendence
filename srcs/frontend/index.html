@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/arcade-classic" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { background-color: #050505; color: #ffffff; }
+    </style>
 </head>
 <body class="min-h-screen text-gray-900">
     
@@ -32,7 +29,7 @@
 
     <div id="app" class="transition-opacity duration-200"></div>
 
-    <button id="langSwitch"
+    <button id="langSwitch" style="display: none;"
         class="fixed top-4 right-4 btn-icon-neon p-2 px-4 rounded-full flex items-center gap-2 z-50">
         <span id="langIcon">🇬🇧</span> 
         <span id="langLabel">EN</span>

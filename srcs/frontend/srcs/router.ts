@@ -6,6 +6,7 @@ import { loadLanguage, currentLang, t } from "./lang";
 import { SettingsPage, mountSettingsPage, unmountSettingsPage } from "./pages/settings";
 import { AccountPage, mountAccountPage } from "./pages/account";
 import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play";
+import { StatsPage, mountStatsPage } from "./pages/stats";
 import { ErrorPage } from "./pages/error";
 import { meRequest } from "./api/auth";
 
@@ -25,6 +26,7 @@ const routes: Record<string, Route> =
 	"/settings": { render: SettingsPage, mount: mountSettingsPage, unmount: unmountSettingsPage },
 	"/account": { render: AccountPage, mount: mountAccountPage },
 	"/play": { render: PlayPage, mount: mountPlayPage, unmount: unmountPlayPage },
+	"/stats": { render: StatsPage, mount: mountStatsPage },
 };
 
 let currentRoute: Route | null = null;
@@ -55,7 +57,7 @@ export async function loadRoute()
   	}
 }
 
-	const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends", "/settings"];
+	const protectedRoutes = ["/home", "/play", "/account", "/stats", "/settings"];
 
 	if (!isLoggedIn && protectedRoutes.includes(path))
 	{
@@ -131,6 +133,7 @@ export function initRouter()
 	const langBtn = document.getElementById("langSwitch");
 	if (langBtn) 
 	{
+		langBtn.style.display = "flex";
 		langBtn.addEventListener("click", async () => {
 	  	const next =
 			currentLang === "en" ? "fr" :

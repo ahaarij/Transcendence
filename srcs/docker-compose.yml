@@ -20,7 +20,6 @@ services:
       - CORS_ORIGIN=http://localhost:8080
     volumes:
       - ./backend/prisma:/app/prisma
-      - backend-data:/app/prisma
       - backend-uploads:/app/public
     networks:
       - transcendence-network
@@ -56,5 +55,4 @@ networks:
     driver: bridge
 
 volumes:
-  backend-data:
   backend-uploads:

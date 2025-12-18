@@ -1,6 +1,9 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  css: {
+    postcss: './config',
+  },
   server: {
     host: true,
     port: 8080,

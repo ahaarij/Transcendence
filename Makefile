@@ -1,4 +1,4 @@
-all: up data
+all: up
 
 up:
 	@echo "🐳 Building and starting Transcendence..."

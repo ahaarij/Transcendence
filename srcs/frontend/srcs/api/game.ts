@@ -8,4 +8,10 @@ export async function sendMatchResult(matchData: MatchPayload) {
     });
 }
 
+export async function getGameHistory(userId: number) {
+    return await apiRequest(`/game/history/${userId}`, {
+        method: "GET"
+    });
+}
+
 

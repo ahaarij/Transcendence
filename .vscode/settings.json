@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:Transcendence}/srcs/backend/prisma/dev.db",
+            "name": "Transcendence"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
