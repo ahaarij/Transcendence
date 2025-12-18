@@ -14,7 +14,7 @@ export function SettingsPage() {
   return `
     <div class="cyber-grid"></div>
     
-    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
+    <div class="page-overlay"></div>
 
     <div class="relative min-h-screen flex flex-col items-center pt-20 text-white">
 
@@ -27,9 +27,13 @@ export function SettingsPage() {
 
         <div class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-white/5">
             <span class="text-gray-300 font-cyber text-sm tracking-wide">${t("theme")}</span>
-            <button id="themeToggleBtn" class="bg-white/10 hover:bg-white/20 text-white px-4 py-1 rounded transition text-xs tracking-widest border border-white/10">
-                ${t("toggle")}
-            </button>
+            
+            <div id="themeToggleBtn" class="cursor-pointer flex items-center gap-3 group select-none">
+                <span id="themeStateLabel" class="text-xs font-cyber tracking-widest text-gray-400 transition-colors">DARK</span>
+                <div class="w-12 h-6 bg-black/50 border border-white/20 rounded-full relative transition-all duration-300">
+                    <div id="themeToggleKnob" class="absolute top-1 left-1 w-4 h-4 bg-gray-400 rounded-full transition-all duration-300 shadow-sm"></div>
+                </div>
+            </div>
         </div>
 
         <div class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-white/5">
@@ -94,11 +98,38 @@ export function mountSettingsPage() {
     }
 
     const themeBtn = document.getElementById("themeToggleBtn");
-    if (themeBtn) {
+    const themeLabel = document.getElementById("themeStateLabel");
+    const themeKnob = document.getElementById("themeToggleKnob");
+    const themeTrack = themeBtn?.querySelector("div");
+    // i nabbed this muehehehehe { MAKE SURE TO REMOVE THIS COMMENT BEFORE SUBMITTING lol }
+    if (themeBtn && themeLabel && themeKnob && themeTrack) {
+        const updateUI = (isLight: boolean) => {
+            if (isLight) {
+                themeLabel.textContent = "LIGHT";
+                themeLabel.style.color = "#1a1a1a"; 
+                themeKnob.style.transform = "translateX(24px)";
+                themeKnob.style.backgroundColor = "#ff9900";
+                themeKnob.style.boxShadow = "0 0 10px #ff9900";
+                themeTrack.style.backgroundColor = "rgba(255,255,255,0.5)";
+                themeTrack.style.borderColor = "#ff9900";
+            } else {
+                themeLabel.textContent = "DARK";
+                themeLabel.style.color = "#9ca3af"; 
+                themeKnob.style.transform = "translateX(0)";
+                themeKnob.style.backgroundColor = "#00f3ff";
+                themeKnob.style.boxShadow = "0 0 10px #00f3ff";
+                themeTrack.style.backgroundColor = "rgba(0,0,0,0.5)";
+                themeTrack.style.borderColor = "rgba(255,255,255,0.2)";
+            }
+        };
+
+        updateUI(document.body.classList.contains("light-mode"));
+
         themeBtn.addEventListener("click", () => {
-            document.body.classList.toggle("dark");
-            const isDark = document.body.classList.contains("dark");
-            localStorage.setItem("theme", isDark ? "dark" : "light");
+            document.body.classList.toggle("light-mode");
+            const isLightNow = document.body.classList.contains("light-mode");
+            localStorage.setItem("theme", isLightNow ? "light" : "dark");
+            updateUI(isLightNow);
         });
     }
 

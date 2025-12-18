@@ -19,12 +19,7 @@ ENV DATABASE_URL="file:./prisma/dev.db"
 
 RUN npx prisma generate
 
-COPY main.ts ./
-COPY shared ./shared
-COPY auth ./auth
-COPY user ./user
-COPY game ./game
-# COPY public ./public
+COPY . .
 
 RUN mkdir -p /app/prisma
 

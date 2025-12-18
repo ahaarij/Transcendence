@@ -55,7 +55,7 @@ export async function loadRoute()
   	}
 }
 
-	const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends"];
+	const protectedRoutes = ["/home", "/play", "/account", "/stats", "/friends", "/settings"];
 
 	if (!isLoggedIn && protectedRoutes.includes(path))
 	{
@@ -87,18 +87,18 @@ export async function loadRoute()
     }
     currentRoute = route;
 
-	const homeBtn = document.getElementById("homeBtn");
-	const settingsBtn = document.getElementById("settingsBtn");
+	const navContainer = document.getElementById("nav-container");
 
-	if (hideButtonsOn.includes(path))
+	if (navContainer)
 	{
-		if (homeBtn) homeBtn.style.display = "none";
-		if (settingsBtn) settingsBtn.style.display = "none";
-	} 
-	else 
-	{
-		if (homeBtn) homeBtn.style.display = "block";
-		if (settingsBtn) settingsBtn.style.display = "block";
+		if (hideButtonsOn.includes(path))
+		{
+			navContainer.style.display = "none";
+		} 
+		else 
+		{
+			navContainer.style.display = "flex";
+		}
 	}
 
 	app!.style.opacity = "0";
@@ -118,12 +118,13 @@ export async function navigate(path: string)
 export function initRouter()
 {
 	document.addEventListener("click", (e) => {
-	const target = e.target as HTMLElement;
+		const target = e.target as HTMLElement;
+		const link = target.closest("[data-link]");
 
-		if (target.matches("[data-link]")) 
+		if (link) 
 		{
 			e.preventDefault();
-			const href = target.getAttribute("href");
+			const href = link.getAttribute("href");
 			if (href) navigate(href);
 		}
 	});

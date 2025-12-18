@@ -2,12 +2,13 @@ import { meRequest } from "../api/auth";
 import { updateProfile } from "../api/user";
 import { showToast, showInputModal } from "../utils/ui";
 import { t } from "../lang";
+import { config } from "../config";
 
 export function AccountPage() {
   return `
     <div class="cyber-grid"></div>
     
-    <div class="fixed inset-0 bg-gradient-to-b from-transparent via-[#050505]/90 to-[#050505] pointer-events-none -z-1"></div>
+    <div class="page-overlay"></div>
 
     <div class="relative min-h-screen flex flex-col items-center pt-20">
       
@@ -84,7 +85,13 @@ export function mountAccountPage() {
             }
 
             if (user.avatar && profilePic) {
-                profilePic.src = user.avatar;
+                if (user.avatar.startsWith("http") || user.avatar.startsWith("data:")) {
+                    profilePic.src = user.avatar;
+                } else if (user.avatar.startsWith("/public/")) {
+                    profilePic.src = `${config.API_BASE_URL}${user.avatar}`;
+                } else {
+                    profilePic.src = user.avatar;
+                }
             }
           }
         })

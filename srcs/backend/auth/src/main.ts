@@ -7,8 +7,12 @@ import { refreshAccessToken } from './routes/refresh';
 import { googleLogin } from './routes/google';
 
 export async function registerAuthRoutes(app: FastifyInstance) {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    throw new Error("JWT_ACCESS_SECRET is not defined in environment variables");
+  }
+
   await app.register(jwt, { 
-    secret: process.env.JWT_ACCESS_SECRET || "dev-secret-fallback", //secret key for signing tokens
+    secret: process.env.JWT_ACCESS_SECRET, //secret key for signing tokens
     sign: {
       expiresIn: '15m' //access tokens expire in 15 minutes for security
     }

@@ -141,12 +141,29 @@ export class TournamentManager {
         
         const finalBox = document.createElement('div');
         finalBox.className = 'final-box';
-        finalBox.innerHTML = `
-            <div style="font-size: 10px; margin-bottom: 2px;">${t("final")}</div>
-            <div style="font-size: 14px;">${finalMatch.p1 || '?'}</div>
-            <div style="font-size: 10px; color: #888;">VS</div>
-            <div style="font-size: 14px;">${finalMatch.p2 || '?'}</div>
-        `;
+        
+        const titleDiv = document.createElement('div');
+        titleDiv.style.fontSize = '10px';
+        titleDiv.style.marginBottom = '2px';
+        titleDiv.textContent = t("final");
+
+        const p1Div = document.createElement('div');
+        p1Div.style.fontSize = '14px';
+        p1Div.textContent = finalMatch.p1 || '?';
+
+        const vsDiv = document.createElement('div');
+        vsDiv.style.fontSize = '10px';
+        vsDiv.style.color = '#888';
+        vsDiv.textContent = 'VS';
+
+        const p2Div = document.createElement('div');
+        p2Div.style.fontSize = '14px';
+        p2Div.textContent = finalMatch.p2 || '?';
+
+        finalBox.appendChild(titleDiv);
+        finalBox.appendChild(p1Div);
+        finalBox.appendChild(vsDiv);
+        finalBox.appendChild(p2Div);
         if (finalMatch.winner) {
             finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)"; // gold glow effect
             finalBox.style.borderColor = "gold";

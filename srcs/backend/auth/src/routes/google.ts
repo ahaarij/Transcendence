@@ -3,7 +3,10 @@ import { OAuth2Client } from 'google-auth-library';
 import { hashPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens';
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); //initialize google oauth client
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+); //initialize google oauth client
 
 export async function googleLogin(app: FastifyInstance, request: any, reply: any) {
   try {
@@ -56,7 +59,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
         where: { id: user.id },
         data: { 
           googleId: user.googleId || googleId, //link google id if not set
-          avatar: user.avatar ? undefined : picture //use google picture if no avatar set
+          avatar: (user.avatar === '/assets/default-avatar.png' || !user.avatar) ? picture : undefined
         },
       });
     }

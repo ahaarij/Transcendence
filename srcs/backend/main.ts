@@ -5,6 +5,23 @@ import { registerUserRoutes } from './user/src/main';
 import { registerGameRoutes } from './game/src/main';
 import prismaPlugin from './shared/utils/prisma';
 
+// Validate environment variables
+const requiredEnvVars = [
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET'
+];
+
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Error: Missing required environment variables:');
+  missingEnvVars.forEach(envVar => console.error(`   - ${envVar}`));
+  console.error('Please create a .env file with these variables.');
+  process.exit(1);
+}
+
 async function start() {
   const app = buildServer();
   

@@ -14,7 +14,7 @@ export class BackgroundParticles {
         this.canvas.style.left = '0';
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
-        this.canvas.style.zIndex = '0'; // On top of grid (-1), behind content (10)
+        this.canvas.style.zIndex = '-1'; // On top of grid (-1), behind content (0)
         this.canvas.style.pointerEvents = 'none';
         this.canvas.style.opacity = '0.8';
         document.body.appendChild(this.canvas);
@@ -47,13 +47,15 @@ export class BackgroundParticles {
     private animate() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         
+        const isLight = document.body.classList.contains('light-mode');
+
         this.particles.forEach(p => {
             p.update(this.width, this.height);
-            p.draw(this.ctx);
+            p.draw(this.ctx, isLight);
         });
         
         // connecting lines
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        this.ctx.strokeStyle = isLight ? 'rgba(0, 102, 204, 0.15)' : 'rgba(255, 255, 255, 0.12)';
         for (let i = 0; i < this.particles.length; i++) {
             for (let j = i + 1; j < this.particles.length; j++) {
                 const dx = this.particles[i].x - this.particles[j].x;
@@ -79,7 +81,7 @@ class Particle {
     vx: number;
     vy: number;
     size: number;
-    color: string;
+    isPrimary: boolean;
 
     constructor(width: number, height: number) {
         this.x = Math.random() * width;
@@ -87,7 +89,7 @@ class Particle {
         this.vx = (Math.random() - 0.5) * 0.2;
         this.vy = (Math.random() - 0.5) * 0.2;
         this.size = Math.random() * 2.0;
-        this.color = Math.random() > 0.5 ? '#00f3ff' : '#ffffff';
+        this.isPrimary = Math.random() > 0.5;
     }
 
     update(width: number, height: number) {
@@ -100,8 +102,13 @@ class Particle {
         if (this.y > height) this.y = 0;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.color;
+    draw(ctx: CanvasRenderingContext2D, isLight: boolean) {
+        if (isLight) {
+            ctx.fillStyle = this.isPrimary ? '#0066cc' : '#506070';
+        } else {
+            ctx.fillStyle = this.isPrimary ? '#00f3ff' : '#ffffff';
+        }
+        
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
