@@ -180,12 +180,22 @@ export class TournamentManager {
             winnerDisplay.style.transform = 'translateX(-50%)';
             winnerDisplay.style.textAlign = 'center';
             winnerDisplay.style.pointerEvents = 'none';
-            winnerDisplay.innerHTML = `
-                <div style="font-size: 12px; color: gold; letter-spacing: 2px; margin-bottom: 5px;">TOURNAMENT WINNER</div>
-                <div style="font-size: 28px; color: #fff; font-weight: bold; text-shadow: 0 0 15px gold;">
-                    👑 ${finalMatch.winner} 👑
-                </div>
-            `;
+            const label = document.createElement('div');
+            label.style.fontSize = '12px';
+            label.style.color = 'gold';
+            label.style.letterSpacing = '2px';
+            label.style.marginBottom = '5px';
+            label.textContent = 'TOURNAMENT WINNER';
+
+            const winnerName = document.createElement('div');
+            winnerName.style.fontSize = '28px';
+            winnerName.style.color = '#fff';
+            winnerName.style.fontWeight = 'bold';
+            winnerName.style.textShadow = '0 0 15px gold';
+            winnerName.textContent = `👑 ${finalMatch.winner} 👑`;
+
+            winnerDisplay.appendChild(label);
+            winnerDisplay.appendChild(winnerName);
             centerContainer.appendChild(winnerDisplay);
         }
 

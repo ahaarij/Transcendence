@@ -1,4 +1,4 @@
-all: up
+all: up data
 
 up:
 	@echo "🐳 Building and starting Transcendence..."
@@ -11,18 +11,18 @@ up:
 
 down:
 	@echo "🛑 Stopping all services..."
-	cd srcs && docker-compose down
+	cd srcs && docker-compose --env-file ../.env down
 
 logs:
-	cd srcs && docker-compose logs -f
+	cd srcs && docker-compose --env-file ../.env logs -f
 
 restart:
 	@echo "♻️  Restarting services..."
-	cd srcs && docker-compose restart
+	cd srcs && docker-compose --env-file ../.env restart
 
 clean:
 	@echo "🧹 Cleaning Docker resources..."
-	cd srcs && docker-compose down -v
+	cd srcs && docker-compose --env-file ../.env down -v
 	docker system prune -f
 
 data:
@@ -34,7 +34,7 @@ data:
 	@echo "✅ Database ready!"
 
 status:
-	cd srcs && docker-compose ps
+	cd srcs && docker-compose --env-file ../.env ps
 
 shell-backend:
 	docker exec -it transcendence-backend /bin/bash
