@@ -1,26 +1,26 @@
-# Auth Service Dockerfile
+# auth service dockerfile
 FROM node:20-alpine
 
+# sets working directory
 WORKDIR /app
 
-# Copy package files
+# copies package files
 COPY package*.json ./
 
-# Install dependencies
+# installs dependencies
 RUN npm ci --only=production
 
-# Copy source code
+# copies all needed source code
 COPY auth/ ./auth/
 COPY shared/ ./shared/
 COPY prisma/ ./prisma/
 COPY prisma.config.ts ./
-COPY .env ./
 
-# Generate Prisma Client
+# generates prisma client
 RUN npx prisma generate
 
-# Expose port
+# exposes auth service port
 EXPOSE 3001
 
-# Start service
-CMD ["node", "auth/src/main.js"]
+# starts auth service
+CMD ["npx", "tsx", "auth/server.ts"]

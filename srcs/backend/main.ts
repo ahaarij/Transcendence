@@ -5,7 +5,7 @@ import { registerUserRoutes } from './user/src/main';
 import { registerGameRoutes } from './game/src/main';
 import prismaPlugin from './shared/utils/prisma';
 
-// Validate environment variables
+// validates all required environment variables exist
 const requiredEnvVars = [
   'JWT_ACCESS_SECRET',
   'JWT_REFRESH_SECRET',
@@ -13,36 +13,41 @@ const requiredEnvVars = [
   'GOOGLE_CLIENT_SECRET'
 ];
 
+// checks if any required env vars are missing
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
-  console.error('❌ Error: Missing required environment variables:');
+  console.error('❌ error: missing required environment variables:');
   missingEnvVars.forEach(envVar => console.error(`   - ${envVar}`));
-  console.error('Please create a .env file with these variables.');
+  console.error('please create a .env file with these variables.');
   process.exit(1);
 }
 
+// starts the main server with all services
 async function start() {
-  const app = buildServer();
+  const app = buildServer();  // creates fastify app
   
-  await app.register(prismaPlugin);
+  await app.register(prismaPlugin);  // adds database connection
   
-  await registerAuthRoutes(app);
-  await registerUserRoutes(app);
-  await registerGameRoutes(app);
+  // registers all microservice routes
+  await registerAuthRoutes(app);  // auth service routes
+  await registerUserRoutes(app);  // user service routes
+  await registerGameRoutes(app);  // game service routes
   
   const port = parseInt(process.env.PORT || '3000', 10);
   
   try {
+    // starts server on configured port
     await app.listen({ port, host: '0.0.0.0' });
-    console.log(`✅ Server running on http://localhost:${port}`);
-    console.log(`   - Auth routes: http://localhost:${port}/auth/*`);
-    console.log(`   - User routes: http://localhost:${port}/user/*`);
-    console.log(`   - Game routes: http://localhost:${port}/game/*`);
+    console.log(`✅ server running on http://localhost:${port}`);
+    console.log(`   - auth routes: http://localhost:${port}/auth/*`);
+    console.log(`   - user routes: http://localhost:${port}/user/*`);
+    console.log(`   - game routes: http://localhost:${port}/game/*`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
   }
 }
 
+// starts the application
 start();

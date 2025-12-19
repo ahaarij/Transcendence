@@ -1,0 +1,23 @@
+{
+  "name": "ws-gateway",
+  "version": "1.0.0",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "tsx watch src/main.ts",
+    "dev": "tsx watch src/main.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "@fastify/websocket": "^11.1.0",
+    "axios": "^1.7.9",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.16.2",
+    "typescript": "^5.9.3"
+  }
+}

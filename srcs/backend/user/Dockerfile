@@ -1,26 +1,26 @@
-# User Service Dockerfile
+# user service dockerfile
 FROM node:20-alpine
 
+# sets working directory
 WORKDIR /app
 
-# Copy package files
+# copies package files
 COPY package*.json ./
 
-# Install dependencies
+# installs dependencies
 RUN npm ci --only=production
 
-# Copy source code
+# copies all needed source code
 COPY user/ ./user/
 COPY shared/ ./shared/
 COPY prisma/ ./prisma/
 COPY prisma.config.ts ./
-COPY .env ./
 
-# Generate Prisma Client
+# generates prisma client
 RUN npx prisma generate
 
-# Expose port
+# exposes user service port
 EXPOSE 3002
 
-# Start service
-CMD ["node", "user/src/main.js"]
+# starts user service
+CMD ["npx", "tsx", "user/server.ts"]

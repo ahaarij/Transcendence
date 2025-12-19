@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { comparePassword } from '../utils/password';
 import { generateAccessToken, verifyToken } from '../utils/tokens';
 
+// generates new access token using refresh token
 export async function refreshAccessToken(app: FastifyInstance, request: any, reply: any) {
   try {
     const { refreshToken } = request.body as { refreshToken: string };
@@ -12,6 +13,7 @@ export async function refreshAccessToken(app: FastifyInstance, request: any, rep
     
     const decoded = verifyToken(app, refreshToken); //verify refresh token
     
+    // finds user in database
     const user = await app.prisma.user.findUnique({
       where: { id: decoded.userId },
     });
@@ -20,6 +22,7 @@ export async function refreshAccessToken(app: FastifyInstance, request: any, rep
       return reply.status(401).send({ error: "invalid refresh token" }); //user not found or no refresh token stored
     }
 
+    // checks if refresh token matches stored hash
     const isValidRefreshToken = await comparePassword(refreshToken, user.refreshToken); //check if refresh token matches stored hash
 
     if (!isValidRefreshToken) {

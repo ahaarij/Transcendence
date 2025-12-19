@@ -1,43 +1,56 @@
 #!/bin/bash
 
-echo "🚀 Starting Transcendence Backend Services..."
+# setup script for backend microservices
+echo "🚀 starting transcendence backend services..."
 echo ""
 
-# Change to backend directory
+# changes to backend directory
 cd "$(dirname "$0")"
 
-# Check if node_modules exists
+# checks if dependencies installed
 if [ ! -d "node_modules" ]; then
-  echo "📦 Installing dependencies..."
+  echo "📦 installing backend dependencies..."
   npm install
   echo ""
 fi
 
-# Check if Prisma client is generated
+# checks if ws gateway deps installed
+if [ ! -d "ws-gateway/node_modules" ]; then
+  echo "📦 installing ws gateway dependencies..."
+  cd ws-gateway
+  npm install
+  cd ..
+  echo ""
+fi
+
+# checks if prisma client generated
 if [ ! -d "node_modules/@prisma/client" ] || [ ! -d "node_modules/.prisma" ]; then
-  echo "🗄️  Generating Prisma Client..."
+  echo "🗄️  generating prisma client..."
   npm run prisma:generate
   echo ""
 fi
 
-# Check if database exists
+# checks if database exists
 if [ ! -f "prisma/dev.db" ]; then
-  echo "🗄️  Creating database..."
+  echo "🗄️  creating database..."
   npm run prisma:push
   echo ""
 fi
 
-echo "✅ Setup complete!"
+echo "✅ setup complete!"
 echo ""
-echo "To start the services:"
-echo "  Terminal 1: npm run auth"
-echo "  Terminal 2: npm run user"
+echo "to start all services with docker:"
+echo "  docker-compose up --build"
 echo ""
-echo "Or run them in background:"
-echo "  node auth/src/main.js &"
-echo "  node user/src/main.js &"
+echo "or run services individually:"
+echo "  npx tsx auth/server.ts     # auth on port 3001"
+echo "  npx tsx user/server.ts     # user on port 3002"
+echo "  npx tsx game/server.ts     # game on port 3003"
+echo "  npx tsx ws-gateway/src/main.ts  # websocket on port 3004"
 echo ""
-echo "Health check endpoints:"
-echo "  Auth:  http://localhost:3001/auth/health"
-echo "  User:  http://localhost:3002/user/health"
+echo "health check endpoints:"
+echo "  auth:  http://localhost:3001/auth/health"
+echo "  user:  http://localhost:3002/user/health"
+echo "  game:  http://localhost:3003/game/health"
+echo "  ws:    http://localhost:3004/ws/health"
 echo ""

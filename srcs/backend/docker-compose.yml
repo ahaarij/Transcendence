@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Authentication Service
+  # auth service handles authentication and 2fa
   auth:
     build:
       context: .
@@ -11,7 +11,12 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
+      - PORT=3001
       - DATABASE_URL=file:/app/data/dev.db
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     volumes:
       - sqlite-data:/app/data
       - ./prisma:/app/prisma
@@ -24,7 +29,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # User Management Service
+  # user service manages user profiles and avatars
   user:
     build:
       context: .
@@ -34,10 +39,14 @@ services:
       - "3002:3002"
     environment:
       - NODE_ENV=production
+      - PORT=3002
       - DATABASE_URL=file:/app/data/dev.db
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - AUTH_SERVICE_URL=http://auth:3001
     volumes:
       - sqlite-data:/app/data
       - ./prisma:/app/prisma
+      - ./public:/app/public
     networks:
       - transcendence-network
     restart: unless-stopped
@@ -49,12 +58,63 @@ services:
     depends_on:
       - auth
 
-# Shared SQLite database volume
+  # game service records match results and stats
+  game:
+    build:
+      context: .
+      dockerfile: game/Dockerfile
+    container_name: transcendence-game
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DATABASE_URL=file:/app/data/dev.db
+      - AUTH_SERVICE_URL=http://auth:3001
+    volumes:
+      - sqlite-data:/app/data
+      - ./prisma:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3003/game/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - auth
+
+  # websocket gateway for real time game communication
+  ws-gateway:
+    build:
+      context: .
+      dockerfile: ws-gateway/Dockerfile
+    container_name: transcendence-ws
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - WS_PORT=3004
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - AUTH_SERVICE_URL=http://auth:3001
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3004/ws/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - auth
+
+# shared sqlite database for all services
 volumes:
   sqlite-data:
     driver: local
 
-# Network for service communication
+# internal network for service to service communication
 networks:
   transcendence-network:
     driver: bridge

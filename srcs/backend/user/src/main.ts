@@ -2,14 +2,17 @@ import type { FastifyInstance } from 'fastify';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// registers all user related routes to fastify app
 export async function registerUserRoutes(app: FastifyInstance) {
+  // health check endpoint for user service
   app.get("/user/health", async () => ({ status: "ok", service: "user" }));
   
-  // Get public profile by username
+  // gets public profile info by username
   app.get("/user/profile/:username", async (request, reply) => {
     try {
       const { username } = request.params as { username: string };
       
+      // finds user in database by username
       const user = await app.prisma.user.findUnique({
         where: { username },
         select: {
@@ -21,22 +24,23 @@ export async function registerUserRoutes(app: FastifyInstance) {
       });
 
       if (!user) {
-        return reply.status(404).send({ error: "User not found" });
+        return reply.status(404).send({ error: "user not found" });
       }
 
       return reply.send(user);
     } catch (error) {
-      console.error("Get profile error:", error);
-      return reply.status(500).send({ error: "Internal server error" });
+      console.error("get profile error:", error);
+      return reply.status(500).send({ error: "internal server error" });
     }
   });
 
-  // Update own profile
+  // updates own profile info
   app.put("/user/me", async (request, reply) => {
     try {
+      // extracts and verifies auth token
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return reply.status(401).send({ error: "Missing or invalid token" });
+        return reply.status(401).send({ error: "missing or invalid token" });
       }
       
       const token = authHeader.split(" ")[1];
@@ -46,42 +50,45 @@ export async function registerUserRoutes(app: FastifyInstance) {
       
       let avatarUrl = avatar;
 
-      // Handle Base64 Image Upload
+      // handles base64 image upload if provided
       if (avatar && avatar.startsWith('data:image')) {
         try {
+          // extracts image data from base64 string
           const matches = avatar.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
           if (matches && matches.length === 3) {
             const type = matches[1];
             const buffer = Buffer.from(matches[2], 'base64');
             const extension = type.split('/')[1];
             const filename = `avatar-${decoded.userId}-${Date.now()}.${extension}`;
-            // Use absolute path inside container, do not rely on process.cwd() structure matching local
             const uploadDir = '/app/public/uploads';
             
+            // creates upload directory if it doesnt exist
             if (!fs.existsSync(uploadDir)) {
               fs.mkdirSync(uploadDir, { recursive: true });
             }
             
+            // saves avatar file to disk
             const filepath = path.join(uploadDir, filename);
             fs.writeFileSync(filepath, buffer);
             
             avatarUrl = `/public/uploads/${filename}`;
           }
         } catch (err) {
-          console.error("Failed to save avatar:", err);
+          console.error("failed to save avatar:", err);
         }
       }
 
-      // Check if username is taken if it's being changed
+      // checks if username is taken if changing username
       if (username) {
         const existing = await app.prisma.user.findUnique({
           where: { username },
         });
         if (existing && existing.id !== decoded.userId) {
-          return reply.status(400).send({ error: "Username already taken" });
+          return reply.status(400).send({ error: "username already taken" });
         }
       }
 
+      // updates user in database with new info
       const updatedUser = await app.prisma.user.update({
         where: { id: decoded.userId },
         data: {
@@ -98,8 +105,48 @@ export async function registerUserRoutes(app: FastifyInstance) {
 
       return reply.send(updatedUser);
     } catch (error) {
-      console.error("Update profile error:", error);
-      return reply.status(500).send({ error: "Internal server error" });
+      console.error("update profile error:", error);
+      return reply.status(500).send({ error: "internal server error" });
+    }
+  });
+
+  // gets user info by id for internal service calls
+  app.get("/user/:userId", async (request, reply) => {
+    try {
+      // extracts and verifies auth token
+      const authHeader = request.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return reply.status(401).send({ error: "missing or invalid token" });
+      }
+
+      const { userId } = request.params as { userId: string };
+      const id = parseInt(userId);
+
+      // validates user id is a number
+      if (isNaN(id)) {
+        return reply.status(400).send({ error: "invalid user id" });
+      }
+
+      // finds user in database by id
+      const user = await app.prisma.user.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          avatar: true,
+          createdAt: true,
+        }
+      });
+
+      if (!user) {
+        return reply.status(404).send({ error: "user not found" });
+      }
+
+      return reply.send(user);
+    } catch (error) {
+      console.error("get user error:", error);
+      return reply.status(500).send({ error: "internal server error" });
     }
   });
 }
