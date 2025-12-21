@@ -1,8 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 
+// registers all game related routes to fastify app
 export async function registerGameRoutes(app: FastifyInstance) {
   
-  // POST /game/match - records a match result after game ends
+  // health check endpoint for game service
+  app.get("/game/health", async () => ({ status: "ok", service: "game" }));
+  
+  // records a match result after game ends
   app.post("/game/match", async (request, reply) => {
     try {
       const {
@@ -29,12 +33,12 @@ export async function registerGameRoutes(app: FastifyInstance) {
         isEliminated?: boolean;
       };
 
-      // validate required fields
+      // checks if all required fields are present
       if (!userId || !opponentId || userScore === undefined || opponentScore === undefined) {
         return reply.status(400).send({ error: "missing required match data" });
       }
 
-      // check if user exists
+      // verifies user exists in database
       const user = await app.prisma.user.findUnique({
         where: { id: userId },
       });
@@ -43,7 +47,7 @@ export async function registerGameRoutes(app: FastifyInstance) {
         return reply.status(404).send({ error: "user not found" });
       }
 
-      // save match to database
+      // creates match record in database
       const match = await app.prisma.match.create({
         data: {
           userId,
@@ -75,24 +79,25 @@ export async function registerGameRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /game/history/:userId - gets match history for a user
+  // gets match history for a user with stats
   app.get("/game/history/:userId", async (request, reply) => {
     try {
       const { userId } = request.params as { userId: string };
       const id = parseInt(userId);
 
+      // validates user id is a number
       if (isNaN(id)) {
         return reply.status(400).send({ error: "invalid user id" });
       }
 
-      // get all matches for this user
+      // fetches all matches for this user from database
       const matches = await app.prisma.match.findMany({
         where: { userId: id },
         orderBy: { playedAt: 'desc' },  // most recent first
         take: 50,  // limit to last 50 matches
       });
 
-      // calculate win/loss stats
+      // calculates win/loss stats from matches
       const totalMatches = matches.length;
       const wins = matches.filter(m => m.didUserWin).length;
       const losses = totalMatches - wins;
@@ -123,20 +128,23 @@ export async function registerGameRoutes(app: FastifyInstance) {
     }
   });
 
-  // GET /game/stats/:userId - gets detailed stats for a user
+  // gets detailed stats for a user
   app.get("/game/stats/:userId", async (request, reply) => {
     try {
       const { userId } = request.params as { userId: string };
       const id = parseInt(userId);
 
+      // validates user id is a number
       if (isNaN(id)) {
         return reply.status(400).send({ error: "invalid user id" });
       }
 
+      // fetches all matches for calculating stats
       const matches = await app.prisma.match.findMany({
         where: { userId: id },
       });
 
+      // returns empty stats if no matches found
       if (matches.length === 0) {
         return reply.send({
           totalMatches: 0,
@@ -150,13 +158,13 @@ export async function registerGameRoutes(app: FastifyInstance) {
         });
       }
 
-      // calculate various stats
+      // calculates various statistics from matches
       const totalMatches = matches.length;
       const wins = matches.filter(m => m.didUserWin).length;
       const losses = totalMatches - wins;
       const avgScore = matches.reduce((sum, m) => sum + m.userScore, 0) / totalMatches;
       
-      // count wins by game mode
+      // counts wins by game mode
       const pvpWins = matches.filter(m => m.gameMode === 'PvP' && m.didUserWin).length;
       const pvaiWins = matches.filter(m => m.gameMode === 'PvAI' && m.didUserWin).length;
       const tournamentWins = matches.filter(m => m.gameMode === 'Tournament' && m.didUserWin).length;

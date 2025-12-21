@@ -1,12 +1,25 @@
 FROM node:20-alpine
 
-WORKDIR /app/game
+# sets working directory in container
+WORKDIR /app
 
-# copy package files from parent
-COPY ../package*.json ./
-RUN npm ci
+# copies package files for dependencies
+COPY package*.json ./
 
-# copy game service files
-COPY . .
+# installs all dependencies
+RUN npm ci --only=production
 
-CMD ["npm", "start"]
+# copies game service source code
+COPY game/ ./game/
+COPY shared/ ./shared/
+COPY prisma/ ./prisma/
+COPY prisma.config.ts ./
+
+# generates prisma client for database
+RUN npx prisma generate
+
+# exposes game service port
+EXPOSE 3003
+
+# starts the game service
+CMD ["npx", "tsx", "game/server.ts"]

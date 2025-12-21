@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { verifyToken } from '../utils/tokens';
 
+// logs user out by clearing refresh token
 export async function logoutUser(app: FastifyInstance, request: any, reply: any) {
   try {
     const authHeader = request.headers.authorization;
@@ -21,6 +22,7 @@ export async function logoutUser(app: FastifyInstance, request: any, reply: any)
   }
 }
 
+// gets current logged in user info
 export async function getCurrentUser(app: FastifyInstance, request: any, reply: any) {
   try {
     const authHeader = request.headers.authorization;
@@ -53,3 +55,23 @@ export async function getCurrentUser(app: FastifyInstance, request: any, reply: 
     return reply.status(401).send({ error: "invalid or expired token" }); //token verification failed
   }
 }
+
+// verifies token for internal service communication
+export async function verifyTokenEndpoint(app: FastifyInstance, request: any, reply: any) {
+  try {
+    const authHeader = request.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return reply.status(401).send({ error: "missing or invalid token" }); //no token provided
+    }
+    
+    const token = authHeader.split(" ")[1]; //extract token
+    const decoded = verifyToken(app, token); //verify and decode token
+
+    // returns user id if token is valid
+    return reply.send({ userId: decoded.userId, valid: true });
+  } catch (err) {
+    return reply.status(401).send({ error: "invalid or expired token", valid: false }); //token verification failed
+  }
+}
+

@@ -3,11 +3,13 @@ import { OAuth2Client } from 'google-auth-library';
 import { hashPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens';
 
+// initialize google oauth client with credentials
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET
 ); //initialize google oauth client
 
+// handles google oauth login or registration
 export async function googleLogin(app: FastifyInstance, request: any, reply: any) {
   try {
     const { idToken } = request.body as { idToken: string };
@@ -16,6 +18,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
       return reply.status(400).send({ error: "google id token required" }); //no token from google
     }
 
+    // verifies google token is valid and for our app
     const ticket = await googleClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID, //verify token is for our app
@@ -33,6 +36,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
       return reply.status(400).send({ error: "email not provided by google" }); //google didn't send email
     }
 
+    // looks for existing user by google id or email
     let user = await app.prisma.user.findFirst({
       where: {
         OR: [
@@ -43,6 +47,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
     });
 
     if (!user) {
+      // creates new user if not found
       const username = name || email.split('@')[0]; //use google name or email prefix as username
       
       user = await app.prisma.user.create({
@@ -55,6 +60,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
         },
       });
     } else {
+      // updates existing user with google info
       user = await app.prisma.user.update({
         where: { id: user.id },
         data: { 
@@ -69,6 +75,7 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
 
     const hashedRefreshToken = await hashPassword(refreshToken); //hash refresh token before storing
     
+    // saves hashed refresh token to database
     await app.prisma.user.update({
       where: { id: user.id },
       data: { refreshToken: hashedRefreshToken }, //save hashed refresh token

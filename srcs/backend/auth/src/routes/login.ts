@@ -26,6 +26,15 @@ export async function loginUser(app: FastifyInstance, request: any, reply: any) 
     if (!validPass) {
       return reply.status(401).send({ error: "invalid email or password" }); //wrong password
     }
+
+    // checks if user has 2fa enabled
+    if (user.twoFactorEnabled) {
+      return reply.send({
+        requires2FA: true,  // tells frontend to show 2fa input
+        email: user.email,
+        message: "enter 2fa code to complete login"
+      });
+    }
     
     const accessToken = await generateAccessToken(app, user.id); //create new access token
     const refreshToken = await generateRefreshToken(app, user.id); //create new refresh token
