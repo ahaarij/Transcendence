@@ -14,12 +14,19 @@ export class FourPlayerManager {
 
     private canvas: HTMLCanvasElement;
     private container: HTMLElement;
+    private gameContainer!: HTMLElement;
     private resultSent: boolean = false;
     private userId: number | null;
     private gameState: GameState = 'SETUP';
     private animationFrameId: number | null = null;
     private countdownValue: number = 3; // seconds
     private countdownTimer: number = 0;
+
+    private handleResize = () => {
+        if (this.gameContainer) {
+            this.applyScaling(this.gameContainer);
+        }
+    };
 
     private onGameEnd?: () => void; // this function will be called when the game ends its purpose is to allow the parent component to handle game end events
     constructor(
@@ -119,10 +126,10 @@ export class FourPlayerManager {
         });
         gameContainer.appendChild(canvasWrapper);
         this.container.appendChild(gameContainer);
-  
+        this.gameContainer = gameContainer;
 
         this.applyScaling(gameContainer);
-        window.addEventListener('resize', () => this.applyScaling(gameContainer));
+        window.addEventListener('resize', this.handleResize);
 
         return canvas;
     }
@@ -318,10 +325,10 @@ export class FourPlayerManager {
         }
         this.input.destroy();
         window.removeEventListener('keydown', this.handleKeyDown);
+        window.removeEventListener('resize', this.handleResize);
 
-        const gameContainer = this.container.querySelector('#fourPlayerGameContainer');
-        if (gameContainer && gameContainer.parentNode) {
-            gameContainer.parentNode.removeChild(gameContainer);
+        if (this.gameContainer && this.gameContainer.parentNode) {
+            this.gameContainer.parentNode.removeChild(this.gameContainer);
         }
     }
 }
