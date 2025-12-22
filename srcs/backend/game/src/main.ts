@@ -21,7 +21,7 @@ export async function registerGameRoutes(app: FastifyInstance) {
         tournamentRound,
         isEliminated
       } = request.body as {
-        userId: number;
+        userId: string;  // uuid string for security
         userSide: number;
         opponentId: string;
         userScore: number;

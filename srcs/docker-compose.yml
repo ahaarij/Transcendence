@@ -1,14 +1,32 @@
 version: '3.8'
 
 services:
+  # Nginx Reverse Proxy with SSL/TLS termination
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: transcendence-nginx
+    ports:
+      - "80:80"    # http port (redirects to https)
+      - "443:443"  # https port (main application)
+    volumes:
+      - ./nginx/ssl:/etc/nginx/ssl:ro  # mounts ssl certificates
+    networks:
+      - transcendence-network
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
+
   # Backend Service (Combined Auth + User on port 3000)
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: transcendence-backend
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"  # only exposed internally to nginx
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:./prisma/dev.db
@@ -17,7 +35,7 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - CORS_ORIGIN=http://localhost:8080
+      - CORS_ORIGIN=https://localhost
     volumes:
       - ./backend/prisma:/app/prisma
       - backend-uploads:/app/public
@@ -36,8 +54,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: transcendence-frontend
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"  # only exposed internally to nginx
     environment:
       - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
       - VITE_API_BASE_URL=${VITE_API_BASE_URL}
@@ -46,6 +64,24 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # WebSocket Gateway Service
+  ws-gateway:
+    build:
+      context: ./backend
+      dockerfile: ws-gateway/Dockerfile
+    container_name: transcendence-ws-gateway
+    expose:
+      - "3004"  # only exposed internally to nginx
+    environment:
+      - NODE_ENV=production
+      - WS_PORT=3004
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+    networks:
+      - transcendence-network
     restart: unless-stopped
     depends_on:
       - backend

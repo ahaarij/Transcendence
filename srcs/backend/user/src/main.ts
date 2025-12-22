@@ -44,7 +44,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
       }
       
       const token = authHeader.split(" ")[1];
-      const decoded = app.jwt.verify(token) as { userId: number };
+      const decoded = app.jwt.verify(token) as { userId: string };
       
       const { username, avatar } = request.body as { username?: string; avatar?: string };
       
@@ -120,16 +120,15 @@ export async function registerUserRoutes(app: FastifyInstance) {
       }
 
       const { userId } = request.params as { userId: string };
-      const id = parseInt(userId);
 
-      // validates user id is a number
-      if (isNaN(id)) {
+      // validates user id is provided
+      if (!userId) {
         return reply.status(400).send({ error: "invalid user id" });
       }
 
-      // finds user in database by id
+      // finds user in database by id (uuid string)
       const user = await app.prisma.user.findUnique({
-        where: { id },
+        where: { id: userId },
         select: {
           id: true,
           username: true,

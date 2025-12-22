@@ -33,7 +33,7 @@ export class GameApp {
     private displayP1name = "Player 1";
     private displayP2name = "Player 2";
     private currentUsername: string;
-    private userId: number | null = null;
+    private userId: string | null = null;  // uuid string for security
     private keysPressed: { [key: string]: boolean } = {};
 
     // UI Elements
@@ -49,7 +49,7 @@ export class GameApp {
     private bracketScreen!: HTMLElement;
     private customizationMenu!: HTMLElement;
 
-    constructor(container: HTMLElement, username: string = "Player 1", userId: number | null) {
+    constructor(container: HTMLElement, username: string = "Player 1", userId: string | null) {
         this.container = container;
         this.currentUsername = username;
         this.userId = userId;

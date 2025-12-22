@@ -12,7 +12,7 @@ export async function deleteAccount(app: FastifyInstance, request: FastifyReques
 
     // extracts and verifies jwt token
     const token = authHeader.split(" ")[1];
-    const decoded = app.jwt.verify(token) as { userId: number };
+    const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets password from request body for confirmation
     const { password } = request.body as { password: string };

@@ -6,7 +6,7 @@ const USER_SERVICE = process.env.USER_SERVICE_URL || 'http://localhost:3002';
 const GAME_SERVICE = process.env.GAME_SERVICE_URL || 'http://localhost:3000';
 
 // verifies jwt token by calling auth service
-export async function verifyToken(token: string): Promise<{ userId: number } | null> {
+export async function verifyToken(token: string): Promise<{ userId: string } | null> {
   try {
     // calls auth service to verify token
     const response = await axios.get(`${AUTH_SERVICE}/auth/verify`, {
@@ -19,8 +19,8 @@ export async function verifyToken(token: string): Promise<{ userId: number } | n
   }
 }
 
-// gets user info from user service
-export async function getUserById(userId: number, token: string): Promise<any | null> {
+// gets user info from user service (userId is uuid string)
+export async function getUserById(userId: string, token: string): Promise<any | null> {
   try {
     // calls user service to get user details
     const response = await axios.get(`${USER_SERVICE}/user/${userId}`, {
@@ -59,8 +59,8 @@ export async function saveMatch(matchData: any, token: string): Promise<boolean>
   }
 }
 
-// gets user match history from game service
-export async function getMatchHistory(userId: number, token: string): Promise<any[]> {
+// gets user match history from game service (userId is uuid string)
+export async function getMatchHistory(userId: string, token: string): Promise<any[]> {
   try {
     // calls game service to get all matches for user
     const response = await axios.get(`${GAME_SERVICE}/game/matches/${userId}`, {

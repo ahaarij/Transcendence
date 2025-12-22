@@ -12,7 +12,7 @@ datasource db {
   provider = "sqlite"
 }
 model User {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(uuid())
   username     String    @unique
   email        String    @unique
   password     String?
@@ -28,7 +28,7 @@ model User {
 
 model Match {
   id               Int       @id @default(autoincrement())
-  userId           Int       // the user who played
+  userId           String    // the user who played (uuid)
   user             User      @relation("UserMatches", fields: [userId], references: [id])
   opponentId       String    // opponent username or "AI"
   userSide         Int       // 1 for left paddle, 2 for right paddle

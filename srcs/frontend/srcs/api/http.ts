@@ -1,6 +1,7 @@
 import { t } from "../lang";
 
-export const BASE_URL = "http://localhost:3000";
+// base url for all api requests (uses https for secure communication)
+export const BASE_URL = "https://localhost";
 
 export async function apiRequest(url: string, options: any = {}) {
   let token = localStorage.getItem("token") || sessionStorage.getItem("token");

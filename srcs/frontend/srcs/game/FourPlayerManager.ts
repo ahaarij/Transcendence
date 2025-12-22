@@ -16,7 +16,7 @@ export class FourPlayerManager {
     private container: HTMLElement;
     private gameContainer!: HTMLElement;
     private resultSent: boolean = false;
-    private userId: number | null;
+    private userId: string | null;  // uuid string for security
     private gameState: GameState = 'SETUP';
     private animationFrameId: number | null = null;
     private countdownValue: number = 3; // seconds
@@ -32,7 +32,7 @@ export class FourPlayerManager {
     constructor(
         container: HTMLElement,
         playerNames: {top: string; bottom: string; left: string; right: string;},
-        userId: number | null = null,
+        userId: string | null = null,  // uuid string for security
         onGameEnd? : () => void
     ){
         this.container = container;
