@@ -16,7 +16,7 @@ export async function apiRequest(url: string, options: any = {}) {
   });
 
   // If 401, try to refresh token
-  if (res.status === 401) {
+  if (res.status === 401 && !url.includes("/auth/login")) {
     const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken");
     
     if (refreshToken) {

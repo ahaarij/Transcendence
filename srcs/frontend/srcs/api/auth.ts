@@ -39,7 +39,8 @@ export function logoutRequest()
 
     return apiRequest("/auth/logout",
     {
-        method: "POST"
+        method: "POST",
+        body: JSON.stringify({})
     });
 }
 
@@ -54,5 +55,33 @@ export function meRequest()
         {
             "Authorization": `Bearer ${token}`
         }
+    });
+}
+
+export function enable2FARequest() {
+    return apiRequest("/auth/2fa/enable", {
+        method: "POST",
+        body: JSON.stringify({})
+    });
+}
+
+export function verify2FARequest(code: string) {
+    return apiRequest("/auth/2fa/verify", {
+        method: "POST",
+        body: JSON.stringify({ code })
+    });
+}
+
+export function validate2FALoginRequest(email: string, code: string) {
+    return apiRequest("/auth/2fa/validate", {
+        method: "POST",
+        body: JSON.stringify({ email, code })
+    });
+}
+
+export function disable2FARequest(code: string, password: string) {
+    return apiRequest("/auth/2fa/disable", {
+        method: "POST",
+        body: JSON.stringify({ code, password })
     });
 }

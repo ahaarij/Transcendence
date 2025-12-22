@@ -42,6 +42,7 @@ export async function getCurrentUser(app: FastifyInstance, request: any, reply: 
         email: true,
         avatar: true,
         createdAt: true,
+        twoFactorEnabled: true,
       },
     });
 
