@@ -12,7 +12,6 @@ RUN npm ci
 
 COPY prisma ./prisma
 COPY prisma.config.ts ./
-COPY .env* ./
 
 # Set DATABASE_URL for Prisma during build
 ENV DATABASE_URL="file:./prisma/dev.db"
@@ -21,10 +20,8 @@ RUN npx prisma generate
 
 COPY . .
 
-RUN mkdir -p /app/prisma
-
-# Push database schema at startup, not build time
-RUN npx prisma db push --skip-generate || true
+# Ensure prisma schema is in place after COPY . .
+COPY prisma ./prisma
 
 EXPOSE 3000
 

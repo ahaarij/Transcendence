@@ -8,7 +8,8 @@ export async function sendMatchResult(matchData: MatchPayload) {
     });
 }
 
-export async function getGameHistory(userId: number) {
+// gets game history for user (userId is uuid string)
+export async function getGameHistory(userId: string) {
     return await apiRequest(`/game/history/${userId}`, {
         method: "GET"
     });

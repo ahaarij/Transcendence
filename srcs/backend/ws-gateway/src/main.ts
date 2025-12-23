@@ -26,13 +26,13 @@ async function start() {
   // health check endpoint for gateway
   app.get('/ws/health', async () => ({ status: 'ok', service: 'ws-gateway' }));
 
-  // stores active websocket connections by user id
-  const connections = new Map<number, any>();
+  // stores active websocket connections by user id (uuid string)
+  const connections = new Map<string, any>();
 
   // websocket route for real time game communication
   app.register(async function (fastify) {
     fastify.get('/ws/game', { websocket: true }, (socket, request) => {
-      let userId: number | null = null;
+      let userId: string | null = null;
 
       // handles incoming messages from client
       socket.on('message', async (message: Buffer) => {
@@ -43,7 +43,7 @@ async function start() {
           if (data.type === 'auth') {
             try {
               // verifies jwt token from client
-              const decoded = app.jwt.verify(data.token) as { userId: number };
+              const decoded = app.jwt.verify(data.token) as { userId: string };
               userId = decoded.userId;
 
               // stores connection for this user

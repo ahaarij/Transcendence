@@ -44,7 +44,7 @@ export interface FourPlayerGameState  {
 export type PlayerSide = 'left' | 'right' | 'top' | 'bottom';
 
 export interface MatchPayload {
-    userId: number;
+    userId: string;  // uuid string for security
     userSide: 1 | 2;  // 1 for left, 2 for right, since vsAi you can choose side
     opponentId: string;
     userScore: number;

@@ -12,7 +12,7 @@ export async function enable2FA(app: FastifyInstance, request: FastifyRequest, r
 
     // extracts and verifies jwt token
     const token = authHeader.split(" ")[1];
-    const decoded = app.jwt.verify(token) as { userId: number };
+    const decoded = app.jwt.verify(token) as { userId: string };
 
     // finds user in database
     const user = await app.prisma.user.findUnique({
@@ -60,7 +60,7 @@ export async function verify2FA(app: FastifyInstance, request: FastifyRequest, r
 
     // extracts and verifies jwt token
     const token = authHeader.split(" ")[1];
-    const decoded = app.jwt.verify(token) as { userId: number };
+    const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets totp code from request body
     const { code } = request.body as { code: string };
@@ -109,7 +109,7 @@ export async function disable2FA(app: FastifyInstance, request: FastifyRequest, 
 
     // extracts and verifies jwt token
     const token = authHeader.split(" ")[1];
-    const decoded = app.jwt.verify(token) as { userId: number };
+    const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets totp code and password from request body
     const { code, password } = request.body as { code: string; password: string };

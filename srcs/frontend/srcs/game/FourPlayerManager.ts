@@ -16,7 +16,7 @@ export class FourPlayerManager {
     private container: HTMLElement;
     private gameContainer!: HTMLElement;
     private resultSent: boolean = false;
-    private userId: number | null;
+    private userId: string | null;  // uuid string for security
     private gameState: GameState = 'SETUP';
     private animationFrameId: number | null = null;
     private countdownValue: number = 3; // seconds

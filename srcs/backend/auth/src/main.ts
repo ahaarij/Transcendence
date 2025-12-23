@@ -7,6 +7,7 @@ import { refreshAccessToken } from './routes/refresh';
 import { googleLogin } from './routes/google';
 import { enable2FA, verify2FA, disable2FA, validate2FALogin } from './routes/twofa';
 import { deleteAccount } from './routes/delete';
+import { changePassword } from './routes/password';
 
 // registers all auth related routes to fastify app
 export async function registerAuthRoutes(app: FastifyInstance) {
@@ -47,4 +48,6 @@ export async function registerAuthRoutes(app: FastifyInstance) {
   app.post("/auth/2fa/validate", (request, reply) => validate2FALogin(app, request, reply)); //verify 2fa code during login
 
   app.delete("/auth/account", (request, reply) => deleteAccount(app, request, reply)); //permanently delete user account
+
+  app.post("/auth/password/change", (request, reply) => changePassword(app, request, reply)); //change user password
 }
