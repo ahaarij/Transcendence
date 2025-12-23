@@ -8,11 +8,11 @@ export function HomePage() {
 
     <main class="flex-grow flex flex-col items-center justify-center text-center px-4 relative z-10 mt-10 w-full min-h-[80vh]">
         
-        <h1 class="text-6xl md:text-8xl font-bold font-cyber mb-8 text-white tracking-tight">
+        <h1 class="text-4xl md:text-8xl font-bold font-cyber mb-8 text-white tracking-tight">
             Ding Dong
         </h1>
 
-        <p class="text-gray-400 text-lg max-w-xl mb-12 leading-relaxed font-light">
+        <p class="text-gray-400 text-base md:text-lg max-w-xl mb-12 leading-relaxed font-light">
             ${t('home_play_desc')}
         </p>
 
@@ -22,9 +22,9 @@ export function HomePage() {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-32 w-full max-w-7xl px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 md:mt-32 w-full max-w-7xl px-4">
             
-            <div class="glass-card p-8 rounded-sm" data-link href="/play">
+            <div class="glass-card p-6 md:p-8 rounded-sm" data-link href="/play">
                 <div class="mb-4 opacity-80">
                     <svg class="w-6 h-6 text-[#00f3ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>

@@ -89,6 +89,7 @@
   "username_update_failed": "Failed to update username",
   "change_password_soon": "Change Password feature coming soon!",
   "fill_all_fields": "Fill all fields.",
+  "passwords_do_not_match": "Passwords do not match.",
   "registration_successful_login": "Registration successful! Please login.",
   "registration_failed": "Registration failed",
   "unknown_error": "Unknown error",

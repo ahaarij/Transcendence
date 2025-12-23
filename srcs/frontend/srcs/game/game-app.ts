@@ -35,6 +35,7 @@ export class GameApp {
     private currentUsername: string;
     private userId: number | null = null;
     private keysPressed: { [key: string]: boolean } = {};
+    private pending4PlayerNames: {top: string; bottom: string; left: string; right: string;} | null = null;
 
     // UI Elements
     private uiLayer!: HTMLElement;
@@ -180,7 +181,7 @@ export class GameApp {
         q("#btnStartTourney").addEventListener("click", () => {
             if (this.tournament.startTournament(this.container)) {
                 this.tournamentMenu.style.display = "none";
-                this.prepareNextMatch();
+                this.customizationMenu.style.display = "block";
             }
         });
 
@@ -222,7 +223,10 @@ export class GameApp {
             new FourPlayerSetup(
                 this.container,
                 this.currentUsername,
-                (names) => this.start4playerGame(names),
+                (names) => {
+                    this.pending4PlayerNames = names;
+                    this.customizationMenu.style.display = "block";
+                },
                 () => {
                         const q = (sel: string) => this.container.querySelector(sel) as HTMLElement;
                         q("#btnPvP").classList.add("selected");
@@ -331,11 +335,23 @@ export class GameApp {
             const pHeight = parseInt(paddleInput.value);
             const bSpeed = parseFloat(ballInput.value);
 
+            this.customizationMenu.style.display = "none";
+
+            if (this.pending4PlayerNames) {
+                this.start4playerGame(this.pending4PlayerNames, pHeight, bSpeed);
+                this.pending4PlayerNames = null;
+                return;
+            }
+
             this.engine.setGameParameters(pHeight, bSpeed);
             this.engine.setWinningScore(this.winningScore);
             this.engine.restart();
 
-            this.customizationMenu.style.display = "none";
+            if (this.gameMode === 'Tournament') {
+                this.prepareNextMatch();
+                return;
+            }
+
             this.uiLayer.style.display = "none";
             this.gameOverScreen.style.display = "none";
 
@@ -576,7 +592,7 @@ export class GameApp {
         }
     }
 
-    private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}) {
+    private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}, paddleLength?: number, ballSpeed?: number) {
         this.uiLayer.style.display = "none";
         this.canvas.style.display = "none";
         this.fourPlayerManager = new FourPlayerManager(
@@ -598,7 +614,9 @@ export class GameApp {
                 q("#btnTourney").classList.remove("selected");
                 q("#btnMultiplayer").classList.remove("selected");
                 this.gameMode = 'PvP';
-            }
+            },
+            paddleLength,
+            ballSpeed
         );
     }
 }

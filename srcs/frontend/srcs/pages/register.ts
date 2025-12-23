@@ -13,10 +13,10 @@ export function RegisterPage() {
     <div class="page-overlay"></div>
 
     <div class="relative min-h-screen flex items-center justify-center p-4">
-      <div class="glass-card p-8 max-w-md w-full rounded-xl border border-white/10">        
-        <h1 class="text-3xl font-cyber font-bold mb-8 text-center text-white tracking-widest">${t("register")}</h1>
+      <div class="glass-card p-6 md:p-8 max-w-md w-full rounded-xl border border-white/10">        
+        <h1 class="text-2xl md:text-3xl font-cyber font-bold mb-6 md:mb-8 text-center text-white tracking-widest">${t("register")}</h1>
 
-        <form id="registerForm" class="flex flex-col gap-5">
+        <form id="registerForm" class="flex flex-col gap-4 md:gap-5">
 
           <div>
             <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("username")}</label>
@@ -102,11 +102,17 @@ export function mountRegisterPage()
     	const username = (document.getElementById("username") as HTMLInputElement).value;
     	const email    = (document.getElementById("email") as HTMLInputElement).value;
     	const password = (document.getElementById("password") as HTMLInputElement).value;
+    	const confirm  = (document.getElementById("confirm") as HTMLInputElement).value;
 
-    if (!username || !email || !password)
+    if (!username || !email || !password || !confirm)
 	{	
     	showToast(t("fill_all_fields"), "error");
     	return;
+    }
+
+    if (password !== confirm) {
+        showToast(t("passwords_do_not_match"), "error");
+        return;
     }
 
     try 

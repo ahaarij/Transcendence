@@ -22,7 +22,13 @@ export class FourPlayerEngine {
     private readonly STARTING_LIVES: number = 3; // readonly is a constant value that will not be changed after initialization
     private lastPaddleHit: PlayerSide | null = null;
     
-    constructor(playerNames: { top: string; bottom: string; left: string; right: string }) {
+    constructor(
+        playerNames: { top: string; bottom: string; left: string; right: string },
+        paddleLength: number = FOUR_PLAYER_PADDLE_LENGTH,
+        ballSpeed: number = FOUR_PLAYER_BALL_SPEED
+    ) {
+        this.paddleLength = paddleLength;
+        this.ballSpeed = ballSpeed;
         this.state = this.initGame(playerNames);
     }
 

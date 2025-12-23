@@ -33,8 +33,21 @@ export class BackgroundParticles {
     }
 
     private resize() {
+        const oldWidth = this.width;
+        const oldHeight = this.height;
+
         this.width = this.canvas.width = window.innerWidth;
         this.height = this.canvas.height = window.innerHeight;
+
+        if (oldWidth > 0 && oldHeight > 0) {
+            const scaleX = this.width / oldWidth;
+            const scaleY = this.height / oldHeight;
+
+            this.particles.forEach(p => {
+                p.x *= scaleX;
+                p.y *= scaleY;
+            });
+        }
     }
 
     private initParticles() {

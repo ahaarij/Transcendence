@@ -10,13 +10,13 @@ export function AccountPage() {
     
     <div class="page-overlay"></div>
 
-    <div class="relative min-h-screen flex flex-col items-center pt-20">
+    <div class="relative min-h-screen flex flex-col items-center pt-16 md:pt-20 px-4">
       
-      <h1 class="text-6xl md:text-7xl mb-12 font-cyber font-bold text-white tracking-tight">
+      <h1 class="text-4xl md:text-7xl mb-8 md:mb-12 font-cyber font-bold text-white tracking-tight">
         ${t("account")}
       </h1>
 
-      <div class="glass-card p-8 w-full max-w-md rounded-xl border border-white/10 flex flex-col gap-6">
+      <div class="glass-card p-6 md:p-8 w-full max-w-md rounded-xl border border-white/10 flex flex-col gap-6">
         
         <!-- Profile Picture -->
         <div class="flex flex-col items-center relative group">

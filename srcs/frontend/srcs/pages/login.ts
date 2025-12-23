@@ -14,10 +14,10 @@ export function LoginPage()
     <div class="page-overlay"></div>
 
     <div class="relative min-h-screen flex items-center justify-center p-4">
-     <div class="glass-card p-8 max-w-md w-full rounded-xl border border-white/10">
-      <h1 class="text-3xl font-cyber font-bold mb-8 text-center text-white tracking-widest">${t("login")}</h1>
+     <div class="glass-card p-6 md:p-8 max-w-md w-full rounded-xl border border-white/10">
+      <h1 class="text-2xl md:text-3xl font-cyber font-bold mb-6 md:mb-8 text-center text-white tracking-widest">${t("login")}</h1>
 
-      <form id="loginForm" class="flex flex-col gap-6">
+      <form id="loginForm" class="flex flex-col gap-4 md:gap-6">
 
         <div>
           <label class="block mb-2 font-semibold text-gray-400 text-sm tracking-wide">${t("email")}</label>
