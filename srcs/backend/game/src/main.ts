@@ -83,16 +83,15 @@ export async function registerGameRoutes(app: FastifyInstance) {
   app.get("/game/history/:userId", async (request, reply) => {
     try {
       const { userId } = request.params as { userId: string };
-      const id = parseInt(userId);
 
-      // validates user id is a number
-      if (isNaN(id)) {
+      // validates user id is provided (uuid string)
+      if (!userId) {
         return reply.status(400).send({ error: "invalid user id" });
       }
 
       // fetches all matches for this user from database
       const matches = await app.prisma.match.findMany({
-        where: { userId: id },
+        where: { userId },
         orderBy: { playedAt: 'desc' },  // most recent first
         take: 50,  // limit to last 50 matches
       });
@@ -132,16 +131,15 @@ export async function registerGameRoutes(app: FastifyInstance) {
   app.get("/game/stats/:userId", async (request, reply) => {
     try {
       const { userId } = request.params as { userId: string };
-      const id = parseInt(userId);
 
-      // validates user id is a number
-      if (isNaN(id)) {
+      // validates user id is provided (uuid string)
+      if (!userId) {
         return reply.status(400).send({ error: "invalid user id" });
       }
 
       // fetches all matches for calculating stats
       const matches = await app.prisma.match.findMany({
-        where: { userId: id },
+        where: { userId },
       });
 
       // returns empty stats if no matches found

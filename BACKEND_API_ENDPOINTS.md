@@ -201,5 +201,289 @@ curl -X DELETE http://localhost:3000/auth/account \
 - 2FA disable: Requires password + code
 - 2FA validate: Completes login with 2FA
 - Delete account: Removes user and all data
+- Change password: Changes user password
+- Friend system: Add, remove, list friends and view their stats/matches
 
 Backend is ready for frontend integration.
+
+---
+
+## Change Password
+
+### Change Password
+**POST** `/auth/password/change`
+
+Changes the user's password after verifying current password.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "currentPassword": "old_password",
+  "newPassword": "new_password"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "password changed successfully"
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/auth/password/change \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"currentPassword":"OldPass123","newPassword":"NewPass456"}'
+```
+
+---
+
+## Friend System Endpoints
+
+All friend endpoints require authentication (Bearer token in Authorization header).
+
+### 1. Send Friend Request
+**POST** `/user/friends/request`
+
+Sends a friend request to another user.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "friendUsername": "other_user"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "friend request sent",
+  "requestId": 1
+}
+```
+
+---
+
+### 2. Respond to Friend Request
+**PUT** `/user/friends/respond`
+
+Accepts or rejects a pending friend request.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "requestId": 1,
+  "accept": true
+}
+```
+
+**Response:**
+```json
+{
+  "message": "friend request accepted",
+  "status": "accepted"
+}
+```
+
+---
+
+### 3. Get Friends List
+**GET** `/user/friends`
+
+Gets list of friends and pending requests.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "friends": [
+    {
+      "id": "uuid",
+      "username": "friend_name",
+      "avatar": "/public/uploads/avatar.png",
+      "friendshipId": 1
+    }
+  ],
+  "pendingRequests": [
+    {
+      "requestId": 2,
+      "from": {
+        "id": "uuid",
+        "username": "requester_name",
+        "avatar": null
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "sentRequests": [
+    {
+      "requestId": 3,
+      "to": {
+        "id": "uuid",
+        "username": "pending_friend",
+        "avatar": null
+      },
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### 4. Remove Friend
+**DELETE** `/user/friends/:friendshipId`
+
+Removes a friend from your friends list.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "message": "friend removed successfully"
+}
+```
+
+---
+
+### 5. Get Friend's Stats (W/L Ratio)
+**GET** `/user/friends/:friendId/stats`
+
+Gets a friend's win/loss ratio and game statistics. Only works for accepted friends.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "friend": {
+    "id": "uuid",
+    "username": "friend_name",
+    "avatar": "/public/uploads/avatar.png"
+  },
+  "stats": {
+    "totalMatches": 25,
+    "wins": 15,
+    "losses": 10,
+    "winRate": "60.0",
+    "wlRatio": "1.50",
+    "byGameMode": {
+      "pvp": { "wins": 8, "losses": 5 },
+      "pvai": { "wins": 5, "losses": 3 },
+      "tournament": { "wins": 2, "losses": 2 }
+    }
+  }
+}
+```
+
+---
+
+### 6. Get Friend's Match History
+**GET** `/user/friends/:friendId/matches`
+
+Gets a friend's match history. Only works for accepted friends.
+
+**Headers:**
+```
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "friend": {
+    "id": "uuid",
+    "username": "friend_name",
+    "avatar": "/public/uploads/avatar.png"
+  },
+  "matches": [
+    {
+      "id": 1,
+      "opponent": "opponent_name",
+      "userScore": 5,
+      "opponentScore": 3,
+      "won": true,
+      "gameMode": "PvP",
+      "playedAt": "2024-01-01T00:00:00.000Z",
+      "tournamentRound": null
+    }
+  ]
+}
+```
+
+---
+
+## Friend System Testing Examples
+
+### Full Friend Flow:
+
+1. **Send friend request:**
+```bash
+curl -X POST http://localhost:3000/user/friends/request \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"friendUsername":"other_user"}'
+```
+
+2. **Accept friend request** (as the other user):
+```bash
+curl -X PUT http://localhost:3000/user/friends/respond \
+  -H "Authorization: Bearer OTHER_USER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"requestId":1,"accept":true}'
+```
+
+3. **Get friends list:**
+```bash
+curl -X GET http://localhost:3000/user/friends \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+4. **View friend's stats:**
+```bash
+curl -X GET http://localhost:3000/user/friends/FRIEND_UUID/stats \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+5. **View friend's match history:**
+```bash
+curl -X GET http://localhost:3000/user/friends/FRIEND_UUID/matches \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+6. **Remove friend:**
+```bash
+curl -X DELETE http://localhost:3000/user/friends/1 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
