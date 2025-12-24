@@ -7,11 +7,12 @@ import { SettingsPage, mountSettingsPage, unmountSettingsPage } from "./pages/se
 import { AccountPage, mountAccountPage } from "./pages/account";
 import { PlayPage, mountPlayPage, unmountPlayPage } from "./pages/play";
 import { StatsPage, mountStatsPage } from "./pages/stats";
+import { Friends } from "./pages/friends";
 import { ErrorPage } from "./pages/error";
 import { meRequest } from "./api/auth";
 
 type Route = {
-  render: () => string;
+  render: () => string | HTMLElement | Promise<HTMLElement>;
   mount?: () => void;
   unmount?: () => void;
 };
@@ -27,6 +28,7 @@ const routes: Record<string, Route> =
 	"/account": { render: AccountPage, mount: mountAccountPage },
 	"/play": { render: PlayPage, mount: mountPlayPage, unmount: unmountPlayPage },
 	"/stats": { render: StatsPage, mount: mountStatsPage },
+	"/friends": { render: async () => await Friends() },
 };
 
 let currentRoute: Route | null = null;
@@ -104,9 +106,16 @@ export async function loadRoute()
 	}
 
 	app!.style.opacity = "0";
-	setTimeout(() => {
-	app!.innerHTML = route.render();
-	if (route.mount) route.mount();
+	setTimeout(async () => {
+		const content = await route.render();
+		if (typeof content === 'string') {
+			app!.innerHTML = content;
+		} else if (content instanceof HTMLElement) {
+			app!.innerHTML = '';
+			app!.appendChild(content);
+		}
+		
+		if (route.mount) route.mount();
 		app!.style.opacity = "1";
 	}, 150);
 }

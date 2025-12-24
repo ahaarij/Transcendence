@@ -20,3 +20,23 @@ export function deleteAccount(password: string) {
     });
 }
 
+export function getFriends() {
+    return apiRequest("/user/friends", {
+        method: "GET"
+    });
+}
+
+export function sendFriendRequest(friendUsername: string) {
+    return apiRequest("/user/friends/request", {
+        method: "POST",
+        body: JSON.stringify({ friendUsername })
+    });
+}
+
+export function respondToFriendRequest(requestId: number, accept: boolean) {
+    return apiRequest("/user/friends/respond", {
+        method: "PUT",
+        body: JSON.stringify({ requestId, accept })
+    });
+}
+

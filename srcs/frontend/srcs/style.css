@@ -167,6 +167,7 @@ body.light-mode .page-overlay {
 
 body.light-mode .glass-card {
     background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(230,235,240,0.8));
+    backdrop-filter: none;
     border: 1px solid rgba(100, 120, 140, 0.2);
     box-shadow: 
         0 10px 30px rgba(0, 0, 0, 0.1),
@@ -174,6 +175,7 @@ body.light-mode .glass-card {
         0 0 20px rgba(0, 150, 255, 0.1); 
     position: relative;
     overflow: hidden;
+    transform: translateZ(0); /* Hardware acceleration */
 }
 
 body.light-mode .glass-card::after {

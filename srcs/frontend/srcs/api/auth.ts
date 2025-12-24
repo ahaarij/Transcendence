@@ -44,6 +44,13 @@ export function logoutRequest()
     });
 }
 
+export function changePasswordRequest(currentPassword: string, newPassword: string) {
+    return apiRequest("/auth/password/change", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword })
+    });
+}
+
 export function meRequest()
 {
     const token =

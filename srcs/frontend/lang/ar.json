@@ -23,6 +23,8 @@
   "connect_2fa": "تفعيل المصادقة الثنائية (قريباً)",
   "change_username": "تغيير اسم المستخدم",
   "change_password": "تغيير كلمة المرور",
+  "current_password": "كلمة المرور الحالية",
+  "new_password": "كلمة المرور الجديدة",
   "member_since": "عضو منذ",
   "select_mode": "اختر الوضع",
   "2_players": "لاعبين 2",

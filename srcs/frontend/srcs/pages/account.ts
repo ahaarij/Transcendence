@@ -1,4 +1,4 @@
-import { meRequest } from "../api/auth";
+import { meRequest, changePasswordRequest } from "../api/auth";
 import { updateProfile } from "../api/user";
 import { showToast, showInputModal } from "../utils/ui";
 import { t } from "../lang";
@@ -156,11 +156,50 @@ export function mountAccountPage() {
   });
 
   document.getElementById("changeUsernameBtn")?.addEventListener("click", () => {
-    showInputModal(t("change_username"), t("enter_new_username"), async (newUsername) => {
+    const modal = document.createElement("div");
+    modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
+    modal.innerHTML = `
+        <div class="glass-card p-8 w-full max-w-md rounded-xl border border-[#00f3ff]/30 shadow-[0_0_30px_rgba(0,243,255,0.2)]">
+            <h3 class="text-2xl font-cyber font-bold text-[#00f3ff] mb-4 tracking-widest">${t("change_username")}</h3>
+            
+            <div class="mb-6">
+                <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("username")}</label>
+                <input type="text" id="newUsernameInput" 
+                    class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all"
+                    placeholder="${t("enter_new_username")}" />
+            </div>
+
+            <div class="flex gap-3">
+                <button id="cancelChangeUserBtn" class="flex-1 bg-white/5 border border-white/10 text-gray-300 py-3 rounded hover:bg-white/10 transition font-cyber text-sm tracking-widest">
+                    ${t("cancel")}
+                </button>
+                <button id="confirmChangeUserBtn" class="flex-1 bg-[#00f3ff]/20 border border-[#00f3ff]/50 text-[#00f3ff] py-3 rounded hover:bg-[#00f3ff]/30 transition font-cyber text-sm tracking-widest">
+                    ${t("confirm")}
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    modal.querySelector("#cancelChangeUserBtn")?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) close();
+    });
+
+    modal.querySelector("#confirmChangeUserBtn")?.addEventListener("click", async () => {
+        const newUsername = (modal.querySelector("#newUsernameInput") as HTMLInputElement).value;
+
+        if (!newUsername) {
+            showToast(t("fill_all_fields"), "error");
+            return;
+        }
+
         try {
             await updateProfile({ username: newUsername });
             showToast(t("username_updated"), "success");
             loadUser();
+            close();
         } catch (err: any) {
             showToast(err.message || t("username_update_failed"), "error");
         }
@@ -168,6 +207,60 @@ export function mountAccountPage() {
   });
 
   document.getElementById("changePasswordBtn")?.addEventListener("click", () => {
-    showToast(t("change_password_soon"), "success");
+    const modal = document.createElement("div");
+    modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
+    modal.innerHTML = `
+        <div class="glass-card p-8 w-full max-w-md rounded-xl border border-[#00f3ff]/30 shadow-[0_0_30px_rgba(0,243,255,0.2)]">
+            <h3 class="text-2xl font-cyber font-bold text-[#00f3ff] mb-4 tracking-widest">${t("change_password") || "CHANGE PASSWORD"}</h3>
+            
+            <div class="mb-4">
+                <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("current_password") || "CURRENT PASSWORD"}</label>
+                <input type="password" id="currentPasswordInput" 
+                    class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all"
+                    placeholder="********" />
+            </div>
+
+            <div class="mb-6">
+                <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("new_password") || "NEW PASSWORD"}</label>
+                <input type="password" id="newPasswordInput" 
+                    class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all"
+                    placeholder="********" />
+            </div>
+
+            <div class="flex gap-3">
+                <button id="cancelChangePassBtn" class="flex-1 bg-white/5 border border-white/10 text-gray-300 py-3 rounded hover:bg-white/10 transition font-cyber text-sm tracking-widest">
+                    ${t("cancel")}
+                </button>
+                <button id="confirmChangePassBtn" class="flex-1 bg-[#00f3ff]/20 border border-[#00f3ff]/50 text-[#00f3ff] py-3 rounded hover:bg-[#00f3ff]/30 transition font-cyber text-sm tracking-widest">
+                    ${t("confirm")}
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    const close = () => modal.remove();
+    modal.querySelector("#cancelChangePassBtn")?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) close();
+    });
+
+    modal.querySelector("#confirmChangePassBtn")?.addEventListener("click", async () => {
+        const currentPass = (modal.querySelector("#currentPasswordInput") as HTMLInputElement).value;
+        const newPass = (modal.querySelector("#newPasswordInput") as HTMLInputElement).value;
+
+        if (!currentPass || !newPass) {
+            showToast(t("fill_all_fields"), "error");
+            return;
+        }
+
+        try {
+            await changePasswordRequest(currentPass, newPass);
+            showToast("Password changed successfully", "success");
+            close();
+        } catch (error: any) {
+            showToast(error.message || "Failed to change password", "error");
+        }
+    });
   });
 }

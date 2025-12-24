@@ -29,6 +29,8 @@
   "disable_2fa_failed": "Failed to disable 2FA",
   "change_username": "Change Username",
   "change_password": "Change Password",
+  "current_password": "Current Password",
+  "new_password": "New Password",
   "member_since": "Member Since",
   "select_mode": "SELECT MODE",
   "2_players": "2 Players",
