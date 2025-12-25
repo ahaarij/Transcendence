@@ -23,7 +23,3 @@ chmod 644 ssl/server.crt
 echo "✅ ssl certificates generated successfully!"
 echo "   - certificate: ssl/server.crt"
 echo "   - private key: ssl/server.key"
-echo ""
-echo "⚠️  note: these are self-signed certificates for development only"
-echo "   browsers will show security warnings - this is normal"
-echo "   for production, use let's encrypt or commercial certificates"

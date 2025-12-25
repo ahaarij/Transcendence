@@ -4,8 +4,6 @@ import { registerAuthRoutes } from './auth/src/main';
 import { registerUserRoutes } from './user/src/main';
 import { registerGameRoutes } from './game/src/main';
 import prismaPlugin from './shared/utils/prisma';
-import fastifyStatic from '@fastify/static';
-import * as path from 'path';
 
 // validates all required environment variables exist
 const requiredEnvVars = [
@@ -30,10 +28,6 @@ async function start() {
   const app = buildServer();  // creates fastify app
   
   await app.register(prismaPlugin);  // adds database connection
-  await app.register(fastifyStatic, {
-    root: path.join(process.cwd(), 'public'),
-    prefix: '/public/',
-  });
 
   // registers all microservice routes
   await registerAuthRoutes(app);  // auth service routes
