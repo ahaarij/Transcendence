@@ -4,11 +4,51 @@ import { t } from "../lang";
 export class GameUI {
     public static getHTML(): string {
         return `
-        <div id="game-wrapper" style="
+        <style>
+            .btn {
+                padding: 10px 20px;
+                margin: 0 5px;
+                border: 1px solid #fff;
+                background: transparent;
+                color: #fff;
+                cursor: pointer;
+                font-family: monospace;
+                transition: all 0.2s;
+                border-radius: 8px;
+            }
+            .btn:hover {
+                background: rgba(255,255,255,0.1);
+            }
+            .btn.selected {
+                background: #fff;
+                color: #000;
+            }
+        </style>
+        <div id= "game-container-wrapper" style="
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: 200px ${GAME_WIDTH}px 200px;
+            grid-template-areas: 'left-player canvas right-player';
+            gap: 20px;
+            align-items: center;
+        ">
+            <div id="leftPlayerInfo" style="
+                grid-area: left-player;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                display: none;
+            ">
+                <div id="leftPlayerName" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
+                <div id="leftPlayerControls" style="font-size: 14px;">W / S</div>
+            </div>
+
+        <div id="game-wrapper" style="
+            grid-area: canvas;
+            position: relative;
             width: ${GAME_WIDTH}px;
             height: ${GAME_HEIGHT}px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
@@ -27,7 +67,12 @@ export class GameUI {
                         <button id="btnPvP" class="btn selected">${t("2_players")}</button>
                         <button id="btnPvAI" class="btn">${t("vs_ai")}</button>
                         <button id="btnTourney" class="btn">${t("tournament")}</button>
-                        <button id="btnMultiplayer" class="btn">${t("4 player")}</button>
+                        <button id="btnMultiplayer" class="btn">${t("4 players")}</button>
+                    </div>
+                    <div id="pvpOptions" style="display: block; margin-bottom: 20px;">
+                        <p style="margin-bottom: 5px; color: #aaa;">${t("Player 2 Name") || "Player 2 Name"}</p>
+                        <input type="text" id="player2NameInput" placeholder="${t("player_name_placeholder")} 2" maxlength="15" style="padding: 10px 20px; width: 250px; background: #222; color:#fff; border: 2px solid #555; border-radius: 5px; font-family: monospace; text-align: center;">
+                        <div id="player2Error" style="color: #ff4444; font-size: 12px; margin-top: 5px; display: none;"></div>
                     </div>
                     <div id="aiOptions" style="display: none; margin-bottom: 20px;">
                         <p style="margin-bottom: 5px; color: #aaa;">${t("player_side")}</p>
@@ -40,7 +85,7 @@ export class GameUI {
                         <button id="score11" class="btn selected">11</button>
                         <button id="score21" class="btn">21</button>
                     </div>
-                    <button id="btnStart" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; margin-top: 20px;">${t("start_game")}</button>
+                    <button id="btnStart" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; border-radius: 8px;">${t("start_game")}</button>
                 </div>
 
                 <div id="customizationMenu" style="display: none; text-align: center; width: 400px;">
@@ -70,19 +115,18 @@ export class GameUI {
                         </div>
                     </div>
 
-                    <button id="btnPlay" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; width: 100%;">${t("play").toUpperCase()}</button>
+                    <button id="btnPlay" style="padding: 15px 40px; font-size: 24px; background: white; color: black; border: none; cursor: pointer; font-weight: bold; width: 100%; border-radius: 8px;">${t("play").toUpperCase()}</button>
                     <button id="btnBackCustom" class="btn" style="margin-top: 15px; border: none; font-size: 14px;">&lt; ${t("back")}</button>
                 </div>
 
-                <div id="tournamentMenu" style="display: none; text-align: center; max-height: 80vh; overflow-y: auto; padding: 20px;">
+                <div id="tournamentMenu" style="display: none; text-align: center; padding: 20px; max-width: 700px;">
                     <h2 style="margin-bottom: 20px;">${t("tournament_registration")}</h2>
                     <div style="margin-bottom: 15px;">
                         <p style="color: #aaa; margin-bottom: 5px;">${t("players")}</p>
                         <button id="btn4Players" class="btn selected">4</button>
                         <button id="btn8Players" class="btn">8</button>
                     </div>
-                    <p id="tourneyError" style="color: #ff4444; font-size: 14px; height: 20px; margin-bottom: 10px;"></p>
-                    <div id="playerInputs" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
+                    <div id="playerInputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;"></div>
                     <button id="btnStartTourney" class="btn" style="border-color: white;">${t("begin_tournament")}</button>
                     <br><br>
                     <button id="btnBack" class="btn" style="font-size: 12px; border: none;">&lt; ${t("back")}</button>
@@ -113,6 +157,25 @@ export class GameUI {
                     <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff;">PLAYER 1 WINS</h1>
                     <p style="color: #aaa; margin-bottom: 30px;">${t("press_enter")}</p>
                 </div>
+
+                <div id="pauseMenu" style="display: none; text-align: center;">
+                    <h1 style= "font-size: 60px; margin-bottom: 30px; color: #fff; text-shadow: 0 0 10px #fff;">${t("game_paused") || "PAUSED"}</h1>
+                    <p style="color: #aaa; margin-bottom: 20px;">${t("press_esc_resume") || "Press Esc to Resume"}</p>
+                    <button id="btnViewBracketPause" class="btn" style="padding: 15px 40px; margin-bottom: 15px; font-size: 16px; display: none; margin-left: auto; margin-right: auto;">${t("view_bracket") || "VIEW BRACKET"}</button>
+                    <button id="btnResume" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #0f0; color: #0f0; margin-bottom: 15px;">${t("resume_game") || "RESUME GAME"}</button>
+                    <button id="btnQuit" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #f00; color: #f00;">${t("quit_to_menu") || "QUIT TO MENU"}</button>
+                    </div>
+            </div>
+            </div>
+            <div id="rightPlayerInfo" style="
+                grid-area: right-player;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                display: none;
+            ">
+                <div id="rightPlayerName" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;"></div>
+                <div id="rightPlayerControls" style="font-size: 14px;">↑ / ↓</div>
             </div>
         </div>
         `;

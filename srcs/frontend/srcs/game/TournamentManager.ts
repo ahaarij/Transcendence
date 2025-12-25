@@ -17,35 +17,69 @@ export class TournamentManager {
         const playerInput = container.querySelector("#playerInputs")!;
         playerInput.innerHTML = "";
 
-        const tourneyError = container.querySelector("#tourneyError") as HTMLElement;
-        if(tourneyError) tourneyError.innerText = "";
-        
+        const firstInputWrapper = document.createElement("div");
         const firstInput = document.createElement("input");
         firstInput.type = "text";
         firstInput.placeholder = currentUsername;
         firstInput.value = currentUsername;
         firstInput.id = `player1`;
-        playerInput.appendChild(firstInput);
+        firstInput.disabled = true;
+        firstInput.style.cssText = "padding: 10px; background: #333; color:#888; border: 2px solid #555; border-radius: 5px; font-family: monospace; cursor: not-allowed;";
+
+        const error1= document.createElement("span");
+        error1.id = "error1";
+        error1.style.cssText = "color: #ff4444; font-size: 12px; margin-top: 5px; display: none;";
+        firstInputWrapper.appendChild(firstInput);
+        firstInputWrapper.appendChild(error1);
+        playerInput.appendChild(firstInputWrapper);
 
         for (let i = 2; i <= count; i++){
+            const inputWrapper = document.createElement("div");
+
             const input = document.createElement("input");
             input.type = "text";
             input.placeholder = `${t("player_name_placeholder")} ${i}`;
             input.id = `player${i}`;
-            playerInput.appendChild(input);
+            input.maxLength = 15;
+            input.style.cssText = "padding: 10px; background: #222; color:#fff; border: 2px solid #555; border-radius: 5px; font-family: monospace;";
+            const errorSpan= document.createElement("span");
+            errorSpan.id = `error${i}`;
+            errorSpan.style.cssText = "color: #ff4444; font-size: 12px; margin-top: 5px; display: none;";
+            inputWrapper.appendChild(input);
+            inputWrapper.appendChild(errorSpan);
+            playerInput.appendChild(inputWrapper);
+        }
+
+        for (let i = 1; i <= count; i++){
+            const errorSpan = container.querySelector(`#error${i}`) as HTMLElement;
+            if (errorSpan) {
+                errorSpan.style.display = "none";
+                errorSpan.innerText = '';
+            }
         }
     }
 
     public startTournament(container: HTMLElement): boolean {
         this.tournamentPlayers = [];
         const nameSet = new Set<string>();
-        const tourneyError = container.querySelector("#tourneyError") as HTMLElement;
+
+        for (let i =1; i <= this.tournamentSize; i++){
+            const errorSpan = container.querySelector(`#error${i}`) as HTMLElement;
+            if (errorSpan) {
+                errorSpan.style.display = "none";
+                errorSpan.innerText = '';
+            }
+        }
 
         for (let i = 1; i <= this.tournamentSize; i++){
             const input = container.querySelector(`#player${i}`) as HTMLInputElement; 
             const name = input.value.trim() || `${t("player_name_placeholder")} ${i}`;
             if (nameSet.has(name)){
-                tourneyError.innerText = t("error_duplicate_name");
+                const errorSpan = container.querySelector(`#error${i}`) as HTMLElement;
+                if (errorSpan) {
+                    errorSpan.innerText = t("error_duplicate_name");
+                    errorSpan.style.display = "block";
+                }
                 return false;
             }
             nameSet.add(name);

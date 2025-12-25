@@ -61,7 +61,7 @@
   "drop_or_click": "(Drop or Click)",
   "loading": "Loading...",
   "press_enter": "Press ENTER to return to menu",
-  "error_duplicate_name": "Error: Duplicate name. Please enter unique names.",
+  "error_duplicate_name": "Alias must be unique.",
   "final": "FINAL",
   "tournament_bracket": "TOURNAMENT BRACKET",
   "ai": "AI",
