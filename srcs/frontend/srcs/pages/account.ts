@@ -1,8 +1,7 @@
 import { meRequest, changePasswordRequest } from "../api/auth";
 import { updateProfile } from "../api/user";
-import { showToast, showInputModal } from "../utils/ui";
+import { showToast, showInputModal, getAvatarUrl } from "../utils/ui";
 import { t } from "../lang";
-import { config } from "../config";
 
 export function AccountPage() {
   return `
@@ -84,14 +83,8 @@ export function mountAccountPage() {
               createdAtDisplay.textContent = date.toLocaleDateString();
             }
 
-            if (user.avatar && profilePic) {
-                if (user.avatar.startsWith("http") || user.avatar.startsWith("data:")) {
-                    profilePic.src = user.avatar;
-                } else if (user.avatar.startsWith("/public/")) {
-                    profilePic.src = `${config.API_BASE_URL}${user.avatar}`;
-                } else {
-                    profilePic.src = user.avatar;
-                }
+            if (profilePic) {
+                profilePic.src = getAvatarUrl(user.avatar);
             }
           }
         })
@@ -102,6 +95,48 @@ export function mountAccountPage() {
 
   loadUser();
 
+  // resizes and compresses image before upload
+  const resizeImage = (file: File, maxSize: number = 400): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // scale down if larger than maxSize
+          if (width > height) {
+            if (width > maxSize) {
+              height = Math.round((height * maxSize) / width);
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width = Math.round((width * maxSize) / height);
+              height = maxSize;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // compress to JPEG with 80% quality
+          const base64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   // file selection
   const handleFile = async (file: File) => {
       if (!file.type.startsWith("image/")) {
@@ -109,20 +144,16 @@ export function mountAccountPage() {
           return;
       }
 
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-          const base64 = e.target?.result as string;
-          if (base64) {
-              try {
-                  await updateProfile({ avatar: base64 });
-                  showToast(t("avatar_updated"), "success");
-                  loadUser();
-              } catch (err: any) {
-                  showToast(err.message || t("avatar_update_failed"), "error");
-              }
-          }
-      };
-      reader.readAsDataURL(file);
+      try {
+          const base64 = await resizeImage(file);
+          
+          await updateProfile({ avatar: base64 });
+          showToast(t("avatar_updated"), "success");
+          loadUser();
+      } catch (err: any) {
+          console.error("Avatar upload error:", err);
+          showToast(err.message || t("avatar_update_failed"), "error");
+      }
   };
 
   // click to upload

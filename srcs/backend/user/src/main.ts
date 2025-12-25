@@ -52,6 +52,8 @@ export async function registerUserRoutes(app: FastifyInstance) {
   // updates own profile info
   app.put("/user/me", async (request, reply) => {
     try {
+      console.log("PUT /user/me called");
+      
       // extracts and verifies auth token
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -63,19 +65,31 @@ export async function registerUserRoutes(app: FastifyInstance) {
       
       const { username, avatar } = request.body as { username?: string; avatar?: string };
       
+      console.log("Updating profile for user:", decoded.userId, "avatar length:", avatar?.length || 0);
+      
       let avatarUrl = avatar;
 
       // handles base64 image upload if provided
       if (avatar && avatar.startsWith('data:image')) {
         try {
           // extracts image data from base64 string
-          const matches = avatar.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          const matches = avatar.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
           if (matches && matches.length === 3) {
-            const type = matches[1];
-            const buffer = Buffer.from(matches[2], 'base64');
-            const extension = type.split('/')[1];
+            const imageType = matches[1];
+            const base64Data = matches[2];
+            const buffer = Buffer.from(base64Data, 'base64');
+            
+            // normalizes extension (jpeg -> jpg)
+            let extension = imageType.split('+')[0]; // handles svg+xml
+            if (extension === 'jpeg') extension = 'jpg';
+            
             const filename = `avatar-${decoded.userId}-${Date.now()}.${extension}`;
-            const uploadDir = '/app/public/uploads';
+            
+            // determines upload directory - use /app/public in docker, otherwise process.cwd()/public
+            const publicDir = process.env.NODE_ENV === 'production' 
+              ? '/app/public' 
+              : path.join(process.cwd(), 'public');
+            const uploadDir = path.join(publicDir, 'uploads');
             
             // creates upload directory if it doesnt exist
             if (!fs.existsSync(uploadDir)) {
@@ -85,11 +99,16 @@ export async function registerUserRoutes(app: FastifyInstance) {
             // saves avatar file to disk
             const filepath = path.join(uploadDir, filename);
             fs.writeFileSync(filepath, buffer);
+            console.log(`✅ avatar saved: ${filepath}`);
             
             avatarUrl = `/public/uploads/${filename}`;
+          } else {
+            console.error("failed to parse base64 image - regex didn't match");
+            return reply.status(400).send({ error: "invalid image format" });
           }
         } catch (err) {
           console.error("failed to save avatar:", err);
+          return reply.status(500).send({ error: "failed to save avatar" });
         }
       }
 

@@ -1,6 +1,6 @@
 import { getFriends, sendFriendRequest, respondToFriendRequest } from "../api/user";
 import { getGameHistory } from "../api/game";
-import { showToast } from "../utils/ui";
+import { showToast, getAvatarUrl } from "../utils/ui";
 
 export async function Friends() {
     const container = document.createElement('div');
@@ -111,7 +111,7 @@ export async function Friends() {
             item.className = 'flex items-center justify-between bg-black/30 p-3 rounded hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10';
             item.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <img src="${friend.avatar || '/assets/default-avatar.png'}" class="w-10 h-10 rounded-full object-cover border border-neon-blue">
+                    <img src="${getAvatarUrl(friend.avatar)}" class="w-10 h-10 rounded-full object-cover border border-neon-blue">
                     <span class="font-bold text-white">${friend.username}</span>
                 </div>
                 <span class="text-xs text-neon-blue">View History</span>
@@ -133,7 +133,7 @@ export async function Friends() {
             item.className = 'flex items-center justify-between bg-black/30 p-3 rounded border border-transparent hover:border-white/10';
             item.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <img src="${req.from.avatar || '/assets/default-avatar.png'}" class="w-10 h-10 rounded-full object-cover">
+                    <img src="${getAvatarUrl(req.from.avatar)}" class="w-10 h-10 rounded-full object-cover">
                     <span class="text-white">${req.from.username}</span>
                 </div>
                 <div class="flex gap-2">
@@ -180,7 +180,7 @@ export async function Friends() {
             content.innerHTML = `
                 <div class="flex flex-col items-center mb-8">
                     <div class="relative">
-                        <img src="${friend.avatar || '/assets/default-avatar.png'}" class="w-32 h-32 rounded-full object-cover border-4 border-white/10 shadow-lg ring-2 ring-neon-blue">
+                        <img src="${getAvatarUrl(friend.avatar)}" class="w-32 h-32 rounded-full object-cover border-4 border-white/10 shadow-lg ring-2 ring-neon-blue">
                         <div class="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-black" title="Online"></div>
                     </div>
                     <h2 class="text-3xl font-bold text-white mt-4 mb-1">${friend.username}</h2>
