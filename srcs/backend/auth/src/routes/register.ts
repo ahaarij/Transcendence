@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { hashPassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens';
+import { validatePassword, getPasswordRequirements } from '../utils/validation';
 
 // creates new user account with email and password
 export async function registerUser(app: FastifyInstance, request: any, reply: any) {
@@ -15,6 +16,16 @@ export async function registerUser(app: FastifyInstance, request: any, reply: an
     
     if (!username || !email || !password) {
       return reply.status(400).send({ error: "username, email and password required" }); //missing fields
+    }
+
+    // validates password meets security requirements
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return reply.status(400).send({ 
+        error: "password does not meet requirements",
+        details: passwordValidation.errors,
+        requirements: getPasswordRequirements()
+      });
     }
 
     // checks if email already exists in database

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { comparePassword, hashPassword } from '../utils/password';
 import { verifyToken } from '../utils/tokens';
+import { validatePassword, getPasswordRequirements } from '../utils/validation';
 
 // changes user password after verifying current password
 export async function changePassword(app: FastifyInstance, request: any, reply: any) {
@@ -24,9 +25,14 @@ export async function changePassword(app: FastifyInstance, request: any, reply: 
       return reply.status(400).send({ error: "current password and new password required" });
     }
 
-    // validates new password length
-    if (newPassword.length < 6) {
-      return reply.status(400).send({ error: "new password must be at least 6 characters" });
+    // validates new password meets security requirements
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.valid) {
+      return reply.status(400).send({ 
+        error: "new password does not meet requirements",
+        details: passwordValidation.errors,
+        requirements: getPasswordRequirements()
+      });
     }
 
     // gets user from database

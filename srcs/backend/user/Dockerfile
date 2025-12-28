@@ -22,5 +22,5 @@ RUN npx prisma generate
 # exposes user service port
 EXPOSE 3002
 
-# starts user service
-CMD ["npx", "tsx", "user/server.ts"]
+# starts user microservice
+CMD ["npx", "tsx", "user/service.ts"]

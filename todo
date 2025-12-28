@@ -1,0 +1,16 @@
+Major module: Designing the Backend as Microservices.
+The goal of this major module is to architect the backend of the system using a
+microservices approach. Key features and objectives include:
+◦ Divide the backend into smaller, loosely-coupled microservices, each responsi-
+ble for specific functions or features.
+◦ Define clear boundaries and interfaces between microservices to enable inde-
+pendent development, deployment, and scaling.
+◦ Implement communication mechanisms between microservices, such as REST-
+ful APIs or message queues, to facilitate data exchange and coordination.
+◦ Ensure that each microservice is responsible for a single, well-defined task or
+business capability, promoting maintainability and scalability.
+This major module aims to enhance the system’s architecture by adopting a mi-
+croservices design approach, enabling greater flexibility, scalability, and maintain-
+ability of the backend components.
+
+for registration make password have 8 characters one uppercase 1 special one lower and one number
