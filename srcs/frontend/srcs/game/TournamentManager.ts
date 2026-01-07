@@ -120,127 +120,162 @@ export class TournamentManager {
         return true;
     }
 
-    public renderBracket(container: HTMLElement) {
-        const bracketContainer = container.querySelector('#bracketContainer') as HTMLElement;
-        bracketContainer.innerHTML = ''; 
+public renderBracket(container: HTMLElement) {
+    const bracketContainer = container.querySelector('#bracketContainer') as HTMLElement;
+    bracketContainer.innerHTML = ''; 
 
-        if (this.tournamentSize === 8) {
-            bracketContainer.style.width = '100%';
-            bracketContainer.style.transform = 'scale(0.9)'; 
-        } else {
-            bracketContainer.style.width = '70%';
-            bracketContainer.style.transform = 'scale(1)';
-        }
+    bracketContainer.querySelectorAll('.bracket-line').forEach(el => el.remove());
 
-        const leftContainer = document.createElement('div');
-        leftContainer.style.display = 'flex';
-        leftContainer.style.flexDirection = 'row';
-        leftContainer.style.alignItems = 'center';
-        leftContainer.style.gap = '20px';
+    bracketContainer.style.width = '100%';
+    bracketContainer.style.transform = 'none';
+    bracketContainer.style.position = 'relative';
+    (bracketContainer as HTMLElement).style.direction = 'ltr';
 
-        const rightContainer = document.createElement('div');
-        rightContainer.style.display = 'flex';
-        rightContainer.style.flexDirection = 'row-reverse';
-        rightContainer.style.alignItems = 'center';
-        rightContainer.style.gap = '20px';
+    
+    bracketContainer.classList.remove('tournament-4', 'tournament-8');
+    bracketContainer.classList.add(`tournament-${this.tournamentSize}`);
 
-        const centerContainer = document.createElement('div');
-        centerContainer.style.display = 'flex';
-        centerContainer.style.flexDirection = 'column';
-        centerContainer.style.justifyContent = 'center';
-        centerContainer.style.alignItems = 'center';
-        centerContainer.style.margin = '0 40px';
-        centerContainer.style.position = 'relative'; 
+    const leftContainer = document.createElement('div');
+    leftContainer.className = 'bracket-side-left';
+    leftContainer.style.display = 'flex';
+    leftContainer.style.flexDirection = 'row';
+    leftContainer.style.alignItems = 'center';
+    leftContainer.style.gap = this.tournamentSize === 8 ? '30px' : '40px';
 
-        const roundsCount = this.visualBracket.length;
-        const finalRoundIdx = roundsCount - 1;
+    const rightContainer = document.createElement('div');
+    rightContainer.className = 'bracket-side-right';
+    rightContainer.style.display = 'flex';
+    rightContainer.style.flexDirection = 'row-reverse';
+    rightContainer.style.alignItems = 'center';
+    rightContainer.style.gap = this.tournamentSize === 8 ? '30px' : '40px';
 
-        for (let r = 0; r < finalRoundIdx; r++) {
-            const roundMatches = this.visualBracket[r];
-            const half = Math.ceil(roundMatches.length / 2);
-            const matches = roundMatches.slice(0, half);
-            const col = this.createBracketColumn(matches, r, 'left');
-            leftContainer.appendChild(col);
-        }
+    const centerContainer = document.createElement('div');
+    centerContainer.className = 'bracket-center';
+    centerContainer.style.display = 'flex';
+    centerContainer.style.flexDirection = 'column';
+    centerContainer.style.justifyContent = 'center';
+    centerContainer.style.alignItems = 'center';
+    centerContainer.style.margin = '0 20px';
+    centerContainer.style.position = 'relative'; 
 
-        for (let r = 0; r < finalRoundIdx; r++) {
-            const roundMatches = this.visualBracket[r];
-            const half = Math.ceil(roundMatches.length / 2);
-            const matches = roundMatches.slice(half);
-            const col = this.createBracketColumn(matches, r, 'right');
-            rightContainer.appendChild(col);
-        }
+    const roundsCount = this.visualBracket.length;
+    const finalRoundIdx = roundsCount - 1;
 
-        const finalMatch = this.visualBracket[finalRoundIdx][0];
-        
-        const finalBox = document.createElement('div');
-        finalBox.className = 'final-box';
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.style.fontSize = '10px';
-        titleDiv.style.marginBottom = '2px';
-        titleDiv.textContent = t("final");
+    for (let r = 0; r < finalRoundIdx; r++) {
+        const roundMatches = this.visualBracket[r];
+        const half = Math.ceil(roundMatches.length / 2);
+        const matches = roundMatches.slice(0, half);
+        const col = this.createBracketColumn(matches, r, 'left');
+        leftContainer.appendChild(col);
+    }
 
-        const p1Div = document.createElement('div');
-        p1Div.style.fontSize = '14px';
-        p1Div.textContent = finalMatch.p1 || '?';
+    for (let r = 0; r < finalRoundIdx; r++) {
+        const roundMatches = this.visualBracket[r];
+        const half = Math.ceil(roundMatches.length / 2);
+        const matches = roundMatches.slice(half);
+        const col = this.createBracketColumn(matches, r, 'right');
+        rightContainer.appendChild(col);
+    }
 
-        const vsDiv = document.createElement('div');
-        vsDiv.style.fontSize = '10px';
-        vsDiv.style.color = '#888';
-        vsDiv.textContent = 'VS';
+    const finalMatch = this.visualBracket[finalRoundIdx][0];
+    
+    const finalBox = document.createElement('div');
+    finalBox.className = 'final-box';
+    
+    const titleDiv = document.createElement('div');
+    titleDiv.style.fontSize = '10px';
+    titleDiv.style.marginBottom = '2px';
+    titleDiv.textContent = t("final");
 
-        const p2Div = document.createElement('div');
-        p2Div.style.fontSize = '14px';
-        p2Div.textContent = finalMatch.p2 || '?';
+    const p1Div = document.createElement('div');
+    p1Div.style.fontSize = '14px';
+    p1Div.textContent = finalMatch.p1 || '?';
 
-        finalBox.appendChild(titleDiv);
-        finalBox.appendChild(p1Div);
-        finalBox.appendChild(vsDiv);
-        finalBox.appendChild(p2Div);
-        if (finalMatch.winner) {
-            finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)"; // gold glow effect
-            finalBox.style.borderColor = "gold";
-            finalBox.style.background = "#332200";
-        }
-        centerContainer.appendChild(finalBox);
-        
-        if (finalMatch.winner) {
-            const winnerDisplay = document.createElement('div');
-            winnerDisplay.style.position = 'absolute';
-            winnerDisplay.style.bottom = '260px';
-            winnerDisplay.style.left = '50%';
-            winnerDisplay.style.width = '300%';
-            winnerDisplay.style.transform = 'translateX(-50%)';
-            winnerDisplay.style.textAlign = 'center';
-            winnerDisplay.style.pointerEvents = 'none';
-            const label = document.createElement('div');
-            label.style.fontSize = '12px';
-            label.style.color = 'gold';
+    const vsDiv = document.createElement('div');
+    vsDiv.style.fontSize = '10px';
+    vsDiv.style.color = '#888';
+    vsDiv.textContent = 'VS';
+
+    const p2Div = document.createElement('div');
+    p2Div.style.fontSize = '14px';
+    p2Div.textContent = finalMatch.p2 || '?';
+
+    finalBox.appendChild(titleDiv);
+    finalBox.appendChild(p1Div);
+    finalBox.appendChild(vsDiv);
+    finalBox.appendChild(p2Div);
+    if (finalMatch.winner) {
+        finalBox.style.boxShadow = "0 0 20px rgba(255, 215, 0, 0.4)";
+        finalBox.style.borderColor = "gold";
+        finalBox.style.background = "#332200";
+    }
+    centerContainer.appendChild(finalBox);
+    
+    if (finalMatch.winner) {
+        const winnerDisplay = document.createElement('div');
+        winnerDisplay.style.position = 'absolute';
+        winnerDisplay.style.bottom = '260px';
+        winnerDisplay.style.left = '50%';
+        winnerDisplay.style.width = '300%';
+        winnerDisplay.style.transform = 'translateX(-50%)';
+        winnerDisplay.style.textAlign = 'center';
+        winnerDisplay.style.pointerEvents = 'none';
+        const label = document.createElement('div');
+        label.style.fontSize = '12px';
+        label.style.color = 'gold';
+        // Only apply letter-spacing for non-RTL languages (breaks Arabic connected script)
+        if (document.documentElement.dir !== 'rtl') {
             label.style.letterSpacing = '2px';
-            label.style.marginBottom = '5px';
-            label.textContent = 'TOURNAMENT WINNER';
-
-            const winnerName = document.createElement('div');
-            winnerName.style.fontSize = '28px';
-            winnerName.style.color = '#fff';
-            winnerName.style.fontWeight = 'bold';
-            winnerName.style.textShadow = '0 0 15px gold';
-            winnerName.textContent = `👑 ${finalMatch.winner} 👑`;
-
-            winnerDisplay.appendChild(label);
-            winnerDisplay.appendChild(winnerName);
-            centerContainer.appendChild(winnerDisplay);
         }
+        label.style.marginBottom = '5px';
+        label.textContent = t('tournament_winner_label');
 
-        bracketContainer.appendChild(leftContainer);
-        bracketContainer.appendChild(centerContainer);
-        bracketContainer.appendChild(rightContainer);
+        const winnerName = document.createElement('div');
+        winnerName.style.fontSize = '28px';
+        winnerName.style.color = '#fff';
+        winnerName.style.fontWeight = 'bold';
+        winnerName.style.textShadow = '0 0 15px gold';
+        winnerName.textContent = `👑 ${finalMatch.winner} 👑`;
+
+        winnerDisplay.appendChild(label);
+        winnerDisplay.appendChild(winnerName);
+        centerContainer.appendChild(winnerDisplay);
+    }
+
+    bracketContainer.appendChild(leftContainer);
+    bracketContainer.appendChild(centerContainer);
+    bracketContainer.appendChild(rightContainer);
+
+    // Draw lines after a delay to ensure layout is complete
+    setTimeout(() => {
+        this.drawBracketLines(bracketContainer);
+    }, 150);
+}
+
+    private drawBracketLines(container: HTMLElement) {
+        // Don't draw any lines - we'll use CSS instead
+        // Add connector classes to match boxes
+        
+        const leftSide = container.querySelector('.bracket-side-left');
+        const rightSide = container.querySelector('.bracket-side-right');
+        
+        if (leftSide) {
+            leftSide.querySelectorAll('.match-box').forEach(box => {
+                (box as HTMLElement).classList.add('connector-right');
+            });
+        }
+        
+        if (rightSide) {
+            rightSide.querySelectorAll('.match-box').forEach(box => {
+                (box as HTMLElement).classList.add('connector-left');
+            });
+        }
     }
 
     private createBracketColumn(matches: VisualMatch[], roundIdx: number, side: 'left'|'right') {
         const col = document.createElement('div');
         col.className = 'bracket-column';
+        col.setAttribute('data-side', side);
         
         matches.forEach((match, idx) => {
             let actualMatchIdx = idx;
@@ -249,15 +284,22 @@ export class TournamentManager {
                 const half = Math.ceil(totalInRound / 2);
                 actualMatchIdx = idx + half;
             }
-            const box = this.createMatchBox(match, roundIdx, actualMatchIdx);
+            const box = this.createMatchBox(match, roundIdx, actualMatchIdx, side);
             col.appendChild(box);
         });
         return col;
     }
 
-    private createMatchBox(match: VisualMatch, roundIdx: number, matchIdx: number) {
+    private createMatchBox(match: VisualMatch, roundIdx: number, matchIdx: number, side: 'left'|'right') {
         const box = document.createElement('div');
         box.className = 'match-box';
+        box.setAttribute('data-side', side);
+        
+        // Smaller boxes for 8-player
+        if (this.tournamentSize === 8) {
+            box.style.width = '100px';
+            box.style.fontSize = '10px';
+        }
         
         const isActive = (roundIdx === this.tournamentRound - 1) && (matchIdx === this.currentMatchIndex);
         if (isActive) box.classList.add('active');
@@ -274,6 +316,8 @@ export class TournamentManager {
 
         box.appendChild(p1);
         box.appendChild(p2);
+
         return box;
     }
+
 }

@@ -36,6 +36,10 @@ export function mountPlayPage() {
         text-transform: uppercase;
         letter-spacing: 5px;
       }
+      /* RTL: Disable letter-spacing for Arabic */
+      [dir="rtl"] #game-container h1 {
+        letter-spacing: normal;
+      }
       #game-container canvas {
         box-shadow: none; 
         display: block;
@@ -126,7 +130,147 @@ export function mountPlayPage() {
           color: gold; 
           background: #220000; 
           font-weight: bold; 
-          z-index: 2; 
+          z-index: 2;
+          position: relative; 
+      }
+      
+      /* Bracket connectors using CSS */
+      /* Quarter-final boxes - horizontal lines going outward */
+      .match-box.connector-right::after {
+          content: '';
+          position: absolute;
+          right: -21px;
+          top: 50%;
+          width: 21px;
+          height: 2px;
+          background: #666;
+      }
+      
+      .match-box.connector-left::after {
+          content: '';
+          position: absolute;
+          left: -21px;
+          top: 50%;
+          width: 21px;
+          height: 2px;
+          background: #666;
+      }
+      
+      .bracket-side-left .bracket-column:last-child .match-box.connector-right::after {
+          width: 70px;
+          right: -70px;
+      }
+      
+      .bracket-side-right .bracket-column:last-child .match-box.connector-left::after {
+          width: 60px;
+          left: -60px;
+      }
+
+      /* Semi-final boxes - horizontal line coming IN (only for 8-player) */
+      .tournament-8 .bracket-side-left .bracket-column:last-child .match-box::before {
+          content: '';
+          position: absolute;
+          left: -10px;
+          top: 50%;
+          width: 10px;
+          height: 2px;
+          background: #666;
+          transform: translateY(-50%);
+      }
+      
+      .tournament-8 .bracket-side-right .bracket-column:last-child .match-box::before {
+          content: '';
+          position: absolute;
+          right: -10px;
+          top: 50%;
+          width: 10px;
+          height: 2px;
+          background: #666;
+          transform: translateY(-50%);
+      }
+      
+      /* Semi-final to Final - ONLY use the semi-final outgoing line, remove final box lines */
+      /* The .connector-right::after and .connector-left::after already handle this */
+      
+      /* Vertical connectors - on quarter-final column (8-player only) */
+      .tournament-8 .bracket-side-left .bracket-column:first-child {
+          position: relative;
+      }
+      
+      .tournament-8 .bracket-side-left .bracket-column:first-child::after {
+          content: '';
+          position: absolute;
+          right: -21px;
+          width: 2px;
+          top: 25%;
+          height: 50%;
+          background: #666;
+      }
+      
+      .tournament-8 .bracket-side-right .bracket-column:first-child {
+          position: relative;
+      }
+      
+      .tournament-8 .bracket-side-right .bracket-column:first-child::after {
+          content: '';
+          position: absolute;
+          left: -21px;
+          width: 2px;
+          top: 25%;
+          height: 50%;
+          background: #666;
+      }
+      
+      /* NO lines on final box - semi-finals handle the connection */
+      /* Remove final-box::before and ::after */
+      
+      /* 4-player tournament - hide the vertical connectors and semi-final incoming lines */
+      .tournament-4 .bracket-side-left .bracket-column:first-child::after,
+      .tournament-4 .bracket-side-right .bracket-column:first-child::after,
+      .tournament-4 .bracket-side-left .bracket-column:last-child .match-box::before,
+      .tournament-4 .bracket-side-right .bracket-column:last-child .match-box::before {
+          display: none;
+      }
+      
+      /* RTL (Arabic) - Prevent automatic flipping of bracket connectors */
+      [dir="rtl"] .match-box.connector-right::after {
+          right: -21px;
+          left: auto;
+      }
+      
+      [dir="rtl"] .match-box.connector-left::after {
+          left: -21px;
+          right: auto;
+      }
+      
+      [dir="rtl"] .bracket-side-left .bracket-column:last-child .match-box.connector-right::after {
+          right: -70px;
+          left: auto;
+      }
+      
+      [dir="rtl"] .bracket-side-right .bracket-column:last-child .match-box.connector-left::after {
+          left: -60px;
+          right: auto;
+      }
+      
+      [dir="rtl"] .tournament-8 .bracket-side-left .bracket-column:last-child .match-box::before {
+          left: -10px;
+          right: auto;
+      }
+      
+      [dir="rtl"] .tournament-8 .bracket-side-right .bracket-column:last-child .match-box::before {
+          right: -10px;
+          left: auto;
+      }
+      
+      [dir="rtl"] .tournament-8 .bracket-side-left .bracket-column:first-child::after {
+          right: -21px;
+          left: auto;
+      }
+      
+      [dir="rtl"] .tournament-8 .bracket-side-right .bracket-column:first-child::after {
+          left: -21px;
+          right: auto;
       }
     `;
     document.head.appendChild(style);

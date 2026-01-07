@@ -25,19 +25,25 @@ export class GameRenderer {
     public drawCountdown(count: number) {
         this.context.fillStyle = "#ffffff";
         this.context.font = "120px Monospace";
+        this.context.textAlign = "center";
+        this.context.textBaseline = "middle";
         if (count > 0){
-            this.context.fillText(count.toString(), GAME_WIDTH / 2 - 30, GAME_HEIGHT / 2 + 20);
-            // this.context.fillText(count.toString(), (GAME_WIDTH - GAME_WIDTH / 4) - 40, GAME_HEIGHT / 2 + 30);
+            this.context.fillText(count.toString(), GAME_WIDTH / 2, GAME_HEIGHT / 2);
         }else{
             this.drawGo();
         }
+        this.context.textBaseline = "alphabetic";
+        this.context.textAlign = "start";
     }
     
     public drawGo() {
         this.context.fillStyle = "#00ff00";
         this.context.font = "100px Monospace";
-
-        this.context.fillText("Go!", GAME_WIDTH / 2 - 50, GAME_HEIGHT / 2 + 10);
+        this.context.textAlign = "center";
+        this.context.textBaseline = "middle";
+        this.context.fillText("Go!", GAME_WIDTH / 2, GAME_HEIGHT / 2);
+        this.context.textBaseline = "alphabetic";
+        this.context.textAlign = "start";
     }
 
     private drawPaddles() {

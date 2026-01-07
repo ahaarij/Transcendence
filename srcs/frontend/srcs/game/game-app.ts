@@ -27,6 +27,7 @@ export class GameApp {
     private gameState: AppFlowState = 'MENU';
     private gameMode: 'PvP' | 'PvAI' | 'Tournament' = 'PvP';
     private playerSide: 'Left' | 'Right' = 'Left';
+    private aiDifficulty: 'Easy' | 'Medium' | 'Hard' = 'Medium';
     private winningScore: number = 11;
     private countDown = 3;
     private countDownTimer = 0;
@@ -304,6 +305,27 @@ export class GameApp {
             q("#btnLeft").classList.remove("selected");
         });
 
+        q("#btnEasy").addEventListener("click", () => {
+            this.aiDifficulty = 'Easy';
+            q("#btnEasy").classList.add("selected");
+            q("#btnMedium").classList.remove("selected");
+            q("#btnHard").classList.remove("selected");
+        });
+
+        q("#btnMedium").addEventListener("click", () => {
+            this.aiDifficulty = 'Medium';
+            q("#btnMedium").classList.add("selected");
+            q("#btnEasy").classList.remove("selected");
+            q("#btnHard").classList.remove("selected");
+        });
+
+        q("#btnHard").addEventListener("click", () => {
+            this.aiDifficulty = 'Hard';
+            q("#btnHard").classList.add("selected");
+            q("#btnEasy").classList.remove("selected");
+            q("#btnMedium").classList.remove("selected");
+        });
+
         q("#score5").addEventListener("click", () => {
             this.winningScore = 5;
             q("#score5").classList.add("selected");
@@ -457,13 +479,14 @@ export class GameApp {
             if (this.gameMode === 'PvP') {
                 this.displayP1name = this.currentUsername;
                 const player2Input = this.container.querySelector("#player2NameInput") as HTMLInputElement;
-                this.displayP2name = player2Input.value.trim() || "Player 2";
+                this.displayP2name = player2Input.value.trim() || t("player_2");
             } else if (this.gameMode === 'PvAI') {
                 this.displayP1name = this.playerSide === 'Left' ? this.currentUsername : "AI";
                 this.displayP2name = this.playerSide === 'Right' ? this.currentUsername : "AI";
             }
 
             this.ai.reset();
+            this.ai.setDifficulty(this.aiDifficulty);
             this.countDown = 3;
             this.gameState = 'COUNTDOWN';
             this.countDownTimer = performance.now();
@@ -673,7 +696,8 @@ export class GameApp {
         this.mainMenu.style.display = "none";
         this.gameOverScreen.style.display = "block";
 
-        let text = `${t("player_name_placeholder")} ${winner} ${t("wins")}`; // need to change later it doesnt print name of the player
+        const winnerName = winner === 1 ? this.displayP1name : this.displayP2name;
+        let text = t("player_wins").replace("{name}", winnerName);
         if (this.gameMode === 'PvAI') {
             if ((winner === 1 && this.playerSide === 'Left') || (winner === 2 && this.playerSide === 'Right')) {
                 text = t("you_win");
