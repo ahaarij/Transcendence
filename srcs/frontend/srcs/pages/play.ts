@@ -231,47 +231,6 @@ export function mountPlayPage() {
       .tournament-4 .bracket-side-right .bracket-column:last-child .match-box::before {
           display: none;
       }
-      
-      /* RTL (Arabic) - Prevent automatic flipping of bracket connectors */
-      [dir="rtl"] .match-box.connector-right::after {
-          right: -21px;
-          left: auto;
-      }
-      
-      [dir="rtl"] .match-box.connector-left::after {
-          left: -21px;
-          right: auto;
-      }
-      
-      [dir="rtl"] .bracket-side-left .bracket-column:last-child .match-box.connector-right::after {
-          right: -70px;
-          left: auto;
-      }
-      
-      [dir="rtl"] .bracket-side-right .bracket-column:last-child .match-box.connector-left::after {
-          left: -60px;
-          right: auto;
-      }
-      
-      [dir="rtl"] .tournament-8 .bracket-side-left .bracket-column:last-child .match-box::before {
-          left: -10px;
-          right: auto;
-      }
-      
-      [dir="rtl"] .tournament-8 .bracket-side-right .bracket-column:last-child .match-box::before {
-          right: -10px;
-          left: auto;
-      }
-      
-      [dir="rtl"] .tournament-8 .bracket-side-left .bracket-column:first-child::after {
-          right: -21px;
-          left: auto;
-      }
-      
-      [dir="rtl"] .tournament-8 .bracket-side-right .bracket-column:first-child::after {
-          left: -21px;
-          right: auto;
-      }
     `;
     document.head.appendChild(style);
 
