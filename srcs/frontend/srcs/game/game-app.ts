@@ -719,9 +719,6 @@ export class GameApp {
         }
     }
 
-<<<<<<< HEAD
-    private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}, paddleLength?: number, ballSpeed?: number) {
-=======
     private updatePlayerInfoDisplay() {
         const leftInfo = this.container.querySelector("#leftPlayerInfo") as HTMLElement;
         const rightInfo = this.container.querySelector("#rightPlayerInfo") as HTMLElement;
@@ -773,7 +770,6 @@ export class GameApp {
     }
 
     private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}) {
->>>>>>> gaz/game-ui
         this.uiLayer.style.display = "none";
         this.canvas.style.display = "none";
         this.fourPlayerManager = new FourPlayerManager(
@@ -795,15 +791,9 @@ export class GameApp {
                 q("#btnTourney").classList.remove("selected");
                 q("#btnMultiplayer").classList.remove("selected");
                 this.gameMode = 'PvP';
-<<<<<<< HEAD
-            },
-            paddleLength,
-            ballSpeed
-=======
                 this.aiOptions.style.display = "none";
                 this.pvpOptions.style.display = "block";
             }
->>>>>>> gaz/game-ui
         );
     }
 }
