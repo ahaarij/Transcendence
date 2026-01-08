@@ -8,6 +8,7 @@ export async function apiRequest(url: string, options: any = {}) {
 
   const headers: any = {
     "Content-Type": "application/json",
+    ...(options.headers || {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
 
@@ -60,9 +61,29 @@ export async function apiRequest(url: string, options: any = {}) {
   }
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || t("unknown_error"));
+    let errorMessage = t("unknown_error");
+    try {
+      const text = await res.text();
+      if (text) {
+        const err = JSON.parse(text);
+        errorMessage = err.error || errorMessage;
+      }
+    } catch {
+      // response body is not JSON
+    }
+    throw new Error(errorMessage);
   }
 
-  return res.json();
+  // handle empty responses
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    return {};
+  }
+
+  const text = await res.text();
+  if (!text) {
+    return {};
+  }
+
+  return JSON.parse(text);
 }

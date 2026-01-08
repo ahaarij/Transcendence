@@ -22,5 +22,5 @@ RUN npx prisma generate
 # exposes auth service port
 EXPOSE 3001
 
-# starts auth service
-CMD ["npx", "tsx", "auth/server.ts"]
+# starts auth microservice
+CMD ["npx", "tsx", "auth/service.ts"]

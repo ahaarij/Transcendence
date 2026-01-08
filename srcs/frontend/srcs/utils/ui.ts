@@ -1,4 +1,17 @@
 import { t } from "../lang";
+import { config } from "../config";
+
+const DEFAULT_AVATAR = '/assets/default-avatar.png';
+export function getAvatarUrl(avatar: string | null | undefined): string {
+    if (!avatar) return DEFAULT_AVATAR;
+    if (avatar.startsWith("http") || avatar.startsWith("data:")) {
+        return avatar;
+    }
+    if (avatar.startsWith("/public/")) {
+        return `${config.API_BASE_URL}${avatar}`;
+    }
+    return avatar || DEFAULT_AVATAR;
+}
 
 export function showToast(message: string, type: 'success' | 'error' = 'success') {
     const container = document.getElementById('toast-container') || createToastContainer();

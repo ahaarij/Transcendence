@@ -21,5 +21,5 @@ RUN npx prisma generate
 # exposes game service port
 EXPOSE 3003
 
-# starts the game service
-CMD ["npx", "tsx", "game/server.ts"]
+# starts the game microservice
+CMD ["npx", "tsx", "game/service.ts"]
