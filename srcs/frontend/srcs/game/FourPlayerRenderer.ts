@@ -7,6 +7,7 @@ import {
     FOUR_PLAYER_BALL_SIZE,
     FOUR_PLAYER_PADDLE_OFFSET
 } from "./types";
+import { t } from "../lang";
 
 export class FourPlayerRenderer {
     private context: HTMLCanvasElement;
@@ -255,7 +256,7 @@ export class FourPlayerRenderer {
         this.ctx.fillStyle = "#FFD700";
         this.ctx.font = "bold 48px monospace";
         this.ctx.textAlign = "center";
-        this.ctx.fillText("WINNER!", center, center - 40);
+        this.ctx.fillText(t("winner"), center, center - 40);
 
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.font = "bold 36px monospace";
@@ -263,7 +264,7 @@ export class FourPlayerRenderer {
 
         this.ctx.fillStyle = "#AAAAAA";
         this.ctx.font = "18px monospace";
-        this.ctx.fillText("Press ENTER to continue", center, center + 60);
+        this.ctx.fillText(t("press_enter_continue"), center, center + 60);
     }
 
     public drawCountdown(count: number): void {

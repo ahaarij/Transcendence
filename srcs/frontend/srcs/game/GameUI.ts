@@ -23,6 +23,13 @@ export class GameUI {
                 background: #fff;
                 color: #000;
             }
+            /* Reset direction for UI layer to follow document direction */
+            #uiLayer {
+                direction: ltr;
+            }
+            [dir="rtl"] #uiLayer {
+                direction: rtl;
+            }
         </style>
         <div id= "game-container-wrapper" style="
             position: absolute;
@@ -34,6 +41,7 @@ export class GameUI {
             grid-template-areas: 'left-player canvas right-player';
             gap: 20px;
             align-items: center;
+            direction: ltr;
         ">
             <div id="leftPlayerInfo" style="
                 grid-area: left-player;
@@ -67,10 +75,10 @@ export class GameUI {
                         <button id="btnPvP" class="btn selected">${t("2_players")}</button>
                         <button id="btnPvAI" class="btn">${t("vs_ai")}</button>
                         <button id="btnTourney" class="btn">${t("tournament")}</button>
-                        <button id="btnMultiplayer" class="btn">${t("4 players")}</button>
+                        <button id="btnMultiplayer" class="btn">${t("4_players")}</button>
                     </div>
                     <div id="pvpOptions" style="display: block; margin-bottom: 20px;">
-                        <p style="margin-bottom: 5px; color: #aaa;">${t("Player 2 Name") || "Player 2 Name"}</p>
+                        <p style="margin-bottom: 5px; color: #aaa;">${t("player_2_name")}</p>
                         <input type="text" id="player2NameInput" placeholder="${t("player_name_placeholder")} 2" maxlength="15" style="padding: 10px 20px; width: 250px; background: #222; color:#fff; border: 2px solid #555; border-radius: 5px; font-family: monospace; text-align: center;">
                         <div id="player2Error" style="color: #ff4444; font-size: 12px; margin-top: 5px; display: none;"></div>
                     </div>
@@ -78,6 +86,12 @@ export class GameUI {
                         <p style="margin-bottom: 5px; color: #aaa;">${t("player_side")}</p>
                         <button id="btnLeft" class="btn selected">${t("left")}</button>
                         <button id="btnRight" class="btn">${t("right")}</button>
+                        <div style="margin-top: 15px;">
+                            <p style="margin-bottom: 5px; color: #aaa;">${t("difficulty")}</p>
+                            <button id="btnEasy" class="btn">${t("easy")}</button>
+                            <button id="btnMedium" class="btn selected">${t("medium")}</button>
+                            <button id="btnHard" class="btn">${t("hard")}</button>
+                        </div>
                     </div>
                     <div style="margin-bottom: 30px;">
                         <p style="margin-bottom: 5px; color: #aaa;">${t("win_score")}</p>
@@ -134,7 +148,7 @@ export class GameUI {
 
                 <div id="tournamentMatchScreen" style="display: none; text-align: center;">
                     <h2 style="margin-bottom: 10px; color: #aaa;">${t("tournament_round")} <span id="tourneyRoundDisplay">1</span></h2>
-                    <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px;">A vs B</h1>
+                    <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px; color: white; direction: ltr;">A vs B</h1>
                     <button id="btnViewBracketMatch" class="btn" style="margin-bottom: 20px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;">${t("view_bracket")}</button>
                     <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">${t("start_match")}</button>
                 </div>
@@ -154,16 +168,16 @@ export class GameUI {
                 </div>
 
                 <div id="gameOverScreen" style="display: none; text-align: center;">
-                    <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff;">PLAYER 1 WINS</h1>
+                    <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff; unicode-bidi: plaintext;">PLAYER 1 WINS</h1>
                     <p style="color: #aaa; margin-bottom: 30px;">${t("press_enter")}</p>
                 </div>
 
                 <div id="pauseMenu" style="display: none; text-align: center;">
-                    <h1 style= "font-size: 60px; margin-bottom: 30px; color: #fff; text-shadow: 0 0 10px #fff;">${t("game_paused") || "PAUSED"}</h1>
-                    <p style="color: #aaa; margin-bottom: 20px;">${t("press_esc_resume") || "Press Esc to Resume"}</p>
-                    <button id="btnViewBracketPause" class="btn" style="padding: 15px 40px; margin-bottom: 15px; font-size: 16px; display: none; margin-left: auto; margin-right: auto;">${t("view_bracket") || "VIEW BRACKET"}</button>
-                    <button id="btnResume" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #0f0; color: #0f0; margin-bottom: 15px;">${t("resume_game") || "RESUME GAME"}</button>
-                    <button id="btnQuit" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #f00; color: #f00;">${t("quit_to_menu") || "QUIT TO MENU"}</button>
+                    <h1 style= "font-size: 60px; margin-bottom: 30px; color: #fff; text-shadow: 0 0 10px #fff;">${t("game_paused")}</h1>
+                    <p style="color: #aaa; margin-bottom: 20px;">${t("press_esc_resume")}</p>
+                    <button id="btnViewBracketPause" class="btn" style="padding: 15px 40px; margin-bottom: 15px; font-size: 16px; display: none; margin-left: auto; margin-right: auto;">${t("view_bracket")}</button>
+                    <button id="btnResume" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #0f0; color: #0f0; margin-bottom: 15px;">${t("resume_game")}</button>
+                    <button id="btnQuit" class="btn" style="padding: 15px 40px; font-size: 20px; border-color: #f00; color: #f00;">${t("quit_to_menu")}</button></button>
                     </div>
             </div>
             </div>

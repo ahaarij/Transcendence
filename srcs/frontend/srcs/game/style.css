@@ -29,6 +29,11 @@
   letter-spacing: 5px;
 }
 
+/* RTL: Disable letter-spacing for Arabic */
+[dir="rtl"] #game-container h1 {
+  letter-spacing: normal;
+}
+
 #game-container canvas {
   /* 1. No Box Shadow */
   box-shadow: none; 

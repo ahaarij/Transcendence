@@ -9,6 +9,8 @@ export class PongEngine{
     public winningScore: number = 11; // default winning score
     public paddleHeight: number = PADDLE_HEIGHT;
     public ballSpeed: number = BALL_SPEED;
+    private currentServer: 1 | 2 = 1;
+    private servesRemaining: number = 2; 
 
     constructor(){
         this.state = this.resetGame();
@@ -44,15 +46,28 @@ export class PongEngine{
     }
 
     private resetGame(): GameState{
+        const randomServer = Math.random() < 0.5 ? 1 : 2;
+        this.currentServer = randomServer;
+        this.servesRemaining = 2;
         return {
             p1score: 0,
             p2score: 0,
             ball: {x: GAME_WIDTH / 2 - BALL_SIZE / 2, y: GAME_HEIGHT / 2 - BALL_SIZE / 2},
             p1: {x: PADDLE_OFFSET, y: GAME_HEIGHT / 2 - this.paddleHeight / 2},
             p2: {x: GAME_WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, y: GAME_HEIGHT / 2 - this.paddleHeight / 2},
-            ballVelocity: {x: this.ballSpeed, y: this.ballSpeed},
+            ballVelocity: this.getRandomInitialVelocity(randomServer),
             winner: 0 // for later use to determine if someone has won
         }
+    }
+
+    private getRandomInitialVelocity(server: 1 | 2): {x: number, y: number} {
+        const angle = (Math.random() * 0.4 + 0.3) * (Math.random() < 0.5 ? -1 : 1);
+         const xDirection = server === 1 ? 1 : -1;
+        
+        return {
+            x: xDirection * this.ballSpeed,
+            y: this.ballSpeed * angle
+        };
     }
 
     public update(deltaTime: number= 1/60){
@@ -94,11 +109,13 @@ export class PongEngine{
     private resetBall(){
         this.state.ball.x = GAME_WIDTH / 2 - BALL_SIZE / 2;
         this.state.ball.y = GAME_HEIGHT / 2 - BALL_SIZE / 2;
-        if (this.state.ballVelocity.x < 0)
-            this.state.ballVelocity.x = this.ballSpeed;
-        else
-            this.state.ballVelocity.x = -this.ballSpeed;
-        this.state.ballVelocity.y = (Math.random() > 0.5 ? 1 : -1) * this.ballSpeed;
+
+        this.servesRemaining -= 1;
+        if (this.servesRemaining <= 0){
+            this.currentServer = this.currentServer === 1 ? 2 : 1;
+            this.servesRemaining = 2;
+        }
+        this.state.ballVelocity = this.getRandomInitialVelocity(this.currentServer);
         this.lastPaddle = null;
     }
 

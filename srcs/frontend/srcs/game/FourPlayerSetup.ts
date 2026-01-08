@@ -1,4 +1,6 @@
 // FourPlayerSetup.ts
+import { t } from "../lang";
+
 export class FourPlayerSetup {
     private container: HTMLElement;
     private setupScreen!: HTMLElement;
@@ -40,14 +42,14 @@ export class FourPlayerSetup {
 
         this.setupScreen.innerHTML = `
             <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px; color: #fff; text-shadow: 0 0 10px #fff;">
-                4 PLAYER SETUP
+                ${t("4_player_setup")}
             </h2>
             
             <div style="margin-bottom: 30px;">
                 <!-- Player 1 (LEFT) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 1 (LEFT - W/S):
+                        ${t("player_1_left")}
                     </label>
                     <input 
                         type="text" 
@@ -70,12 +72,12 @@ export class FourPlayerSetup {
                 <!-- Player 2 (TOP) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 2 (TOP - J/K):
+                        ${t("player_2_top")}
                     </label>
                     <input 
                         type="text" 
                         id="player2Name" 
-                        placeholder="Enter alias"
+                        placeholder="${t("enter_alias")}"
                         maxlength="15"
                         style="
                             width: 100%;
@@ -94,12 +96,12 @@ export class FourPlayerSetup {
                 <!-- Player 3 (RIGHT) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 3 (RIGHT - ↑/↓):
+                        ${t("player_3_right")}
                     </label>
                     <input 
                         type="text" 
                         id="player3Name" 
-                        placeholder="Enter alias"
+                        placeholder="${t("enter_alias")}"
                         maxlength="15"
                         style="
                             width: 100%;
@@ -118,12 +120,12 @@ export class FourPlayerSetup {
                 <!-- Player 4 (BOTTOM) -->
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 5px; color: #aaa; font-size: 14px;">
-                        Player 4 (BOTTOM - V/B):
+                        ${t("player_4_bottom")}
                     </label>
                     <input 
                         type="text" 
                         id="player4Name" 
-                        placeholder="Enter alias"
+                        placeholder="${t("enter_alias")}"
                         maxlength="15"
                         style="
                             width: 100%;
@@ -156,7 +158,7 @@ export class FourPlayerSetup {
                         font-weight: bold;
                     "
                 >
-                    BACK
+                    ${t("back").toUpperCase()}
                 </button>
                 <button 
                     id="btnStartGame"
@@ -173,7 +175,7 @@ export class FourPlayerSetup {
                         font-weight: bold;
                     "
                 >
-                    START GAME
+                    ${t("start_game_btn")}
                 </button>
             </div>
         `;
@@ -229,15 +231,15 @@ export class FourPlayerSetup {
         let hasError = false;
 
         if (!player2) {
-            this.showError('error2', 'Alias required');
+            this.showError('error2', t('alias_required'));
             hasError = true;
         }
         if (!player3) {
-            this.showError('error3', 'Alias required');
+            this.showError('error3', t('alias_required'));
             hasError = true;
         }
         if (!player4) {
-            this.showError('error4', 'Alias required');
+            this.showError('error4', t('alias_required'));
             hasError = true;
         }
 
@@ -250,17 +252,17 @@ export class FourPlayerSetup {
         if (uniqueNames.size !== 4) {
             if (player2.toLowerCase() === player1.toLowerCase() || 
                 names.filter(n => n === player2.toLowerCase()).length > 1) {
-                this.showError('error2', 'Alias must be unique');
+                this.showError('error2', t('alias_unique'));
                 hasError = true;
             }
             if (player3.toLowerCase() === player1.toLowerCase() || 
                 names.filter(n => n === player3.toLowerCase()).length > 1) {
-                this.showError('error3', 'Alias must be unique');
+                this.showError('error3', t('alias_unique'));
                 hasError = true;
             }
             if (player4.toLowerCase() === player1.toLowerCase() || 
                 names.filter(n => n === player4.toLowerCase()).length > 1) {
-                this.showError('error4', 'Alias must be unique');
+                this.showError('error4', t('alias_unique'));
                 hasError = true;
             }
         }

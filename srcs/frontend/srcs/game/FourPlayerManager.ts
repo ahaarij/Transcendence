@@ -3,6 +3,7 @@ import { FourPlayerRenderer } from "./FourPlayerRenderer";
 import { FourPlayerInput } from "./FourPlayerInput";
 import { PlayerSide } from "./types";
 import { sendMatchResult } from "../api/game";
+import { t } from "../lang"
 
 type GameState = 'SETUP' | 'COUNTDOWN' | 'PLAYING' | 'GAMEOVER';
 
@@ -21,6 +22,8 @@ export class FourPlayerManager {
     private animationFrameId: number | null = null;
     private countdownValue: number = 3; // seconds
     private countdownTimer: number = 0;
+    private pauseTimestamp: number = 0;
+    private pauseMenu: HTMLElement | null = null;
 
     private handleResize = () => {
         if (this.gameContainer) {
@@ -67,6 +70,7 @@ export class FourPlayerManager {
             grid-template-rows: auto 600px auto;
             align-items: center;
             gap: 20px;
+            direction: ltr;
         `;
 
         const canvasWrapper = document.createElement('div');
@@ -160,7 +164,119 @@ export class FourPlayerManager {
         window.addEventListener('keydown', this.handleKeyDown);
     }
 
+    private pauseGame(): void {
+        this.pauseTimestamp = performance.now();
+        this.engine.pause();
+        this.showPauseMenu();
+    }
+
+    private resumeGame(): void {
+        const pauseDuration = performance.now() - this.pauseTimestamp;
+        this.countdownTimer += pauseDuration;
+        this.engine.resume();
+        this.hidePauseMenu();
+    } 
+
+
+    private showPauseMenu(): void {
+        const overlay = document.createElement('div');
+        overlay.id = 'fourPlayerPauseOverlay';
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        `;
+
+        const title = document.createElement('h1');
+        title.textContent = `${t("game_paused") || "PAUSED"}`;
+        title.style.cssText = `
+            font-size: 60px;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 0 0 10px #fff;
+            font-family: monospace;
+        `;
+
+        const hint = document.createElement('p');
+        hint.textContent = `${t("press_esc_resume") || "Press Esc to Resume"}`;
+        hint.style.cssText = `
+            color: #aaa;
+            margin-bottom: 20px;
+            font-family: monospace;
+        `;
+
+        const resumeBtn = document.createElement('button');
+        resumeBtn.textContent = `${t("resume_game") || "RESUME GAME"}`;
+        resumeBtn.style.cssText = `
+            padding: 15px 40px;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #0f0;
+            background: transparent;
+            color: #0f0;
+            cursor: pointer;
+            font-family: monospace;
+            border-radius: 8px;
+            transition: all 0.2s;
+        `;
+        resumeBtn.onmouseenter = () => resumeBtn.style.background = 'rgba(0, 255, 0, 0.1)';
+        resumeBtn.onmouseleave = () => resumeBtn.style.background = 'transparent';
+        resumeBtn.onclick = () => this.resumeGame();
+
+        const quitBtn = document.createElement('button');
+        quitBtn.textContent = `${t("quit_to_menu") || "QUIT TO MENU"}`;
+        quitBtn.style.cssText = `
+            padding: 15px 40px;
+            font-size: 20px;
+            border: 1px solid #f00;
+            background: transparent;
+            color: #f00;
+            cursor: pointer;
+            font-family: monospace;
+            border-radius: 8px;
+            transition: all 0.2s;
+        `;
+        quitBtn.onmouseenter = () => quitBtn.style.background = 'rgba(255, 0, 0, 0.1)';
+        quitBtn.onmouseleave = () => quitBtn.style.background = 'transparent';
+        quitBtn.onclick = () => {
+            this.engine.resume();
+            this.handleGameEnd();
+        };
+
+        overlay.appendChild(title);
+        overlay.appendChild(hint);
+        overlay.appendChild(resumeBtn);
+        overlay.appendChild(quitBtn);
+
+        this.gameContainer.appendChild(overlay);
+        this.pauseMenu = overlay;
+    }
+
+    private hidePauseMenu(): void {
+        if (this.pauseMenu && this.pauseMenu.parentNode) {
+            this.pauseMenu.parentNode.removeChild(this.pauseMenu);
+            this.pauseMenu = null;
+        }
+    }
+
     private handleKeyDown = (e: KeyboardEvent): void => {
+        if (e.key === 'Escape' && (this.gameState === 'PLAYING' || this.gameState === 'COUNTDOWN')) {
+            if (this.engine.getPauseState()) {
+                this.resumeGame();
+            } else {
+                this.pauseGame();
+            }
+        return;
+    }
         if (this.gameState === 'GAMEOVER' && e.key === 'Enter') {
             this.handleGameEnd();
         }
@@ -189,7 +305,7 @@ export class FourPlayerManager {
         this.renderer.render(this.engine.state);
         this.renderer.drawCountdown(this.countdownValue);
         this.updatePlayerInfo();
-        if (timestamp - this.countdownTimer > 1000){
+        if (!this.engine.getPauseState() && timestamp - this.countdownTimer > 1000){
             this.countdownValue -= 1;
             this.countdownTimer = timestamp;
             if (this.countdownValue < 0){
@@ -200,8 +316,10 @@ export class FourPlayerManager {
     }
 
     private handleGameplay(timestamp: number): void {
-        this.processInput();
-        this.engine.update();
+        if (!this.engine.getPauseState()) {
+            this.processInput();
+            this.engine.update();
+        }
         this.renderer.render(this.engine.state);
         this.updatePlayerInfo();
         if (this.engine.state.winner !== null) {
@@ -232,7 +350,7 @@ export class FourPlayerManager {
             if (controlsEl) controlsEl.textContent = controlMap[side];
             if (livesEl){
                 if (player.isEliminated) {
-                    livesEl.textContent = 'ELIMINATED';
+                    livesEl.textContent = t('eliminated');
                     livesEl.style.color = '#ff4444';
                     infoBox.style.opacity = '0.5';
                     infoBox.style.borderColor = '#444';
@@ -334,7 +452,7 @@ export class FourPlayerManager {
         this.input.destroy();
         window.removeEventListener('keydown', this.handleKeyDown);
         window.removeEventListener('resize', this.handleResize);
-
+        this.hidePauseMenu();
         if (this.gameContainer && this.gameContainer.parentNode) {
             this.gameContainer.parentNode.removeChild(this.gameContainer);
         }
