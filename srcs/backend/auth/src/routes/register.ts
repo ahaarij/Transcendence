@@ -22,9 +22,7 @@ export async function registerUser(app: FastifyInstance, request: any, reply: an
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.valid) {
       return reply.status(400).send({ 
-        error: "password does not meet requirements",
-        details: passwordValidation.errors,
-        requirements: getPasswordRequirements()
+        error: passwordValidation.errors[0]
       });
     }
 

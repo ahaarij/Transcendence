@@ -9,7 +9,7 @@ export async function changePassword(app: FastifyInstance, request: any, reply: 
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return reply.status(401).send({ error: "missing or invalid token" }); //no token provided
+      return reply.status(401).send({ error: "Missing or invalid token" }); //no token provided
     }
 
     const token = authHeader.split(" ")[1]; //extract token
@@ -22,16 +22,14 @@ export async function changePassword(app: FastifyInstance, request: any, reply: 
 
     // validates input fields are present
     if (!currentPassword || !newPassword) {
-      return reply.status(400).send({ error: "current password and new password required" });
+      return reply.status(400).send({ error: "Current password and New password required" });
     }
 
     // validates new password meets security requirements
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.valid) {
       return reply.status(400).send({ 
-        error: "new password does not meet requirements",
-        details: passwordValidation.errors,
-        requirements: getPasswordRequirements()
+        error: passwordValidation.errors[0]
       });
     }
 
@@ -41,24 +39,24 @@ export async function changePassword(app: FastifyInstance, request: any, reply: 
     });
 
     if (!user) {
-      return reply.status(404).send({ error: "user not found" });
+      return reply.status(404).send({ error: "User not found" });
     }
 
     // checks if user has a password (google users might not have one)
     if (!user.password) {
-      return reply.status(400).send({ error: "cannot change password for google accounts without a password set" });
+      return reply.status(400).send({ error: "Cannot change password for google accounts" });
     }
 
     // verifies current password is correct
     const validPass = await comparePassword(currentPassword, user.password);
     if (!validPass) {
-      return reply.status(401).send({ error: "current password is incorrect" });
+      return reply.status(401).send({ error: "Current password is incorrect" });
     }
 
     // checks new password is different from current
     const samePassword = await comparePassword(newPassword, user.password);
     if (samePassword) {
-      return reply.status(400).send({ error: "new password must be different from current password" });
+      return reply.status(400).send({ error: "New password must be different from current password" });
     }
 
     // hashes and saves new password
@@ -68,11 +66,11 @@ export async function changePassword(app: FastifyInstance, request: any, reply: 
       data: { password: hashedNewPassword },
     });
 
-    return reply.send({ message: "password changed successfully" });
+    return reply.send({ message: "Password changed successfully" });
   } catch (error) {
     console.error("change password error:", error);
     return reply.status(500).send({ 
-      error: "internal server error",
+      error: "Internal server error",
       details: error instanceof Error ? error.message : "unknown error"
     });
   }
