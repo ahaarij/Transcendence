@@ -4,6 +4,7 @@ import { type GameState, GAME_WIDTH, GAME_HEIGHT, PADDLE_HEIGHT, PADDLE_OFFSET, 
 export class PongEngine{
     public state: GameState;
     private lastPaddle : 1 | 2 | null = null; // prevent speed stacking on same paddle
+    private isPaused: boolean = false;
 
     public winningScore: number = 11; // default winning score
     public paddleHeight: number = PADDLE_HEIGHT;
@@ -13,6 +14,22 @@ export class PongEngine{
         this.state = this.resetGame();
     }
 
+    public pause(){
+        this.isPaused = true;
+    }
+
+    public resume(){
+        this.isPaused = false;
+    }
+
+    public togglePause(): void{
+        this.isPaused = !this.isPaused;
+    }
+
+    public getPauseState(): boolean{
+        return this.isPaused;
+    }
+    
     public setWinningScore(score: number){
         this.winningScore = score;
     }
@@ -39,7 +56,7 @@ export class PongEngine{
     }
 
     public update(deltaTime: number= 1/60){
-
+        if (this.isPaused) return;
         if (this.state.winner !== 0) return; // game over
         this.state.ball.x += this.state.ballVelocity.x * deltaTime * 60;
         this.state.ball.y += this.state.ballVelocity.y * deltaTime * 60;

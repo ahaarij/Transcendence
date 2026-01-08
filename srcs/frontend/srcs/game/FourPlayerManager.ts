@@ -101,16 +101,22 @@ export class FourPlayerManager {
         sides.forEach(({side, gridArea}) => {
             const infoBox = document.createElement('div');
             infoBox.id = `info-${side}`;
+            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' || 
+                                document.body.classList.contains('dark-mode') ||
+                                !document.body.classList.contains('light-mode'); // default to dark
+            const textColor = isDarkMode ? '#fff' : '#000';
+            const secondaryColor = isDarkMode ? '#888' : '#666';
+            const backgroundColor = isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)';
             infoBox.style.cssText = `
                 grid-area: ${gridArea};
-                padding: 15px;
-                background: rgba(0, 0, 0, 0.7);
+                padding: 10px;
+                // background: ${backgroundColor};
                 border-radius: 10px;
                 text-align: center;
             `;
             const playerName = document.createElement('div');
             playerName.className = 'player-name';
-            playerName.style.cssText = 'font-size: 20px; font-weight: bold; margin-bottom: 10px;';
+            playerName.style.cssText = `font-size: 20px; font-weight: bold; margin-bottom: 10px; color: ${textColor};`;
 
             const playerLives = document.createElement('div');
             playerLives.className = 'player-lives';
@@ -118,7 +124,7 @@ export class FourPlayerManager {
 
             const playerControls = document.createElement('div');
             playerControls.className = 'player-controls';
-            playerControls.style.cssText = 'color: #888; font-size: 14px;';
+            playerControls.style.cssText = `color: ${secondaryColor}; font-size: 14px;`;
 
             infoBox.appendChild(playerName);
             infoBox.appendChild(playerLives);

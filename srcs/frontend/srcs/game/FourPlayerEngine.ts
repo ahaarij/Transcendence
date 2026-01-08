@@ -18,6 +18,7 @@ export class FourPlayerEngine {
     private paddleLength: number = FOUR_PLAYER_PADDLE_LENGTH;
     private paddleWidth: number = FOUR_PLAYER_PADDLE_WIDTH;
     private ballSpeed: number = FOUR_PLAYER_BALL_SPEED;
+    private isPaused: boolean = false;
 
     private readonly STARTING_LIVES: number = 3; // readonly is a constant value that will not be changed after initialization
     private lastPaddleHit: PlayerSide | null = null;
@@ -30,6 +31,19 @@ export class FourPlayerEngine {
         this.paddleLength = paddleLength;
         this.ballSpeed = ballSpeed;
         this.state = this.initGame(playerNames);
+    }
+
+    public pause(): void {
+        this.isPaused = true;
+    }
+    public resume(): void {
+        this.isPaused = false;
+    }
+    public togglePause(): void {
+        this.isPaused = !this.isPaused;
+    }
+    public getPauseState(): boolean {
+        return this.isPaused;
     }
 
     private initGame(playerNames: { top: string; bottom: string; left: string; right: string }): FourPlayerGameState {
@@ -124,6 +138,7 @@ export class FourPlayerEngine {
     }
 
     public update(deltaTime: number = 1/60): void {
+        if (this.isPaused) return;
         if (this.state.winner !== null) return; // game over
 
         this.state.ball.x += this.state.ballVelocity.x * deltaTime * 60;

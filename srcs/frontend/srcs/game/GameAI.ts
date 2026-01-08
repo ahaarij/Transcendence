@@ -17,6 +17,10 @@ export class GameAI {
         this.aiLastUpdate = 0;
     }
 
+    public adjustForPause(pauseDuration: number) {
+        this.aiLastUpdate += pauseDuration;
+    }
+
     public update(timestamp: number, playerSide: 'Left' | 'Right') {
         this.runAi(timestamp, playerSide);
         this.moveAiPaddle(playerSide);

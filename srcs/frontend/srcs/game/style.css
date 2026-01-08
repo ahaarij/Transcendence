@@ -50,6 +50,7 @@
     cursor: pointer;
     font-family: monospace;
     transition: all 0.2s;
+    border-radius: 8px;
 }
 
 .btn:hover {

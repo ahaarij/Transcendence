@@ -13,7 +13,7 @@ export class GameRenderer {
     public render(displayP1name: string, displayP2name: string) {
         this.context.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
         // Background
-        this.context.fillStyle = "brown";
+        this.context.fillStyle = "#1a1a1a";
         this.context.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
         
         this.drawPaddles();
@@ -23,17 +23,20 @@ export class GameRenderer {
     }
 
     public drawCountdown(count: number) {
-        this.context.fillStyle = "Green";
-        this.context.font = "100px Monospace";
+        this.context.fillStyle = "#ffffff";
+        this.context.font = "120px Monospace";
         if (count > 0){
-            this.context.fillText(count.toString(), GAME_WIDTH / 4 - 40, GAME_HEIGHT / 2 + 30);
-            this.context.fillText(count.toString(), (GAME_WIDTH - GAME_WIDTH / 4) - 40, GAME_HEIGHT / 2 + 30);
+            this.context.fillText(count.toString(), GAME_WIDTH / 2 - 30, GAME_HEIGHT / 2 + 20);
+            // this.context.fillText(count.toString(), (GAME_WIDTH - GAME_WIDTH / 4) - 40, GAME_HEIGHT / 2 + 30);
         }else{
             this.drawGo();
         }
     }
     
     public drawGo() {
+        this.context.fillStyle = "#00ff00";
+        this.context.font = "100px Monospace";
+
         this.context.fillText("Go!", GAME_WIDTH / 2 - 50, GAME_HEIGHT / 2 + 10);
     }
 
@@ -49,11 +52,11 @@ export class GameRenderer {
     }
 
     private drawScores(p1Name: string, p2Name: string) {
-        this.context.fillStyle = "pink";
-        this.context.font = "20px Monospace";
-        this.context.fillText(p1Name, GAME_WIDTH / 4 - 50, 40);
+        this.context.fillStyle = "#ffffff";
+        this.context.font = "30px Monospace";
+        // this.context.fillText(p1Name, GAME_WIDTH / 4 - 50, 40);
         this.context.fillText(`${this.engine.state.p1score}`, GAME_WIDTH / 4 - 15, 70);
-        this.context.fillText(p2Name, (GAME_WIDTH - GAME_WIDTH / 4) - 50, 40);
+        // this.context.fillText(p2Name, (GAME_WIDTH - GAME_WIDTH / 4) - 50, 40);
         this.context.fillText(`${this.engine.state.p2score}`,  (GAME_WIDTH - GAME_WIDTH / 4) - 15, 70);
     }
 
