@@ -9,7 +9,7 @@ export function LockPage() {
     <div class="relative min-h-screen flex flex-col items-center justify-center">
 
         <h1 class="text-6xl md:text-8xl font-bold font-cyber mb-12 text-white tracking-tight">
-            Ding Dong
+            ${t('app_title')}
         </h1>
 
         <div class="flex gap-10 mt-10">

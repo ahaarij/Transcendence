@@ -93,7 +93,7 @@ export async function registerGameRoutes(app: FastifyInstance) {
       const matches = await app.prisma.match.findMany({
         where: { userId },
         orderBy: { playedAt: 'desc' },  // most recent first
-        take: 50,  // limit to last 50 matches
+        // take: 50,  // removed to calculate stats on full history
       });
 
       // calculates win/loss stats from matches
@@ -108,7 +108,7 @@ export async function registerGameRoutes(app: FastifyInstance) {
           losses,
           winRate: totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : "0.0",
         },
-        matches: matches.map(m => ({
+        matches: matches.slice(0, 50).map(m => ({
           id: m.id,
           opponent: m.opponentId,
           userScore: m.userScore,

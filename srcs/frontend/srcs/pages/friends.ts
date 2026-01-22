@@ -1,6 +1,7 @@
 import { getFriends, sendFriendRequest, respondToFriendRequest } from "../api/user";
 import { getGameHistory } from "../api/game";
-import { showToast, getAvatarUrl } from "../utils/ui";
+import { showToast, getAvatarUrl, escapeHtml } from "../utils/ui";
+import { t } from "../lang";
 
 export async function Friends() {
     const container = document.createElement('div');
@@ -8,17 +9,17 @@ export async function Friends() {
 
     const title = document.createElement('h1');
     title.className = 'text-4xl font-bold mb-8 text-center text-neon-blue';
-    title.textContent = 'Friends';
+    title.textContent = t('friends');
     container.appendChild(title);
 
     const addFriendSection = document.createElement('div');
     addFriendSection.className = 'mb-8 glass-card p-6 rounded-lg border border-neon-pink shadow-[0_0_15px_rgba(255,0,255,0.3)]';
     addFriendSection.innerHTML = `
-        <h2 class="text-2xl font-bold mb-4 text-neon-pink">Add Friend</h2>
+        <h2 class="text-2xl font-bold mb-4 text-neon-pink">${t('add_friend')}</h2>
         <div class="flex gap-4">
-            <input type="text" id="friend-username" placeholder="Enter username" class="flex-1 bg-black/30 border border-white/10 rounded px-4 py-2 text-white focus:outline-none focus:border-neon-blue transition-all">
+            <input type="text" id="friend-username" placeholder="${t('enter_username_placeholder')}" class="flex-1 bg-black/30 border border-white/10 rounded px-4 py-2 text-white focus:outline-none focus:border-neon-blue transition-all">
             <button id="add-friend-btn" class="bg-neon-blue hover:bg-blue-600 text-white font-bold py-2 px-6 rounded transition-all shadow-[0_0_10px_rgba(0,255,255,0.5)]">
-                Add
+                ${t('add')}
             </button>
         </div>
     `;
@@ -30,7 +31,7 @@ export async function Friends() {
 
     const friendsListContainer = document.createElement('div');
     friendsListContainer.className = 'glass-card p-6 rounded-lg border border-neon-blue shadow-[0_0_15px_rgba(0,255,255,0.3)]';
-    friendsListContainer.innerHTML = '<h2 class="text-2xl font-bold mb-4 text-neon-blue">My Friends</h2>';
+    friendsListContainer.innerHTML = `<h2 class="text-2xl font-bold mb-4 text-neon-blue">${t('my_friends')}</h2>`;
     const friendsList = document.createElement('div');
     friendsList.className = 'space-y-4';
     friendsListContainer.appendChild(friendsList);
@@ -38,7 +39,7 @@ export async function Friends() {
 
     const requestsListContainer = document.createElement('div');
     requestsListContainer.className = 'glass-card p-6 rounded-lg border border-neon-purple shadow-[0_0_15px_rgba(147,51,234,0.3)]';
-    requestsListContainer.innerHTML = '<h2 class="text-2xl font-bold mb-4 text-neon-purple">Pending Requests</h2>';
+    requestsListContainer.innerHTML = `<h2 class="text-2xl font-bold mb-4 text-neon-purple">${t('pending_requests')}</h2>`;
     const requestsList = document.createElement('div');
     requestsList.className = 'space-y-4';
     requestsListContainer.appendChild(requestsList);
@@ -49,7 +50,7 @@ export async function Friends() {
     modal.innerHTML = `
         <div class="glass-card rounded-xl w-full max-w-2xl max-h-[85vh] overflow-hidden border border-neon-blue shadow-[0_0_50px_rgba(0,255,255,0.15)] flex flex-col">
             <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/30">
-                <h3 class="text-xl font-bold text-neon-blue">Player Profile</h3>
+                <h3 class="text-xl font-bold text-neon-blue">${t('player_profile')}</h3>
                 <button id="close-modal" class="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-2 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -57,6 +58,7 @@ export async function Friends() {
             <div id="friend-profile-content" class="p-6 overflow-y-auto custom-scrollbar"></div>
         </div>
     `;
+
     document.body.appendChild(modal);
 
     const input = addFriendSection.querySelector('#friend-username') as HTMLInputElement;
@@ -79,7 +81,7 @@ export async function Friends() {
         try {
             const res = await sendFriendRequest(username);
             if (res.error) throw new Error(res.error);
-            showToast('Friend request sent!', 'success');
+            showToast(t('friend_req_sent'), 'success');
             input.value = '';
             loadData();
         } catch (err: any) {
@@ -95,14 +97,14 @@ export async function Friends() {
             renderRequests(data.pendingRequests);
         } catch (err: any) {
             console.error(err);
-            showToast('Failed to load friends', 'error');
+            showToast(t('load_friends_error'), 'error');
         }
     }
 
     function renderFriends(friends: any[]) {
         friendsList.innerHTML = '';
         if (friends.length === 0) {
-            friendsList.innerHTML = '<p class="text-gray-400">No friends yet.</p>';
+            friendsList.innerHTML = `<p class="text-gray-400">${t('no_friends')}</p>`;
             return;
         }
 
@@ -112,9 +114,9 @@ export async function Friends() {
             item.innerHTML = `
                 <div class="flex items-center gap-3">
                     <img src="${getAvatarUrl(friend.avatar)}" class="w-10 h-10 rounded-full object-cover border border-neon-blue">
-                    <span class="font-bold text-white">${friend.username}</span>
+                    <span class="font-bold text-white">${escapeHtml(friend.username)}</span>
                 </div>
-                <span class="text-xs text-neon-blue">View History</span>
+                <span class="text-xs text-neon-blue">${t('view_history')}</span>
             `;
             item.onclick = () => showFriendHistory(friend);
             friendsList.appendChild(item);
@@ -124,7 +126,7 @@ export async function Friends() {
     function renderRequests(requests: any[]) {
         requestsList.innerHTML = '';
         if (requests.length === 0) {
-            requestsList.innerHTML = '<p class="text-gray-400">No pending requests.</p>';
+            requestsList.innerHTML = `<p class="text-gray-400">${t('no_requests')}</p>`;
             return;
         }
 
@@ -134,11 +136,11 @@ export async function Friends() {
             item.innerHTML = `
                 <div class="flex items-center gap-3">
                     <img src="${getAvatarUrl(req.from.avatar)}" class="w-10 h-10 rounded-full object-cover">
-                    <span class="text-white">${req.from.username}</span>
+                    <span class="text-white">${escapeHtml(req.from.username)}</span>
                 </div>
                 <div class="flex gap-2">
-                    <button class="accept-btn bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm">Accept</button>
-                    <button class="reject-btn bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-sm">Reject</button>
+                    <button class="accept-btn bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded text-sm">${t('accept')}</button>
+                    <button class="reject-btn bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-sm">${t('reject')}</button>
                 </div>
             `;
             

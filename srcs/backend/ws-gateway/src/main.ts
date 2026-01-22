@@ -15,9 +15,14 @@ async function start() {
     credentials: true,  // allows cookies
   });
 
+  if (!process.env.JWT_ACCESS_SECRET) {
+    console.error("CRITICAL: JWT_ACCESS_SECRET is required");
+    process.exit(1);
+  }
+
   // registers jwt for token verification
   await app.register(jwt, {
-    secret: process.env.JWT_ACCESS_SECRET || 'your-secret-key',
+    secret: process.env.JWT_ACCESS_SECRET,
   });
 
   // registers websocket support

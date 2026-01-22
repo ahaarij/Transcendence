@@ -20,7 +20,7 @@ export function SettingsPage() {
     <div class="relative min-h-screen flex flex-col items-center pt-16 md:pt-20 text-white px-4">
 
         <h1 class="text-4xl md:text-7xl mb-8 md:mb-12 font-cyber font-bold text-white tracking-tight">
-            Ding Dong
+            ${t('app_title')}
         </h1>
 
       <div class="glass-card p-6 md:p-8 w-full max-w-md rounded-xl border border-white/10 flex flex-col gap-4 md:gap-6">
@@ -296,7 +296,7 @@ export async function mountSettingsPage() {
     if (themeBtn && themeLabel && themeKnob && themeTrack) {
         const updateUI = (isLight: boolean) => {
             if (isLight) {
-                themeLabel.textContent = "LIGHT";
+                themeLabel.textContent = t("light");
                 themeLabel.style.color = "#1a1a1a"; 
                 themeKnob.style.transform = "translateX(24px)";
                 themeKnob.style.backgroundColor = "#ff9900";
@@ -304,7 +304,7 @@ export async function mountSettingsPage() {
                 themeTrack.style.backgroundColor = "rgba(255,255,255,0.5)";
                 themeTrack.style.borderColor = "#ff9900";
             } else {
-                themeLabel.textContent = "DARK";
+                themeLabel.textContent = t("dark");
                 themeLabel.style.color = "#9ca3af"; 
                 themeKnob.style.transform = "translateX(0)";
                 themeKnob.style.backgroundColor = "#00f3ff";

@@ -21,7 +21,7 @@ export function StatsPage() {
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <span class="text-4xl font-cyber font-bold text-white mb-1" id="totalGames">...</span>
-            <span class="text-xs text-gray-400 tracking-widest uppercase">Total Games</span>
+            <span class="text-xs text-gray-400 tracking-widest uppercase">${t("total_games")}</span>
         </div>
 
         <!-- Wins -->
@@ -30,7 +30,7 @@ export function StatsPage() {
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <span class="text-4xl font-cyber font-bold text-white mb-1" id="totalWins">...</span>
-            <span class="text-xs text-gray-400 tracking-widest uppercase">Wins</span>
+            <span class="text-xs text-gray-400 tracking-widest uppercase">${t("wins_label")}</span>
         </div>
 
         <!-- Win Rate -->
@@ -39,7 +39,7 @@ export function StatsPage() {
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
             </div>
             <span class="text-4xl font-cyber font-bold text-white mb-1" id="winRate">...</span>
-            <span class="text-xs text-gray-400 tracking-widest uppercase">Win Rate</span>
+            <span class="text-xs text-gray-400 tracking-widest uppercase">${t("win_rate")}</span>
         </div>
 
       </div>
@@ -48,11 +48,11 @@ export function StatsPage() {
       <div class="w-full max-w-4xl glass-card p-8 rounded-xl border border-white/10">
         <h2 class="text-2xl font-cyber font-bold mb-6 text-white tracking-wide flex items-center gap-3">
             <span class="w-2 h-8 bg-[#00f3ff] rounded-sm"></span>
-            MATCH HISTORY
+            ${t("match_history")}
         </h2>
 
         <div class="flex flex-col gap-4" id="matchHistoryList">
-            <div class="text-center text-gray-500 py-8 font-mono text-sm">Loading stats...</div>
+            <div class="text-center text-gray-500 py-8 font-mono text-sm">${t("loading_stats")}</div>
         </div>
       </div>
 
@@ -82,14 +82,14 @@ export async function mountStatsPage() {
 
         if (historyList) {
             if (matches.length === 0) {
-                historyList.innerHTML = `<div class="text-center text-gray-500 py-8 font-mono text-sm">No matches played yet.</div>`;
+                historyList.innerHTML = `<div class="text-center text-gray-500 py-8 font-mono text-sm">${t("no_matches")}</div>`;
             } else {
                 historyList.innerHTML = '';
                 matches.forEach((match: any) => {
                     const date = new Date(match.playedAt).toLocaleDateString();
-                    const result = match.won ? "WIN" : "LOSS";
+                    const result = match.won ? t("win") : t("loss");
                     const score = `${match.userScore} - ${match.opponentScore}`;
-                    const opponentName = match.opponent || "Unknown";
+                    const opponentName = match.opponent || t("unknown");
 
                     const matchEl = document.createElement('div');
                     matchEl.className = "flex items-center justify-between p-4 bg-black/30 rounded border border-white/5 hover:border-white/20 transition group";
@@ -141,7 +141,7 @@ export async function mountStatsPage() {
     } catch (error) {
         console.error("Failed to load stats:", error);
         if (historyList) {
-            historyList.innerHTML = `<div class="text-center text-red-400 py-8 font-mono text-sm">Failed to load stats.</div>`;
+            historyList.innerHTML = `<div class="text-center text-red-400 py-8 font-mono text-sm">${t("load_stats_error")}</div>`;
         }
     }
 }

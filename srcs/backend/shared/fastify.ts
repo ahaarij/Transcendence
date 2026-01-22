@@ -24,7 +24,9 @@ export function buildServer() {
   const publicDir = process.env.NODE_ENV === 'production' 
     ? '/app/public' 
     : path.join(process.cwd(), 'public');
-  
+
+  console.log(`DEBUG: Serving static files from: ${publicDir}`);
+
   // ensures uploads directory exists for avatar storage
   const uploadsDir = path.join(publicDir, 'uploads');
   if (!fs.existsSync(uploadsDir)) {

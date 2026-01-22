@@ -81,14 +81,22 @@ export async function registerUserRoutes(app: FastifyInstance) {
             
             // normalizes extension (jpeg -> jpg)
             let extension = imageType.split('+')[0]; // handles svg+xml
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            
             if (extension === 'jpeg') extension = 'jpg';
             
+            if (!allowedExtensions.includes(extension)) {
+              console.error(`invalid file extension: ${extension}`);
+              return reply.status(400).send({ error: "invalid image type. allowed: jpg, png, gif, webp" });
+            }
+
             const filename = `avatar-${decoded.userId}-${Date.now()}.${extension}`;
             
             // determines upload directory - use /app/public in docker, otherwise process.cwd()/public
             const publicDir = process.env.NODE_ENV === 'production' 
               ? '/app/public' 
               : path.join(process.cwd(), 'public');
+            console.log(`DEBUG: Saving avatar to publicDir: ${publicDir}`);
             const uploadDir = path.join(publicDir, 'uploads');
             
             // creates upload directory if it doesnt exist

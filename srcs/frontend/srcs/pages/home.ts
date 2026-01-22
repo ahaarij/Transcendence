@@ -9,7 +9,7 @@ export function HomePage() {
     <main class="flex-grow flex flex-col items-center justify-center text-center px-4 relative z-10 mt-10 w-full min-h-[80vh]">
         
         <h1 class="text-4xl md:text-8xl font-bold font-cyber mb-8 text-white tracking-tight">
-            Ding Dong
+            ${t('app_title')}
         </h1>
 
         <p class="text-gray-400 text-base md:text-lg max-w-xl mb-12 leading-relaxed font-light">
