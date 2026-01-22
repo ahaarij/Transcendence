@@ -8,8 +8,8 @@ services:
       dockerfile: Dockerfile
     container_name: transcendence-nginx
     ports:
-      - "80:80"    # http port (redirects to https)
-      - "443:443"  # https port (main application)
+      - "8080:80"    # http port (redirects to https) on host
+      - "8443:443"   # https port (main application) on host
     volumes:
       - ./nginx/ssl:/etc/nginx/ssl:ro  # mounts ssl certificates
     networks:
@@ -35,7 +35,7 @@ services:
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - CORS_ORIGIN=https://localhost
+      - CORS_ORIGIN=https://localhost:8443
     volumes:
       - ./backend/prisma:/app/prisma
       - backend-uploads:/app/public

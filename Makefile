@@ -7,28 +7,28 @@ ssl:
 
 up: ssl
 	@echo "🐳 Building and starting Transcendence..."
-	cd srcs && docker-compose --env-file ../.env up --build -d
+	cd srcs && docker compose --env-file ../.env up --build -d
 	@echo ""
 	@echo "✅ Services started!"
-	@echo "🌐 Frontend: https://localhost"
-	@echo "🔐 Backend API: https://localhost"
+	@echo "🌐 Frontend: https://localhost:8443"
+	@echo "🔐 Backend API: https://localhost:8443"
 	@echo "⚠️  Note: Accept browser security warning for self-signed certificate"
 	@echo ""
 
 down:
 	@echo "🛑 Stopping all services..."
-	cd srcs && docker-compose --env-file ../.env down
+	cd srcs && docker compose --env-file ../.env down
 
 logs:
-	cd srcs && docker-compose --env-file ../.env logs -f
+	cd srcs && docker compose --env-file ../.env logs -f
 
 restart:
 	@echo "♻️  Restarting services..."
-	cd srcs && docker-compose --env-file ../.env restart
+	cd srcs && docker compose --env-file ../.env restart
 
 clean:
 	@echo "🧹 Cleaning Docker resources..."
-	cd srcs && docker-compose --env-file ../.env down -v
+	cd srcs && docker compose --env-file ../.env down -v
 	docker system prune -f
 
 fclean: clean
@@ -45,7 +45,7 @@ data:
 	@echo "✅ Database ready!"
 
 status:
-	cd srcs && docker-compose --env-file ../.env ps
+	cd srcs && docker compose --env-file ../.env ps
 
 shell-backend:
 	docfclean all data
