@@ -179,7 +179,8 @@ export class FourPlayerSetup {
                 </button>
             </div>
         `;
-        const player1Input = this.setupScreen.querySelector('#player1Name') as HTMLInputElement; // according to ai this is secure against xss vulnerability
+        const player1Input = this.setupScreen.querySelector('#player1Name') as HTMLInputElement;
+        player1Input.dir = 'auto';
         player1Input.value = this.currentUsername;
         this.container.appendChild(this.setupScreen);
     }
@@ -197,8 +198,11 @@ export class FourPlayerSetup {
 
         // Real-time validation
         const player2Input = this.setupScreen.querySelector('#player2Name') as HTMLInputElement;
+        player2Input.dir = 'auto';
         const player3Input = this.setupScreen.querySelector('#player3Name') as HTMLInputElement;
+        player3Input.dir = 'auto';
         const player4Input = this.setupScreen.querySelector('#player4Name') as HTMLInputElement;
+        player4Input.dir = 'auto';
 
         player2Input.addEventListener('input', () => this.clearError('error2'));
         player3Input.addEventListener('input', () => this.clearError('error3'));

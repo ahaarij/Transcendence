@@ -56,7 +56,7 @@ export class GameApp {
 
     constructor(container: HTMLElement, username: string = "Player 1", userId: string | null) {
         this.container = container;
-        this.currentUsername = username;
+        this.currentUsername = username.length > 15 ? username.substring(0, 14) + '.' : username;
         this.userId = userId;
         this.engine = new PongEngine();
         this.tournament = new TournamentManager();
@@ -520,7 +520,22 @@ export class GameApp {
         if (this.tournament.currentMatchIndex < this.tournament.tournamentBracket.length) {
             const match = this.tournament.tournamentBracket[this.tournament.currentMatchIndex];
             (this.container.querySelector("#tourneyRoundDisplay") as HTMLElement).innerText = this.tournament.tournamentRound.toString();
-            (this.container.querySelector("#matchupText") as HTMLElement).innerText = `${match.player1}  VS  ${match.player2}`;
+            const matchupText = this.container.querySelector("#matchupText") as HTMLElement;
+            matchupText.textContent = '';
+            
+            const p1Span = document.createElement('span');
+            p1Span.dir = 'auto';
+            p1Span.textContent = match.player1;
+            
+            const vsText = document.createTextNode('  VS  ');
+            
+            const p2Span = document.createElement('span');
+            p2Span.dir = 'auto';
+            p2Span.textContent = match.player2;
+            
+            matchupText.appendChild(p1Span);
+            matchupText.appendChild(vsText);
+            matchupText.appendChild(p2Span);
             this.displayP1name = match.player1;
             this.displayP2name = match.player2;
             this.uiLayer.style.display = "flex";
@@ -529,7 +544,9 @@ export class GameApp {
             this.gameOverScreen.style.display = "none";
         } else {
             if (this.tournament.tournamentBracket.length === 1) {
-                (this.container.querySelector("#championName") as HTMLElement).innerText = this.tournament.tournamentWinner[0];
+                const championName = this.container.querySelector("#championName") as HTMLElement;
+                championName.dir = 'auto';
+                championName.innerText = this.tournament.tournamentWinner[0];
                 this.championScreen.style.display = "block";
                 this.tournamentMatchScreen.style.display = "none";
                 this.gameOverScreen.style.display = "none";
@@ -612,6 +629,10 @@ export class GameApp {
             return;
         }
 
+        const userInMatch = (player1 === this.currentUsername) || (player2 === this.currentUsername);
+        if (!userInMatch) {
+            return;
+        }
         try {
             const userIsPlayer1 = player1 === this.currentUsername;
             const userSide = userIsPlayer1 ? 1 : 2;
@@ -654,7 +675,6 @@ export class GameApp {
             }
         }
         else if (this.gameState === 'PLAYING') {
-            // this.updatePlayerInfoDisplay();
             if (this.gameMode === 'PvAI') {
                 if (!this.engine.getPauseState())
                     this.ai.update(timestamp, this.playerSide);
@@ -762,7 +782,9 @@ export class GameApp {
             leftInfo.style.display = "block";
             rightInfo.style.display = "block";
             leftName.textContent = this.displayP1name;
+            leftName.style.unicodeBidi = 'plaintext';
             rightName.textContent = this.displayP2name;
+            rightName.style.unicodeBidi = 'plaintext';
             
             leftName.style.color = textColor;
             rightName.style.color = textColor;
