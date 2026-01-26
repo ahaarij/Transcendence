@@ -158,7 +158,7 @@ export async function Friends() {
         try {
             const res = await respondToFriendRequest(requestId, accept);
             if (res.error) throw new Error(res.error);
-            showToast(accept ? 'Request accepted' : 'Request rejected', 'success');
+            showToast(accept ? t('request_accepted') : t('request_rejected'), 'success');
             loadData();
         } catch (err: any) {
             showToast(err.message, 'error');
@@ -170,7 +170,7 @@ export async function Friends() {
         content.innerHTML = `
             <div class="flex flex-col items-center justify-center h-64 space-y-4">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-blue"></div>
-                <p class="text-gray-400">Loading profile...</p>
+                <p class="text-gray-400">${t('loading_profile')}</p>
             </div>
         `;
         modal.classList.remove('hidden');
@@ -186,27 +186,27 @@ export async function Friends() {
                         <div class="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-black" title="Online"></div>
                     </div>
                     <h2 class="text-3xl font-bold text-white mt-4 mb-1">${friend.username}</h2>
-                    <p class="text-gray-400 text-sm">Member since ${new Date().getFullYear()}</p>
+                    <p class="text-gray-400 text-sm">${t('member_since')} ${new Date().getFullYear()}</p>
                 </div>
 
                 <div class="grid grid-cols-3 gap-4 mb-8">
                     <div class="bg-black/30 p-4 rounded-xl text-center border border-white/10 hover:border-green-500/50 transition-colors">
                         <div class="text-3xl font-bold text-green-500 mb-1">${history.stats.wins}</div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wider">Wins</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">${t('wins_label')}</div>
                     </div>
                     <div class="bg-black/30 p-4 rounded-xl text-center border border-white/10 hover:border-red-500/50 transition-colors">
                         <div class="text-3xl font-bold text-red-500 mb-1">${history.stats.losses}</div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wider">Losses</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">${t('losses_label')}</div>
                     </div>
                     <div class="bg-black/30 p-4 rounded-xl text-center border border-white/10 hover:border-neon-blue/50 transition-colors">
                         <div class="text-3xl font-bold text-neon-blue mb-1">${history.stats.winRate}%</div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wider">Win Rate</div>
+                        <div class="text-xs text-gray-400 uppercase tracking-wider">${t('win_rate')}</div>
                     </div>
                 </div>
 
                 <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-300">
                     <svg class="w-5 h-5 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Recent Matches
+                    ${t('recent_matches')}
                 </h3>
                 
                 <div class="space-y-3">
@@ -230,7 +230,7 @@ export async function Friends() {
                         </div>
                     `).join('') : `
                         <div class="text-center py-8 text-gray-500 bg-black/20 rounded-xl border border-white/10 border-dashed">
-                            <p>No matches played yet</p>
+                            <p>${t('no_matches')}</p>
                         </div>
                     `}
                 </div>
@@ -239,8 +239,8 @@ export async function Friends() {
             content.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-64 text-red-400">
                     <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    <p>Failed to load profile</p>
-                    <button onclick="this.closest('.fixed').classList.add('hidden');this.closest('.fixed').classList.remove('flex')" class="mt-4 text-sm text-gray-500 hover:text-white underline">Close</button>
+                    <p>${t('profile_load_error')}</p>
+                    <button onclick="this.closest('.fixed').classList.add('hidden');this.closest('.fixed').classList.remove('flex')" class="mt-4 text-sm text-gray-500 hover:text-white underline">${t('close')}</button>
                 </div>
             `;
         }

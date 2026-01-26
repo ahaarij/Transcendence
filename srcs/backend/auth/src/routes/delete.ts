@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { comparePassword } from '../utils/password';
+import { verifyTOTPToken } from '../utils/totp';
 
 // deletes user account permanently
 export async function deleteAccount(app: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
@@ -15,7 +16,7 @@ export async function deleteAccount(app: FastifyInstance, request: FastifyReques
     const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets password from request body for confirmation
-    const { password } = request.body as { password?: string };
+    const { password, code } = request.body as { password?: string; code?: string };
 
     // finds user in database
     const user = await app.prisma.user.findUnique({
@@ -36,6 +37,20 @@ export async function deleteAccount(app: FastifyInstance, request: FastifyReques
       
       if (!validPassword) {
         return reply.status(401).send({ error: "invalid password" });
+      }
+    } else if (user.twoFactorEnabled) {
+      // Google users (no password) must verify 2FA if enabled
+      if (!code) {
+        return reply.status(400).send({ error: "2fa code required" });
+      }
+      
+      if (!user.twoFactorSecret) {
+        return reply.status(500).send({ error: "2fa configuration error" });
+      }
+
+      const isValid = verifyTOTPToken(user.twoFactorSecret, code);
+      if (!isValid) {
+         return reply.status(400).send({ error: "invalid 2fa code" });
       }
     }
 

@@ -197,7 +197,7 @@ export class FourPlayerRenderer {
 
         if (player.isEliminated) {
             this.ctx.fillStyle = this.PADDLE_ELIMINATED_COLOR;
-            this.ctx.fillText(`${player.name} - ELIMINATED`, x, y);
+            this.ctx.fillText(`${player.name} - ${t('eliminated')}`, x, y);
         } else {
             this.ctx.fillStyle = this.TEXT_COLOR;
             this.ctx.fillText(player.name, x, y);
@@ -287,7 +287,7 @@ export class FourPlayerRenderer {
             this.ctx.fillText(count.toString(), center, center);
         } else {
             this.ctx.fillStyle = "#00FF00";
-            this.ctx.fillText("GO!", center, center);
+            this.ctx.fillText(t("go"), center, center);
         }
 
         this.ctx.textBaseline = "alphabetic";

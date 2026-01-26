@@ -1,5 +1,6 @@
 import { PongEngine } from "./PongEngine";
 import { GAME_WIDTH, GAME_HEIGHT, PADDLE_WIDTH, BALL_SIZE } from "./types";
+import { t } from "../lang";
 
 export class GameRenderer {
     private context: CanvasRenderingContext2D;
@@ -41,7 +42,7 @@ export class GameRenderer {
         this.context.font = "100px Monospace";
         this.context.textAlign = "center";
         this.context.textBaseline = "middle";
-        this.context.fillText("Go!", GAME_WIDTH / 2, GAME_HEIGHT / 2);
+        this.context.fillText(t("go"), GAME_WIDTH / 2, GAME_HEIGHT / 2);
         this.context.textBaseline = "alphabetic";
         this.context.textAlign = "start";
     }

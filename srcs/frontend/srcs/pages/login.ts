@@ -71,11 +71,76 @@ export function mountLoginPage() {
               try {
                   const res = await googleLoginRequest(response.credential);
                   console.log("Google Login response:", res);
+
+                  if (res.is2FARequired) {
+                      // Trigger 2FA modal
+                      const modal = document.createElement("div");
+                      modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
+                      modal.innerHTML = `
+                          <div class="glass-card p-8 w-full max-w-md rounded-xl border border-[#00f3ff]/30 shadow-[0_0_30px_rgba(0,243,255,0.2)]">
+                              <h3 class="text-2xl font-cyber font-bold text-[#00f3ff] mb-4 tracking-widest text-center">${t("2fa_verification")}</h3>
+                              <p class="text-gray-300 mb-6 text-sm leading-relaxed text-center">${t("enter_2fa_code")}</p>
+                              
+                              <div class="mb-6">
+                                  <input type="text" id="google2FACode" 
+                                      class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-[#00f3ff] focus:shadow-[0_0_10px_rgba(0,243,255,0.2)] transition-all text-center tracking-[0.5em] text-xl"
+                                      placeholder="000000" maxlength="6" autofocus />
+                              </div>
+
+                              <button id="verifyGoogle2FABtn" class="w-full bg-[#00f3ff]/20 border border-[#00f3ff]/50 text-[#00f3ff] py-3 rounded hover:bg-[#00f3ff]/30 transition font-cyber text-sm tracking-widest">
+                                  ${t("verify")}
+                              </button>
+                          </div>
+                      `;
+                      document.body.appendChild(modal);
+
+                      const codeInput = modal.querySelector("#google2FACode") as HTMLInputElement;
+                      const verifyBtn = modal.querySelector("#verifyGoogle2FABtn");
+                      
+                      codeInput.focus();
+
+                      const handleVerify = async () => {
+                          const code = codeInput.value;
+                          if (code.length !== 6) {
+                            codeInput.classList.add("border-red-500");
+                            return;
+                          }
+
+                          try {
+                            const verifyRes = await validate2FALoginRequest("", code, res.tempToken);
+                            const { accessToken, refreshToken } = verifyRes;
+                            
+                            sessionStorage.setItem("token", accessToken);
+                            if (refreshToken) sessionStorage.setItem("refreshToken", refreshToken);
+
+                            document.body.removeChild(modal);
+                            showToast(t("login_success"), "success");
+                            await navigate("/home");
+                          } catch (err: any) {
+                              showToast(err.message || t("invalid_code"), "error");
+                              codeInput.value = "";
+                              codeInput.focus();
+                          }
+                      };
+
+                      verifyBtn?.addEventListener("click", handleVerify);
+                      codeInput.addEventListener("keypress", (e) => {
+                          if (e.key === "Enter") handleVerify();
+                      });
+
+                      // Allow closing by clicking outside
+                      modal.addEventListener("click", (e) => {
+                           if (e.target === modal) document.body.removeChild(modal);
+                      });
+
+                      return;
+                  }
+
                   const { accessToken, refreshToken } = res;
                   
                   if (!accessToken) throw new Error(t("no_token_error"));
                   
-                  // Google login is always treated as "remember me" or we can default to session
+                  // Google login defaults to session storage
                   sessionStorage.setItem("token", accessToken);
                   if (refreshToken) sessionStorage.setItem("refreshToken", refreshToken);
                   

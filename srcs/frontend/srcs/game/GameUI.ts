@@ -148,7 +148,7 @@ export class GameUI {
 
                 <div id="tournamentMatchScreen" style="display: none; text-align: center;">
                     <h2 style="margin-bottom: 10px; color: #aaa;">${t("tournament_round")} <span id="tourneyRoundDisplay">1</span></h2>
-                    <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px; color: white; direction: ltr;">A vs B</h1>
+                    <h1 id="matchupText" style="font-size: 40px; margin-bottom: 30px; color: white; direction: ltr;"></h1>
                     <button id="btnViewBracketMatch" class="btn" style="margin-bottom: 20px; font-size: 14px; display: block; margin-left: auto; margin-right: auto;">${t("view_bracket")}</button>
                     <button id="btnStartMatch" class="btn" style="border-color: #0f0; color: #0f0; padding: 15px 30px; font-size: 20px;">${t("start_match")}</button>
                 </div>
@@ -168,7 +168,7 @@ export class GameUI {
                 </div>
 
                 <div id="gameOverScreen" style="display: none; text-align: center;">
-                    <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff; unicode-bidi: plaintext;">PLAYER 1 WINS</h1>
+                    <h1 id="winnerText" style="font-size: 50px; margin-bottom: 20px; color: #0ff; unicode-bidi: plaintext;"></h1>
                     <p style="color: #aaa; margin-bottom: 30px;">${t("press_enter")}</p>
                 </div>
 

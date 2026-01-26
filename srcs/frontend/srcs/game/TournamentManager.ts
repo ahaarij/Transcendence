@@ -108,7 +108,7 @@ export class TournamentManager {
         while (nextCount >= 1) {
             let roundMatches: VisualMatch[] = [];
             for (let k = 0; k < nextCount; k++) {
-                roundMatches.push({ p1: "TBD", p2: "TBD", winner: null });
+                roundMatches.push({ p1: t("tbd"), p2: t("tbd"), winner: null });
             }
             this.visualBracket.push(roundMatches);
             nextCount /= 2;
@@ -195,7 +195,7 @@ public renderBracket(container: HTMLElement) {
     const vsDiv = document.createElement('div');
     vsDiv.style.fontSize = '10px';
     vsDiv.style.color = '#888';
-    vsDiv.textContent = 'VS';
+    vsDiv.textContent = t("vs");
 
     const p2Div = document.createElement('div');
     p2Div.style.fontSize = '14px';
@@ -310,14 +310,14 @@ public renderBracket(container: HTMLElement) {
         p1.className = 'player-slot';
         p1.dir = 'auto';
         p1.style.textAlign = 'center';
-        p1.innerText = match.p1 || 'TBD';
+        p1.innerText = match.p1 || t("tbd");
         if (match.winner === match.p1 && match.winner) p1.classList.add('winner');
 
         const p2 = document.createElement('div');
         p2.className = 'player-slot';
         p2.dir = 'auto';
         p2.style.textAlign = 'center';
-        p2.innerText = match.p2 || 'TBD';
+        p2.innerText = match.p2 || t("tbd");
         if (match.winner === match.p2 && match.winner) p2.classList.add('winner');
 
         box.appendChild(p1);

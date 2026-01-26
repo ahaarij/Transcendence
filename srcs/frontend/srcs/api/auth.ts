@@ -79,14 +79,18 @@ export function verify2FARequest(code: string) {
     });
 }
 
-export function validate2FALoginRequest(email: string, code: string) {
+export function validate2FALoginRequest(email: string, code: string, tempToken?: string) {
+    const body: any = { code };
+    if (email) body.email = email;
+    if (tempToken) body.tempToken = tempToken;
+    
     return apiRequest("/auth/2fa/validate", {
         method: "POST",
-        body: JSON.stringify({ email, code })
+        body: JSON.stringify(body)
     });
 }
 
-export function disable2FARequest(code: string, password: string) {
+export function disable2FARequest(code: string, password?: string) {
     return apiRequest("/auth/2fa/disable", {
         method: "POST",
         body: JSON.stringify({ code, password })

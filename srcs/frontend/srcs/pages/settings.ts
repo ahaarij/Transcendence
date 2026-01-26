@@ -150,7 +150,7 @@ export async function mountSettingsPage() {
                         enableBtn.classList.add("hidden");
                         document.getElementById("disable2FABtn")?.classList.remove("hidden");
                     } catch (error: any) {
-                        showToast(error.message || t("invalid_code"), "error");
+                        showToast(t(error.message) || t("invalid_code"), "error");
                     }
                 });
             } catch (error) {
@@ -159,9 +159,18 @@ export async function mountSettingsPage() {
         });
     }
 
-    const disableBtn = document.getElementById("disable2FABtn");
+    let disableBtn = document.getElementById("disable2FABtn");
     if (disableBtn) {
+        // Remove existing listeners
+        const newDisableBtn = disableBtn.cloneNode(true);
+        if (disableBtn.parentNode) {
+            disableBtn.parentNode.replaceChild(newDisableBtn, disableBtn);
+        }
+        disableBtn = newDisableBtn as HTMLElement;
+
         disableBtn.addEventListener("click", () => {
+            const hasPassword = currentUser?.hasPassword;
+
             const modal = document.createElement("div");
             modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
             modal.innerHTML = `
@@ -169,12 +178,14 @@ export async function mountSettingsPage() {
                     <h3 class="text-2xl font-cyber font-bold text-red-500 mb-4 tracking-widest">${t("disable_2fa")}</h3>
                     <p class="text-gray-300 mb-6 text-sm leading-relaxed">${t("enter_password_code_disable_2fa")}</p>
                     
+                    ${hasPassword ? `
                     <div class="mb-4">
                         <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("password")}</label>
                         <input type="password" id="disable2FAPassword" 
                             class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-red-500 focus:shadow-[0_0_10px_rgba(220,38,38,0.2)] transition-all"
                             placeholder="${t("password")}" />
                     </div>
+                    ` : ''}
 
                     <div class="mb-6">
                         <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("2fa_code")}</label>
@@ -196,13 +207,32 @@ export async function mountSettingsPage() {
             document.body.appendChild(modal);
 
             const close = () => modal.remove();
-            document.getElementById("cancelDisable2FA")?.addEventListener("click", close);
+            
+            // Wait for DOM update
+            setTimeout(() => {
+                const cancelBtn = modal.querySelector("#cancelDisable2FA");
+                cancelBtn?.addEventListener("click", close);
 
-            document.getElementById("confirmDisable2FA")?.addEventListener("click", async () => {
-                const password = (document.getElementById("disable2FAPassword") as HTMLInputElement).value;
-                const code = (document.getElementById("disable2FACode") as HTMLInputElement).value;
+                // Add backdrop click listener
+                modal.addEventListener("click", (e) => {
+                    if (e.target === modal) close();
+                });
+            }, 0);
 
-                if (!password || !code) {
+            modal.querySelector("#confirmDisable2FA")?.addEventListener("click", async () => {
+                let password = "";
+                if (hasPassword) {
+                     const passwordInput = modal.querySelector("#disable2FAPassword") as HTMLInputElement;
+                     password = passwordInput?.value || "";
+                     if (!password) {
+                         showToast(t("fill_all_fields"), "error"); 
+                         return;
+                     }
+                }
+                const codeInput = modal.querySelector("#disable2FACode") as HTMLInputElement;
+                const code = codeInput?.value || "";
+
+                if (!code) {
                     showToast(t("fill_all_fields"), "error");
                     return;
                 }
@@ -214,7 +244,7 @@ export async function mountSettingsPage() {
                     document.getElementById("enable2FABtn")?.classList.remove("hidden");
                     close();
                 } catch (error: any) {
-                    showToast(error.message || t("disable_2fa_failed"), "error");
+                    showToast(t(error.message) || t("disable_2fa_failed"), "error");
                 }
             });
         });
@@ -230,10 +260,18 @@ export async function mountSettingsPage() {
         });
     }
 
-    const deleteBtn = document.getElementById("deleteAccountBtn");
+    let deleteBtn = document.getElementById("deleteAccountBtn");
     if (deleteBtn) {
+        // Cloning the node removes all event listeners to prevent duplicates
+        const newDeleteBtn = deleteBtn.cloneNode(true);
+        if (deleteBtn.parentNode) {
+            deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+        }
+        deleteBtn = newDeleteBtn as HTMLElement;
+
         deleteBtn.addEventListener("click", () => {
             const hasPassword = currentUser?.hasPassword;
+            const is2FA = currentUser?.twoFactorEnabled;
             
             const modal = document.createElement("div");
             modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
@@ -248,6 +286,15 @@ export async function mountSettingsPage() {
                         <input type="password" id="deleteConfirmPassword" 
                             class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-red-500 focus:shadow-[0_0_10px_rgba(220,38,38,0.2)] transition-all"
                             placeholder="${t("password")}" />
+                    </div>
+                    ` : ''}
+
+                    ${!hasPassword && is2FA ? `
+                    <div class="mb-6">
+                        <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("verification_code")}</label>
+                        <input type="text" id="delete2FACode" 
+                            class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-red-500 focus:shadow-[0_0_10px_rgba(220,38,38,0.2)] transition-all text-center tracking-[0.5em] text-xl"
+                            placeholder="000000" maxlength="6" />
                     </div>
                     ` : ''}
 
@@ -270,6 +317,8 @@ export async function mountSettingsPage() {
 
             confirmBtn?.addEventListener("click", async () => {
                 let password = "";
+                let code = "";
+
                 if (hasPassword) {
                     const passwordInput = modal.querySelector("#deleteConfirmPassword") as HTMLInputElement;
                     password = passwordInput.value;
@@ -277,16 +326,23 @@ export async function mountSettingsPage() {
                         passwordInput.classList.add("border-red-500");
                         return;
                     }
+                } else if (is2FA) {
+                    const codeInput = modal.querySelector("#delete2FACode") as HTMLInputElement;
+                    code = codeInput.value;
+                    if (code.length !== 6) {
+                        codeInput.classList.add("border-red-500");
+                        return;
+                    }
                 }
 
                 try {
-                    await deleteAccount(password);
+                    await deleteAccount(password, code);
                     document.body.removeChild(modal);
                     localStorage.removeItem("token");
                     sessionStorage.removeItem("token");
                     navigate("/register");
-                } catch (error) {
-                    alert(t("delete_account_failed"));
+                } catch (error: any) {
+                    showToast(t(error.message) || t("delete_account_failed"), "error");
                 }
             });
 

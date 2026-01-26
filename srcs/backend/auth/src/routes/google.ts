@@ -70,6 +70,22 @@ export async function googleLogin(app: FastifyInstance, request: any, reply: any
       });
     }
 
+    // 2FA check
+    if (user.twoFactorEnabled) {
+      // 2fa is enabled
+      // generate a temp token valid for 2fa verification only
+        const tempToken = await app.jwt.sign(
+            { userId: user.id, is2FA: true },
+            { expiresIn: "5m" }
+        );
+
+        return reply.send({
+            is2FARequired: true,
+            tempToken,
+            message: "2fa verification required"
+        });
+    }
+
     const accessToken = await generateAccessToken(app, user.id); //create access token
     const refreshToken = await generateRefreshToken(app, user.id); //create refresh token
 

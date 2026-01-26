@@ -527,7 +527,7 @@ export class GameApp {
             p1Span.dir = 'auto';
             p1Span.textContent = match.player1;
             
-            const vsText = document.createTextNode('  VS  ');
+            const vsText = document.createTextNode(` ${t('vs')} `);
             
             const p2Span = document.createElement('span');
             p2Span.dir = 'auto';

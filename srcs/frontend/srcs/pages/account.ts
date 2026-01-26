@@ -30,7 +30,7 @@ export function AccountPage() {
             </div>
           </div>
           <h2 id="usernameDisplay" class="text-2xl font-bold text-white font-cyber tracking-wide">${t("loading")}</h2>
-          <p id="userIdDisplay" class="text-sm text-gray-500 font-mono">ID: ...</p>
+          <p id="userIdDisplay" class="text-sm text-gray-500 font-mono">${t("id_label")}: ...</p>
         </div>
 
         <div class="flex flex-col gap-4 border-t border-white/10 pt-4">
@@ -75,7 +75,7 @@ export function mountAccountPage() {
           const user = res.user;
           if (user) {
             if (usernameDisplay) usernameDisplay.textContent = user.username;
-            if (userIdDisplay) userIdDisplay.textContent = `ID: ${user.id}`;
+            if (userIdDisplay) userIdDisplay.textContent = `${t("id_label")}: ${user.id}`;
             if (emailDisplay) emailDisplay.textContent = user.email;
             
             if (createdAtDisplay && user.createdAt) {

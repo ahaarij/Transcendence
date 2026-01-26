@@ -112,10 +112,10 @@ export async function disable2FA(app: FastifyInstance, request: FastifyRequest, 
     const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets totp code and password from request body
-    const { code, password } = request.body as { code: string; password: string };
+    const { code, password } = request.body as { code: string; password?: string };
 
-    if (!code || !password) {
-      return reply.status(400).send({ error: "code and password required" });
+    if (!code) {
+      return reply.status(400).send({ error: "code required" });
     }
 
     // finds user in database
@@ -127,12 +127,17 @@ export async function disable2FA(app: FastifyInstance, request: FastifyRequest, 
       return reply.status(400).send({ error: "2fa not enabled" });
     }
 
-    // verifies password
-    const bcrypt = await import('bcrypt');
-    const validPassword = await bcrypt.compare(password, user.password || '');
-    
-    if (!validPassword) {
-      return reply.status(401).send({ error: "invalid password" });
+    // verifies password ONLY if user has one
+    if (user.password) {
+        if (!password) {
+             return reply.status(400).send({ error: "password required" });
+        }
+        const bcrypt = await import('bcrypt');
+        const validPassword = await bcrypt.compare(password, user.password);
+        
+        if (!validPassword) {
+            return reply.status(401).send({ error: "invalid password" });
+        }
     }
 
     // verifies the totp code
@@ -162,16 +167,31 @@ export async function disable2FA(app: FastifyInstance, request: FastifyRequest, 
 export async function validate2FALogin(app: FastifyInstance, request: FastifyRequest, reply: FastifyReply) {
   try {
     // gets email and totp code from request
-    const { email, code } = request.body as { email: string; code: string };
+    const { email, code, tempToken } = request.body as { email?: string; code: string; tempToken?: string };
 
-    if (!email || !code) {
-      return reply.status(400).send({ error: "email and code required" });
+    if (!code) {
+      return reply.status(400).send({ error: "code required" });
     }
 
-    // finds user by email
-    const user = await app.prisma.user.findUnique({
-      where: { email },
-    });
+    let user;
+
+    if (tempToken) {
+      try {
+        const decoded = await app.jwt.verify(tempToken) as { userId: string };
+        user = await app.prisma.user.findUnique({
+          where: { id: decoded.userId },
+        });
+      } catch (err) {
+        return reply.status(400).send({ error: "invalid or expired temp token" });
+      }
+    } else if (email) {
+      // finds user by email
+      user = await app.prisma.user.findUnique({
+        where: { email },
+      });
+    } else {
+      return reply.status(400).send({ error: "email or tempToken required" });
+    }
 
     if (!user || !user.twoFactorEnabled || !user.twoFactorSecret) {
       return reply.status(400).send({ error: "invalid request" });
