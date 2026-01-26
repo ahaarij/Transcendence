@@ -346,7 +346,10 @@ export class FourPlayerManager {
             const livesEl = infoBox.querySelector('.player-lives') as HTMLElement;
             const controlsEl = infoBox.querySelector('.player-controls') as HTMLElement;
 
-            if (nameEl) nameEl.textContent = player.name;
+            if (nameEl) {
+                nameEl.dir = 'auto';
+                nameEl.textContent = player.name;
+            }
             if (controlsEl) controlsEl.textContent = controlMap[side];
             if (livesEl){
                 if (player.isEliminated) {

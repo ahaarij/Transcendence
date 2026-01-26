@@ -23,6 +23,11 @@ export class FourPlayerRenderer {
     private readonly LIFE_FULL_COLOR: string = "#00ff00";
     private readonly LIFE_LOST_COLOR: string = "#333333";
 
+    private isRTL(text: string): boolean {
+        const rtlPattern = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+        return rtlPattern.test(text);
+    }
+
     constructor(canvas: HTMLCanvasElement, paddleLength: number = FOUR_PLAYER_PADDLE_LENGTH) {
         this.context = canvas;
         this.paddleLength = paddleLength;
@@ -41,7 +46,6 @@ export class FourPlayerRenderer {
         this.drawCenterLines();
         this.drawPaddles(state);
         this.drawBall(state.ball.x, state.ball.y);
-        // this.drawPlayerInfo(state);
     }
 
     private clearCanvas(): void {
@@ -262,7 +266,9 @@ export class FourPlayerRenderer {
 
         this.ctx.fillStyle = "#FFFFFF";
         this.ctx.font = "bold 36px monospace";
+        this.ctx.direction = this.isRTL(winnerName) ? 'rtl' : 'ltr';
         this.ctx.fillText(winnerName, center, center + 10);
+        this.ctx.direction = 'ltr'; // Reset to default
 
         this.ctx.fillStyle = "#AAAAAA";
         this.ctx.font = "18px monospace";

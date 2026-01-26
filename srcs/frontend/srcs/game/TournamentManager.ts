@@ -24,7 +24,7 @@ export class TournamentManager {
         firstInput.value = currentUsername;
         firstInput.id = `player1`;
         firstInput.disabled = true;
-        firstInput.style.cssText = "padding: 10px; background: #333; color:#888; border: 2px solid #555; border-radius: 5px; font-family: monospace; cursor: not-allowed;";
+        firstInput.style.cssText = "padding: 10px; background: #333; color:#888; border: 2px solid #555; border-radius: 5px; font-family: monospace; cursor: not-allowed; unicode-bidi: plaintext;";
 
         const error1= document.createElement("span");
         error1.id = "error1";
@@ -41,7 +41,7 @@ export class TournamentManager {
             input.placeholder = `${t("player_name_placeholder")} ${i}`;
             input.id = `player${i}`;
             input.maxLength = 15;
-            input.style.cssText = "padding: 10px; background: #222; color:#fff; border: 2px solid #555; border-radius: 5px; font-family: monospace;";
+            input.style.cssText = "padding: 10px; background: #222; color:#fff; border: 2px solid #555; border-radius: 5px; font-family: monospace; unicode-bidi: plaintext;";
             const errorSpan= document.createElement("span");
             errorSpan.id = `error${i}`;
             errorSpan.style.cssText = "color: #ff4444; font-size: 12px; margin-top: 5px; display: none;";
@@ -189,6 +189,7 @@ public renderBracket(container: HTMLElement) {
 
     const p1Div = document.createElement('div');
     p1Div.style.fontSize = '14px';
+    p1Div.dir = 'auto';
     p1Div.textContent = finalMatch.p1 || '?';
 
     const vsDiv = document.createElement('div');
@@ -198,6 +199,7 @@ public renderBracket(container: HTMLElement) {
 
     const p2Div = document.createElement('div');
     p2Div.style.fontSize = '14px';
+    p2Div.dir = 'auto';
     p2Div.textContent = finalMatch.p2 || '?';
 
     finalBox.appendChild(titleDiv);
@@ -306,11 +308,15 @@ public renderBracket(container: HTMLElement) {
 
         const p1 = document.createElement('div');
         p1.className = 'player-slot';
+        p1.dir = 'auto';
+        p1.style.textAlign = 'center';
         p1.innerText = match.p1 || 'TBD';
         if (match.winner === match.p1 && match.winner) p1.classList.add('winner');
 
         const p2 = document.createElement('div');
         p2.className = 'player-slot';
+        p2.dir = 'auto';
+        p2.style.textAlign = 'center';
         p2.innerText = match.p2 || 'TBD';
         if (match.winner === match.p2 && match.winner) p2.classList.add('winner');
 
