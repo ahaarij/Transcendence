@@ -793,7 +793,11 @@ export class GameApp {
         }
     }
 
-    private start4playerGame(names: {top: string; bottom: string; left: string; right: string;}) {
+    private start4playerGame(
+        names: {top: string; bottom: string; left: string; right: string;},
+        paddleSize: number,
+        ballSpeed: number
+    ) {
         this.uiLayer.style.display = "none";
         this.canvas.style.display = "none";
         this.fourPlayerManager = new FourPlayerManager(
@@ -817,7 +821,9 @@ export class GameApp {
                 this.gameMode = 'PvP';
                 this.aiOptions.style.display = "none";
                 this.pvpOptions.style.display = "block";
-            }
+            },
+            paddleSize,
+            ballSpeed
         );
     }
 }

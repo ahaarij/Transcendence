@@ -76,8 +76,11 @@ export async function mountSettingsPage() {
     const globalLangBtn = document.getElementById("langSwitch");
     if (globalLangBtn) globalLangBtn.style.display = "none";
 
+    let currentUser: any = null;
+
     try {
         const res = await meRequest();
+        currentUser = res.user;
         const enableBtn = document.getElementById("enable2FABtn");
         const disableBtn = document.getElementById("disable2FABtn");
         
@@ -230,6 +233,8 @@ export async function mountSettingsPage() {
     const deleteBtn = document.getElementById("deleteAccountBtn");
     if (deleteBtn) {
         deleteBtn.addEventListener("click", () => {
+            const hasPassword = currentUser?.hasPassword;
+            
             const modal = document.createElement("div");
             modal.className = "fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm";
             modal.innerHTML = `
@@ -237,12 +242,14 @@ export async function mountSettingsPage() {
                     <h3 class="text-2xl font-cyber font-bold text-red-500 mb-4 tracking-widest">${t("delete_account")}</h3>
                     <p class="text-gray-300 mb-6 text-sm leading-relaxed">${t("confirm_delete_account")}</p>
                     
+                    ${hasPassword ? `
                     <div class="mb-6">
                         <label class="block mb-2 font-semibold text-gray-400 text-xs tracking-wide uppercase">${t("password")}</label>
                         <input type="password" id="deleteConfirmPassword" 
                             class="w-full bg-black/30 border border-white/10 text-white p-3 rounded focus:outline-none focus:border-red-500 focus:shadow-[0_0_10px_rgba(220,38,38,0.2)] transition-all"
                             placeholder="${t("password")}" />
                     </div>
+                    ` : ''}
 
                     <div class="flex gap-3">
                         <button id="cancelDeleteBtn" class="flex-1 bg-white/5 border border-white/10 text-gray-300 py-3 rounded hover:bg-white/10 transition font-cyber text-sm tracking-widest">
@@ -260,13 +267,16 @@ export async function mountSettingsPage() {
                 document.body.removeChild(modal);
             });
             const confirmBtn = modal.querySelector("#confirmDeleteBtn");
-            const passwordInput = modal.querySelector("#deleteConfirmPassword") as HTMLInputElement;
 
             confirmBtn?.addEventListener("click", async () => {
-                const password = passwordInput.value;
-                if (!password) {
-                    passwordInput.classList.add("border-red-500");
-                    return;
+                let password = "";
+                if (hasPassword) {
+                    const passwordInput = modal.querySelector("#deleteConfirmPassword") as HTMLInputElement;
+                    password = passwordInput.value;
+                    if (!password) {
+                        passwordInput.classList.add("border-red-500");
+                        return;
+                    }
                 }
 
                 try {

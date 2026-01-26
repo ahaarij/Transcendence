@@ -69,7 +69,7 @@ export class GameUI {
                 backdrop-filter: blur(2px);
             ">
                 <div id="mainMenu" style="text-align: center;">
-                    <h1 style="font-size: 60px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px #fff;">KING KONG PONG</h1>
+                    <h1 style="font-size: 60px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px #fff;">${t("app_title")}</h1>
                     <div style="margin-bottom: 20px;">
                         <p style="color: #aaa; margin-bottom: 5px;">${t("select_mode")}</p>
                         <button id="btnPvP" class="btn selected">${t("2_players")}</button>

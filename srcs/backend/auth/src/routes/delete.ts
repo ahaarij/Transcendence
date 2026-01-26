@@ -15,11 +15,7 @@ export async function deleteAccount(app: FastifyInstance, request: FastifyReques
     const decoded = app.jwt.verify(token) as { userId: string };
 
     // gets password from request body for confirmation
-    const { password } = request.body as { password: string };
-
-    if (!password) {
-      return reply.status(400).send({ error: "password required to delete account" });
-    }
+    const { password } = request.body as { password?: string };
 
     // finds user in database
     const user = await app.prisma.user.findUnique({
@@ -30,8 +26,12 @@ export async function deleteAccount(app: FastifyInstance, request: FastifyReques
       return reply.status(404).send({ error: "user not found" });
     }
 
-    // verifies password before deletion
+    // verifies password before deletion ONLY if user has a password
     if (user.password) {
+      if (!password) {
+        return reply.status(400).send({ error: "password required to delete account" });
+      }
+
       const validPassword = await comparePassword(password, user.password);
       
       if (!validPassword) {

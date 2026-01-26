@@ -13,7 +13,7 @@ export function updateProfile(data: { username?: string; avatar?: string }) {
     });
 }
 
-export function deleteAccount(password: string) {
+export function deleteAccount(password?: string) {
     return apiRequest("/auth/account", {
         method: "DELETE",
         body: JSON.stringify({ password })

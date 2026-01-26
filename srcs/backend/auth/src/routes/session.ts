@@ -36,21 +36,24 @@ export async function getCurrentUser(app: FastifyInstance, request: any, reply: 
 
     const user = await app.prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        avatar: true,
-        createdAt: true,
-        twoFactorEnabled: true,
-      },
     });
 
     if (!user) {
       return reply.status(404).send({ error: "user not found" }); //user deleted
     }
 
-    return reply.send({ user });
+    // returns user profile data without sensitive info
+    return reply.send({ 
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        createdAt: user.createdAt,
+        twoFactorEnabled: user.twoFactorEnabled,
+        hasPassword: !!user.password
+      }
+    });
   } catch (err) {
     console.error(err);
     return reply.status(401).send({ error: "invalid or expired token" }); //token verification failed

@@ -20,7 +20,7 @@ export function AccountPage() {
         <!-- Profile Picture -->
         <div class="flex flex-col items-center relative group">
           <div class="w-32 h-32 rounded-full bg-black/50 border-2 border-[#00f3ff] overflow-hidden mb-4 shadow-[0_0_15px_rgba(0,243,255,0.3)] relative">
-            <img id="profilePic" src="https://via.placeholder.com/150" alt="Profile" class="w-full h-full object-cover" />
+            <img id="profilePic" src="https://via.placeholder.com/150" alt="Profile" class="w-full h-full object-cover" referrerpolicy="no-referrer" />
             
             <input type="file" id="avatarInput" accept="image/*" class="hidden" />
             
@@ -85,6 +85,16 @@ export function mountAccountPage() {
 
             if (profilePic) {
                 profilePic.src = getAvatarUrl(user.avatar);
+            }
+
+            // Hide change password button if user has no password (e.g. Google auth)
+            const changePasswordBtn = document.getElementById("changePasswordBtn");
+            if (changePasswordBtn) {
+              if (user.hasPassword === false) {
+                changePasswordBtn.style.display = "none";
+              } else {
+                changePasswordBtn.style.display = "block";
+              }
             }
           }
         })

@@ -35,7 +35,7 @@ export class FourPlayerManager {
     constructor(
         container: HTMLElement,
         playerNames: {top: string; bottom: string; left: string; right: string;},
-        userId: number | null = null,
+        userId: string | null = null,
         onGameEnd? : () => void,
         paddleLength?: number,
         ballSpeed?: number
@@ -45,7 +45,7 @@ export class FourPlayerManager {
         this.userId = userId;
         this.canvas = this.createCanvas();
         this.engine = new FourPlayerEngine(playerNames, paddleLength, ballSpeed);
-        this.renderer = new FourPlayerRenderer(this.canvas);
+        this.renderer = new FourPlayerRenderer(this.canvas, paddleLength);
         this.input = new FourPlayerInput();
 
         this.setupEventListeners();

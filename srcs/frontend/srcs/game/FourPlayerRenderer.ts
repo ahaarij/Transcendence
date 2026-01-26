@@ -13,6 +13,7 @@ export class FourPlayerRenderer {
     private context: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private boardSize: number = FOUR_PLAYER_BOARD_SIZE;
+    private paddleLength: number = FOUR_PLAYER_PADDLE_LENGTH;
 
     private readonly BOARD_COLOR: string = "#1a1a1a";
     private readonly PADDLE_COLOR: string = "#ffffff";
@@ -22,8 +23,9 @@ export class FourPlayerRenderer {
     private readonly LIFE_FULL_COLOR: string = "#00ff00";
     private readonly LIFE_LOST_COLOR: string = "#333333";
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, paddleLength: number = FOUR_PLAYER_PADDLE_LENGTH) {
         this.context = canvas;
+        this.paddleLength = paddleLength;
         const context = canvas.getContext("2d");
         if (!context) {
             throw new Error("Could not get canvas context");
@@ -77,7 +79,7 @@ export class FourPlayerRenderer {
             state.players.top.position.x,
             state.players.top.position.y,
             FOUR_PLAYER_PADDLE_WIDTH,
-            FOUR_PLAYER_PADDLE_LENGTH,
+            this.paddleLength,
             state.players.top.isEliminated
         );
 
@@ -85,14 +87,14 @@ export class FourPlayerRenderer {
             state.players.bottom.position.x,
             state.players.bottom.position.y,
             FOUR_PLAYER_PADDLE_WIDTH,
-            FOUR_PLAYER_PADDLE_LENGTH,
+            this.paddleLength,
             state.players.bottom.isEliminated
         );
 
         this.drawPaddle(
             state.players.left.position.x,
             state.players.left.position.y,
-            FOUR_PLAYER_PADDLE_LENGTH,
+            this.paddleLength,
             FOUR_PLAYER_PADDLE_WIDTH,
             state.players.left.isEliminated
         );
@@ -100,7 +102,7 @@ export class FourPlayerRenderer {
         this.drawPaddle(
             state.players.right.position.x,
             state.players.right.position.y,
-            FOUR_PLAYER_PADDLE_LENGTH,
+            this.paddleLength,
             FOUR_PLAYER_PADDLE_WIDTH,
             state.players.right.isEliminated
         );
