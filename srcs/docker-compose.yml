@@ -15,38 +15,99 @@ services:
     networks:
       - transcendence-network
     depends_on:
-      - backend
+      - auth
+      - user
+      - game
       - frontend
     restart: unless-stopped
 
-  # Backend Service (Combined Auth + User on port 3000)
-  backend:
+  # Auth Service - handles authentication and 2FA
+  auth:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: transcendence-backend
+      dockerfile: auth/Dockerfile
+    container_name: transcendence-auth
     expose:
-      - "3000"  # only exposed internally to nginx
+      - "3001"  # only exposed internally to nginx
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:./prisma/dev.db
-      - PORT=3000
+      - PORT=3001
+      - DATABASE_URL=file:/app/data/dev.db
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - CORS_ORIGIN=https://localhost:8443
     volumes:
+      - sqlite-data:/app/data
+      - ./backend/prisma:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # User Service - manages user profiles and avatars
+  user:
+    build:
+      context: ./backend
+      dockerfile: user/Dockerfile
+    container_name: transcendence-user
+    expose:
+      - "3002"  # only exposed internally to nginx
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - DATABASE_URL=file:/app/data/dev.db
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - AUTH_SERVICE_URL=http://auth:3001
+      - CORS_ORIGIN=https://localhost:8443
+    volumes:
+      - sqlite-data:/app/data
       - ./backend/prisma:/app/prisma
       - ./backend/public:/app/public
     networks:
       - transcendence-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/auth/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/user/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      - auth
+
+  # Game Service - records match results and stats
+  game:
+    build:
+      context: ./backend
+      dockerfile: game/Dockerfile
+    container_name: transcendence-game
+    expose:
+      - "3003"  # only exposed internally to nginx
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DATABASE_URL=file:/app/data/dev.db
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - AUTH_SERVICE_URL=http://auth:3001
+      - CORS_ORIGIN=https://localhost:8443
+    volumes:
+      - sqlite-data:/app/data
+      - ./backend/prisma:/app/prisma
+    networks:
+      - transcendence-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3003/game/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - auth
 
   # Frontend Service
   frontend:
@@ -66,7 +127,9 @@ services:
       - /app/node_modules
     restart: unless-stopped
     depends_on:
-      - backend
+      - auth
+      - user
+      - game
 
   # WebSocket Gateway Service
   ws-gateway:
@@ -80,13 +143,18 @@ services:
       - NODE_ENV=production
       - WS_PORT=3004
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - AUTH_SERVICE_URL=http://auth:3001
     networks:
       - transcendence-network
     restart: unless-stopped
     depends_on:
-      - backend
+      - auth
 
 networks:
   transcendence-network:
     driver: bridge
+
+volumes:
+  sqlite-data:
+    driver: local
 

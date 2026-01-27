@@ -16,7 +16,8 @@ COPY shared/ ./shared/
 COPY prisma/ ./prisma/
 COPY prisma.config.ts ./
 
-# generates prisma client
+# generates prisma client (dummy DATABASE_URL for build time only)
+ENV DATABASE_URL="file:/app/data/dev.db"
 RUN npx prisma generate
 
 # exposes user service port
